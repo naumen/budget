@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+komandirovka_b_d_cfo_1:
+  budget: b_d_cfo_1
+  name: Командировки
+  f_year: 2018
+
+premii_b_d_cfo_1:
+  budget: b_d_cfo_1
+  spr_stat_zatrs: premii
+  name: Премии
+  f_year: 2018
+
+fot_stat_zatr:
+  id: 12345
+  budget: b_d_cfo_1_fzp_next
+  spr_stat_zatrs: rost_fot
+  name: Резерв на ФОТ
+  f_year: 2019

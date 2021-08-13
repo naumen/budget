@@ -1,0 +1,75 @@
+- if @sale.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @sale.errors.full_messages.each do |message|
+        %li= message
+
+
+= form_for @sale do |f|
+  .row.m-2
+    .col-2
+      %label
+        %b= t('sales.form.budget_id')
+    .col-8
+      - if params[:budget_id]
+        - @budgets.each do |budget|
+          - if params[:budget_id].to_i == budget.id
+            %input{:type => "hidden", :name => 'sale[budget_id]', :value => budget.id}
+            %input{ :value => budget.name, :class => 'form-control', disabled: true }
+      - else
+        %select{ name: 'sale[budget_id]', id: 'budget_id', class: 'form-control'}
+          - @budgets.each do |budget|
+            %option{ value: budget.id, selected: @sale.budget_id == budget.id || params[:budget_id].to_i == budget.id ? true : false }
+              = ('&nbsp;&nbsp;.&nbsp;&nbsp;' * budget.level).html_safe
+              = budget.name
+
+  .row.m-2
+    .col-2
+      %label= t('sales.form.sales_channel')
+      = link_to(image_tag("add.png", width: "24px", title: "Создать новый канал продаж"), new_sale_channel_path)
+
+    .col-8
+      %select{ :name => 'sale[sale_channel_id]', :class => 'form-control'}
+        %option
+        - @sales_channels.each do |sales_channel|
+          %option{ :value => sales_channel.id, :selected => @sale.sale_channel_id == sales_channel.id  ? true : false }
+            = sales_channel.name
+
+
+  .row.m-2
+    .col-2
+      %label= t('sales.form.user_id')
+    = render('shared/form_elements/users_selected', users: @users, object: @sale, name: 'sale[user_id]')
+
+    -#.col-8
+    -#  %select{ :name => 'sale[user_id]', :class => 'form-control'}
+    -#    %option
+    -#    - @users.each do |user|
+    -#      %option{ :value => user.id, :selected => @sale.user_id == user.id ? true : false }
+    -#        = user.name
+    -#
+  .row.m-2
+    .col-2
+      %label= t('sales.form.quarter')
+    .col-8
+      %select{ :name => 'sale[quarter]', :class => 'form-control'}
+        %option
+        - (1..4).each do |kvartal|
+          %option{ :value => kvartal, :selected => @sale.quarter == kvartal ? true : false }
+            = kvartal
+  .row.m-2
+    .col-2
+      %label= t('sales.form.summ')
+    .col-8
+      %input{ :name => 'sale[summ]', :class => 'form-control', :value => @sale.summ }
+
+  .row.m-2
+    .col-2
+      %label= t('sales.form.name')
+    .col-8
+      %input{ :name => 'sale[name]', :class => 'form-control', :value => @sale.name }
+  
+  .row.m-2
+    = f.submit t('common.save'), :class => 'btn btn-primary'
+    = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'

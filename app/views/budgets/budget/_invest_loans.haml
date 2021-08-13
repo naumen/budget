@@ -1,0 +1,29 @@
+- rows, itogo = @presenter.budget_invest_loans
+- unless rows.empty?
+  %h3 Инвест займы
+  %table.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th Наименование
+        %th Бюджет использования
+        %th Бюджет наполнения
+        %th сумма
+    - rows.each do |row|
+      %tr
+        %td
+          - if current_user.is_admin?
+            = link_to row.name, row
+          - else
+            = row.name
+        - if @budget == row.use_budget
+          %td= row.use_budget.name
+          %td= link_to row.credit_budget.name, row.credit_budget
+        - else
+          %td= link_to row.use_budget.name, row.use_budget
+          %td= row.credit_budget.name
+        %td.text-right= money(row.summ)
+    %tr.bg-secondary.font-weight-bold.text-white
+      %td
+      %td
+      %td
+      %td.text-right= money(itogo.summ)

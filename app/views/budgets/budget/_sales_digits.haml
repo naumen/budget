@@ -1,0 +1,30 @@
+- @_chart_data = {}
+%table#sale-rows.table.table-striped.table-bordered.table-sm
+  %thead
+    %tr.bg-primary.text-white
+      %th Наименование
+      %th ЦФО
+      %th Канал продаж
+      %th Квартал
+      %th Год
+      %th.text-right Сумма
+      %th СМ
+  - rows.each do |row|
+    - @_chart_data[row.name] = row.summ
+    %tr
+      %td= link_to row.name, Sale.find(row.id)
+      %td= row.cfo
+      %td= row.sale_channel
+      %td= row.quarter
+      %td= row.f_year
+      %td.text-right= money(row.summ)
+      %td= row.user
+  %tfoot
+    %tr
+      %td
+      %td
+      %td
+      %td
+      %td
+      %td.font-weight-bold.text-right= money(itogo.summ)
+      %td

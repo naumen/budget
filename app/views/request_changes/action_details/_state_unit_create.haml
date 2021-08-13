@@ -1,0 +1,18 @@
+%table
+  %tr
+    %td.text-right{style: "color: #909090; border: none"} Отдел
+    %td{style: "border: none"}= content["division"]
+  %tr
+    %td.text-right{style: "color: #909090; border: none"} Должность
+    %td{style: "border: none"}= content["position"]
+  %tr
+    %td.text-right{style: "color: #909090; border: none"} Локация
+    %td{style: "border: none"}= Location.find(content["location_id"]).name
+  %tr
+    %td.text-right{style: "color: #909090; border: none"} ФЗП
+    %td{style: "border: none"}
+      .row
+        .col
+          = content["salaries"].select{|s| s[0].to_i <= 6 }.map{|s| "#{StaffItemSalary.months[s[0].to_sym]}: #{s[1]}"}.join('<br>').html_safe
+        .col
+          = content["salaries"].select{|s| s[0].to_i > 6 }.map{|s| "#{StaffItemSalary.months[s[0].to_sym]}: #{s[1]}"}.join('<br>').html_safe

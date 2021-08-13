@@ -1,0 +1,19 @@
+- if @spr_stat_zatr.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @spr_stat_zatr.errors.full_messages.each do |message|
+        %li= message
+
+= form_for @spr_stat_zatr do |f|
+  .row.form-group
+    .col-2
+      Наименование
+    .col-8
+      %input{ :name => 'spr_stat_zatr[name]', :class => 'form-control', :value => @spr_stat_zatr.name }
+
+  .row.form-group
+    .col-2
+    .col-8
+      = f.submit t('common.save'), :class => 'btn btn-primary'
+      = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'

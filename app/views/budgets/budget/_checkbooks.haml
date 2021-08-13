@@ -1,0 +1,17 @@
+%h3 Чековые книжки
+
+%table.table.table-striped.table-bordered.table-sm
+  %thead
+    %tr.bg-primary.text-white
+      %th Наименование
+      %th Лимит
+      %th Кол-во чеков
+      %th Сумма чеков
+      %th Остаток на книжке
+  - @budget.checkbooks.each do |cb|
+    %tr
+      %td= link_to cb['name'], "#{Checkbook.url}/check_book/view/#{cb['id']}"
+      %td= money(cb['limit'])
+      %td= money(cb['check_cnt'])
+      %td= money(cb['check_summ'])
+      %td= money(cb['rest'])

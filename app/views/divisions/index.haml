@@ -1,0 +1,20 @@
+%h1 Штатное расписание Холдинга
+
+%table.table.table-striped.table-sm
+  %tr
+    %th Название
+    %th Кол-во шт.ед.
+    %th Вакант.
+    %th Кол-во незап. з/п
+    %th Кол-во незап. должн.
+    %th в т.ч. Пл. Земля
+  - @divisions.each do |division|
+    %tr
+      %td
+        = (".&nbsp;" * division.level).html_safe
+        = link_to division.name, division_path(division.id)
+      %td= division.staff_items.size
+      %td
+      %td
+      %td
+      %td

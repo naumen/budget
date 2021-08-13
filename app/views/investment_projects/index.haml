@@ -1,0 +1,55 @@
+.row
+  .col-12
+    %h2
+      - if @budget
+        = "Cписок инвестпроектов #{@budget.name}"
+      - else
+        = "Cписок инвестпроектов"
+      =link_to(image_tag("add.png", width: "36px", title: "Создать новый инвестпроект"), new_investment_project_path)
+      - if @budget
+        = link_to(image_tag("return.png", width: "36px", title: "Вернуться к бюджету"), @budget)
+%br/
+
+%table{ class: "table table-responsive" }
+  %thead
+    %tr.bg-info.font-weight-bold.text-white
+      %th Год выдачи
+      %th Наименование
+      %th Бюджет использования
+      %th Бюджет наполнения
+      %th
+        Сумма
+        - itogo = 0.0
+      %th Валюта
+      %th Ссылка на документ
+  %tbody
+    - @investment_projects.each do |investment_project|
+      %tr
+        %td
+          = investment_project.from_budget.f_year
+        %td
+          = link_to(investment_project.name, investment_project)
+        %td
+          = investment_project.from_budget.name
+        %td
+          = investment_project.to_budget.name
+        %td.text-right
+          = money investment_project.summ
+          - itogo += investment_project.summ
+        %td
+          = investment_project.currency
+        %td
+          - if investment_project.document
+            = link_to investment_project.document.original_file_name, investment_project.document, method: :get
+    %tr.bg-secondary.font-weight-bold.text-white
+      %td
+      %td
+      %td
+      %td.text-right
+        ИТОГО
+      %td.text-right
+        = money itogo
+      %td
+      %td
+
+= paginate @investment_projects

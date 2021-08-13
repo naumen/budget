@@ -1,0 +1,7 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+invest_company:
+  name: Инвестиционный компании
+
+invest_direction:
+  name: Инвестиционный направления

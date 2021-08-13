@@ -1,0 +1,86 @@
+<div style="width: 900; padding: 10px; background-color: rgb(240, 255, 240); border: 1px solid #e0e0e0">
+  <template v-if="save_message != ''">
+    {{save_message}}
+    <button class="btn" type="button" @click="cancelEdit()">Ок</button>
+  </template>
+  <template v-else>
+    <h3 v-if="is_new" style="color: #606060;">Новая бюджетная шт. единица</h3>
+    <table class="table table-sm" style="background-color: white">
+      <tr v-if="is_new">
+        <td align="right">Бюджет:</td>
+        <td>
+          <select v-model="edited_item.budget_id" ref="budget_select">
+            <option v-for="budget in budgets" :value="budget.id">{{budget.name}}</option>
+          </select>
+        </td>
+      </tr>
+      <tr v-else>
+        <td align="right">Бюджет:</td>
+        <td>{{edited_item.budget_name}}</td>
+      </tr>
+
+      <tr>
+        <td align="right">Отдел:</td>
+        <td>
+          <input
+            v-if="form_show_division || edited_item.division"
+            ref="division_input"
+            type="text"
+            v-model="edited_item.division"
+            size="50"
+            :readonly="isStaffItem()">
+          <button v-else class="btn btn-sm" @click="onShowDivisionInput()">Заполнить</button>
+        </td>
+      </tr>
+      <tr>
+        <td align="right">Должность:</td>
+        <td><input type="text" v-model="edited_item.position" size="50" ref="position_input" :readonly="isStaffItem()"></td>
+      </tr>
+      <tr>
+        <td align="right">Локация:</td>
+        <td>
+          <select v-model="edited_item.location_id" ref="location_select">
+            <option v-for="location in locations" v-if="!location.archived_at" :value="location.id">{{location.name}}</option>
+          </select>
+        </td>
+      </tr>
+      <tr v-if="!is_new">
+        <td align="right">Статус:</td>
+        <td>{{edited_item.busy_info}}</td>
+      </tr>
+    </table>
+
+    <div class="col-8 mt-2">
+      <div class="row align-items-center" style="border-bottom: 1px solid #c0c0c0; background-color: #e0e0e0">
+        <div class="col-4">Год, Месяц</div>
+        <div class="col-2">З/п, руб</div>
+        <div class="col-4">Начальное значение</div>
+      </div>
+      <div v-for="(salary, month) in salaries" class="row align-items-center" style="border-bottom: 1px dashed #e6e6e6;  background-color: #f6f6f6">
+        <div class="col-4">2020 г., {{monthName(month)}}</div>
+        <div class="col-2">
+          <input :name  = "'state_unit[salaries]['+month+']'" 
+                 class = "form-control-small salary-value"
+                 :data-month="month"
+                 :value = "salary"
+                 readonly=1
+                 size="6">
+        </div>
+        <div class="col-4">
+          <input v-model="salaries_start[month]"
+                 size="6">
+        </div>
+      </div>
+      <div class="row align-items-center" style="border-bottom: 1px solid #c0c0c0; background-color: #e0e0e0">
+        <div class="col-4" style="text-align: right;">Итого, руб:</div>
+        <div class="col-2" style="font-weight: bold;">{{zpItogo}}</div>
+        <div class="col-4"></div>
+      </div>
+    </div>
+    <br/>
+    <button v-if="edited_item.id" class="btn btn-primary" type="button" @click="onSave()">Сохранить</button>
+    <button v-else class="btn btn-primary" type="button" @click="onCreate()">Создать</button>
+    <button class="btn" type="button" @click="cancelEdit()">Отмена</button>
+  </template>
+
+</div>

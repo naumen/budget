@@ -1,0 +1,42 @@
+%form{ method: "post" }
+  = hidden_field_tag :authenticity_token, form_authenticity_token
+  %table{ class: "table table-responsive table-bordered" }
+    %tr.bg-light
+      %td
+      %td{ colspan: @budget_settings_filling.length } Наполнение
+      %td{ colspan: @budget_settings_using.length } Использование
+      %td{ colspan: @budgets_type.length } Типы бюджетов
+    %tr.bg-light
+      %td
+      - @budget_settings_filling.each do |filling|
+        %td= filling.name
+      - @budget_settings_using.each do |using|
+        %td= using.name
+      - @budget_settings_budget_type.each do |budget_type|
+        %td= budget_type.name
+
+    - @budgets_type.each do |type|
+      %tr
+        %td.bg-light= type.name
+        - @budget_settings_filling.each do |filling|
+          - if @budget_setting.where(budget_setting_type_id: type.id, settings_params_id: filling.id).empty?
+            %td.text-center
+              %input{ type: "checkbox", name: "settings[#{type.id}][#{filling.id}]",  checked: false  }
+          - else
+            %td.text-center.bg-info
+              %input{ type: "checkbox", name: "settings[#{type.id}][#{filling.id}]",  checked: true }
+        - @budget_settings_using.each do |using|
+          - if @budget_setting.where(budget_setting_type_id: type.id, settings_params_id: using.id).empty?
+            %td.text-center
+              %input{ type: "checkbox", name: "settings[#{type.id}][#{using.id}]",  checked: false  }
+          - else
+            %td.text-center.bg-info
+              %input{ type: "checkbox", name: "settings[#{type.id}][#{using.id}]",  checked: true }
+        - @budget_settings_budget_type.each do |budget_type|
+          - if @budget_setting.where(budget_setting_type_id: type.id, settings_params_id: budget_type.id).empty?
+            %td.text-center
+              %input{ type: "checkbox", name: "settings[#{type.id}][#{budget_type.id}]",  checked: false  }
+          - else
+            %td.text-center.bg-info
+              %input{ type: "checkbox", name: "settings[#{type.id}][#{budget_type.id}]",  checked: true }
+  %input{ type: "submit", class: "btn btn-primary", value: "Сохранить" }

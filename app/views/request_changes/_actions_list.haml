@@ -1,0 +1,18 @@
+- unless @request_change.request_change_actions.empty?
+  %table.table.table-bordered.table-sm{ style: "width: 600px"}
+    %thead
+      %tr.bg-info.font-weight-bold.text-white
+        %th Действие
+        %th Содержимое
+    %tbody
+      - @request_change.request_change_actions.each do |a|
+        - content = a.content
+        %tr
+          %td
+            = a.action_type_name
+            .text-right
+              - if @request_change.editable?(@current_user)
+                = link_to image_tag("edit2.png", width: "15px", title: "Редактировать"), "/request_changes/#{@request_change.id}?action_id=#{a.id}"
+                = link_to image_tag("delete-icon.png", width: "13px", title: "Удалить"), request_change_delete_action_path(@request_change, action_id: a.id), :data => {:confirm => 'Удалить?'}
+          %td
+            = render partial: "action_details", locals: {a: a, content: content}

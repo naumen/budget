@@ -1,0 +1,45 @@
+<h2>Вход под сотрудником</h2>
+<div id="app">
+
+  <div v-if="is_logging">
+    Авторизуемся под сотрудником - <i>{{as_user}}</i> &nbsp;
+    <div style="display: inline-block;background: url(<%= image_url("spinner2.gif") %>) no-repeat;  background-size: 100% 100%; width: 20px; height: 20px"></div>
+  </div>
+  <template v-if="!is_logging">
+    <input type="text" ref="search" v-model="search" placeholder="Искать">
+    <br>
+    <br>
+    <table class="table table-striped table-bordered table-sm" style="width: 500px">
+      <tr v-for="user in users" v-if="filterUser(user.name)">
+        <td>{{user.name}}</td>
+        <td><a @click.prevent="logging(user)" href="#">Зайти &rarr;</a></td>
+      </tr>
+    </table>
+  </template>
+</div>
+<script type="text/javascript">
+  var app = new Vue({
+    el: "#app",
+    mounted: function(){
+      this.$refs.search.focus();
+    },
+    data: {
+      users: <%= @users.map{|u| { id: u.id, name: u.name } }.to_json.html_safe %>,
+      search: '',
+      is_logging: false,
+      as_user: '',
+    },
+    methods:{
+      filterUser: function(name){
+        return this.search == '' || name.toLowerCase().indexOf(this.search) > -1;
+      },
+      logging: function(user){
+        this.is_logging  = true;
+        this.as_user  = user.name;
+        var url= '/login_as/' + user.id;
+        window.location = url;
+      }
+    }
+
+  });
+</script>

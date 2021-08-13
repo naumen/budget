@@ -1,0 +1,18 @@
+= card_primary "Заявка" do
+  .row
+    .col-2.text-right
+      = link_to '<< Все заявления', staff_requests_path
+    .col
+  .row
+    .col-2.text-right Юр.форма:
+    .col Холдинг
+  .row
+    .col-2.text-right Автор:
+    .col= @item.creator.name
+  .row
+    .col-2.text-right Дата создания:
+    .col= date(@item.created_on)
+  .row
+    .col-2.text-right Дата внесения изменений:
+    .col
+      %b= date(@item.date_of_change)

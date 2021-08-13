@@ -1,0 +1,25 @@
+= render partial: "budgets/budget/header_ancestors", locals: { budget: @budget }
+
+= link_to "&larr; вернуться".html_safe, budget_path(@budget)
+
+%h2 Детализация метрик
+
+%table.table.table-striped.table-bordered.table-sm
+  %thead
+    %tr.bg-primary.text-white
+      - @presenter.metrik_details[:columns].each do |column|
+        %th= column
+    %tr.bg-success.text-white
+      %td
+      %td
+      - @presenter.metrik_details[:metrik_itogo].each do |metrik_code, metrik_itogo|
+        %td= metrik_itogo
+  - @presenter.metrik_details[:budget_rows].each do |metrik|
+    %tr
+      %td{ metrik.budget.id == @budget.id ? {class: 'font-weight-bold'} : {} }
+        = ('.&nbsp;'.html_safe * metrik.budget.level).html_safe
+        = link_to metrik.budget.name, budget_path(metrik.budget.id)
+      %td= metrik.budget.budget_type.name
+      - metrik.values.each do |value|
+        %td= value
+

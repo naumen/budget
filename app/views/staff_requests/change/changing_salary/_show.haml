@@ -1,0 +1,18 @@
+.row
+  .col-2.text-right Отдел:
+  .col= change.division.name
+.row
+  .col-2.text-right Штатная единица:
+  .col= change.staff_item.name_for_select(@item.on_date)
+.row
+  .col-2.text-right Оклады:
+  .col
+    %table.table
+      %tr.gray
+        %th{width: 50} Месяц
+        %th Оклад, руб
+      - JSON.parse(change.json).each do |item|
+        - month_item = item[1]
+        %tr
+          %td= month_item['month']
+          %td= month_item['new_salary']

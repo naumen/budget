@@ -1,0 +1,65 @@
+!!!
+%html{:xmlns => "http://www.w3.org/TR/REC-html40", "xmlns:o" => "urn:schemas-microsoft-com:office:office", "xmlns:v" => "urn:schemas-microsoft-com:vml", "xmlns:x" => "urn:schemas-microsoft-com:office:excel"}
+  %head
+    %meta{:content => "text/html; charset=utf-8", "http-equiv" => "Content-Type"}/
+    %meta{:content => "Excel.Sheet", :name => "ProgId"}/
+    %meta{:content => "charset", name: "utf-8"}
+    %meta{:content => "", :name => "Generator"}/
+
+    /[if gte mso 9]
+%xml
+  %o:DocumentProperties
+    %o:Author
+    %o:LastAuthor
+    %o:Created
+    %o:LastSaved
+  :css
+    @page
+      {margin:.98in .79in .98in .79in;
+      mso-header-margin:.51in;
+      mso-footer-margin:.51in;
+      }
+    td{
+      white-space:nowrap;
+    }
+    .xl24
+      {mso-style-parent:style0;
+      mso-number-format:"\@";}
+    .xl25
+      {mso-style-parent:style0;
+      mso-number-format:"General Date";
+      text-align:center;
+      }
+    .xl26
+      {mso-style-parent:style0;
+      mso-number-format:"Yes\/No";
+      white-space:normal;
+      }
+    .xl27
+      {mso-style-parent:style0;
+      mso-number-format:Standard;
+      white-space:normal;
+      }
+    .xl28
+      {mso-style-parent:style0;
+      mso-number-format:"0\.00";
+      }
+%xml
+  %x:ExcelWorkbook
+    %x:ExcelWorksheets
+      %x:ExcelWorksheet
+        %x:Name="Нормативы"
+        %x:WorksheetOptions
+          %x:Print
+            %x:ValidPrinterInfo
+          %x:Selected
+
+          %x:ProtectContents
+          %x:ProtectObjects
+          %x:ProtectScenarios
+
+    %x:ProtectStructure
+    %x:ProtectWindows
+  %body
+    2
+    = yield

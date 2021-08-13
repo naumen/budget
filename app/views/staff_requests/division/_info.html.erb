@@ -1,0 +1,11 @@
+  <% if @parent %>
+    Родительский отдел:
+    <a href="/staff_requests/staff_show/<%= @parent.id %>?on_date=<%= @parent.record_on_date %>"><%= @parent.name %></a>
+    <br>
+  <% end %>
+  Название: <span style="font-size: 14pt"><%= @item.name %></span>
+  <br>
+  Руководитель: <span style="font-size: 14pt"><%= User.find(@item.chief_id).name rescue '-' %></span>
+  <br>
+  <br>
+  <a href="/staff_requests/staff?on_date=<%= @item.record_on_date %>">&larr; на список отделов</a>

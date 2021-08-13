@@ -1,0 +1,58 @@
+- @budget_info = @presenter.budget_info
+%table
+  %tr
+    %td
+      %table{width: 700, cellpadding: 5}
+        %tr
+          %td{colspan:2}
+            = card_primary @budget.name do
+              .float-right
+                - if @budget.allow?("link_edit_budget", current_user)
+                  = link_to image_tag("edit2.png", width: "15px", title: "Редактировать"), edit_budget_path, id: "link_edit_budget"
+                - if @budget.allow?("link_users_roles", current_user)
+                  = link_to image_tag("key.png", width: "15px", title: "Доступ к бюджету"), users_roles_path(budget_id: @budget.id), id: "link_users_roles"
+                - if @budget.f_year == 2018 && current_user.is_admin?
+                  = link_to image_tag("reload.png", width: "15px", title: "Обновить из 2018 (бюджет/затраты)"), '/budgets/reload_from_2018/'+@budget.id.to_s, id: "link_users_roles", target: "blank"
+                - if @budget.f_year == 2019 && @budget.next_budget.nil? && @budget.parent && @budget.parent.next_budget
+                  = link_to icon("svg_class align-middle", "chevron-right", width: 12, fill: "red"), '/budgets/clone_budget_to_next_year/'+@budget.id.to_s, title: "Создать в следующем году"
+                - if @budget.is_deletable?(current_user)
+                  = link_to image_tag("delete-icon.png", width: "13px", title: "Удалить"), '/budgets/delete/'+@budget.id.to_s
+              %div
+                Владелец:
+                %b
+                  = @budget.owner.name if @budget.owner
+                %br
+                Тип бюджета:
+                %b= @budget.budget_type.name rescue ''
+                %br
+                - if @budget.budget_type.name && @budget.budget_type.name == 'Сводный'
+                - else
+                  ЦФО:
+                  %b= @budget.cfo.name rescue '-- не указан --'
+                  %br
+                Состояние:
+                %b
+                  = @budget.state
+                - if current_user.is_admin || @budget.owner
+                  = render partial: 'budgets/budget/state'
+                - if current_user.is_admin || current_user == @budget.owner
+                  %div{ class: "float-right"}
+                    = link_to "По месяцам &rarr;".html_safe, "/budgets/#{@budget.id}/report_by_months", { class: "btn btn-info", title: "Отчет по затратам по месяцам" }
+                    = link_to "ФОТ &rarr;".html_safe, "/budgets/#{@budget.id}/fot", { class: "btn btn-info", title: "Фонд оплаты труда (шт. единицы, з/п)" }
+
+        %tr
+          %td{valign: "top", width: 400}
+            = card "Наполнение" do
+              = render "budgets/budget/info_in"
+          %td{valign: "top", width: 400}
+            = card "Использование" do
+              = render "budgets/budget/info_out"
+        %tr
+          %td{colspan:2}
+            = card "Итоги" do
+              = render "budgets/budget/info_itogo"
+    %td.align-top
+      = render "budgets/budget/compare"
+      = render "budgets/budget/parameters" if @budget.show_budget_parameters?
+      = render "budgets/budget/info_normativ_avg" if @budget.show_normativ_avg?
+

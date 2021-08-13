@@ -1,0 +1,40 @@
+- summary = {}
+- summary['all'] = { cnt: 0, fzp: 0.0, free_cnt: 0, free_fzp: 0.0 }
+- @budget.self_and_descendants.each do |b|
+  - if !b.state_units.empty?
+    - b.state_units.each do |state_unit|
+      - location_id = state_unit.location_id
+      - if state_unit.user_id
+        - busy = true
+      - else
+        - busy = false
+      - fzp = state_unit.fzp
+      - summary[location_id] ||= { cnt: 0, fzp: 0.0, free_cnt: 0, free_fzp: 0.0 }
+      - summary[location_id][:cnt] += 1
+      - summary[location_id][:fzp] += fzp
+      - summary['all'][:cnt] += 1
+      - summary['all'][:fzp] += fzp
+      - if !busy
+        - summary[location_id][:free_cnt] += 1
+        - summary[location_id][:free_fzp] += fzp
+        - summary['all'][:free_cnt] += 1
+        - summary['all'][:free_fzp] += fzp
+- rows = Location.all.map{ |l| l.id}
+- rows = ['all'] + rows
+%table.table.table-bordered.table-sm{ style: "width: 800px"}
+  %thead
+    %tr.bg-primary.text-white
+      %th Локация
+      %th Кол-во
+      %th ФОТ
+      %th в т.ч. вакантн.
+      %th в т.ч. ФОТ вакантн.
+  - rows.each do |r|
+    - next unless summary[r]
+    %tr{ style: r == 'all' ? "background-color: #fcf8c8" : nil }
+      %td= r == 'all' ? 'Все' : "в т.ч. " + Location.find(r).name
+      %td.text-center= summary[r][:cnt]
+      %td.text-right= money summary[r][:fzp]
+      %td.text-center= summary[r][:free_cnt]
+      %td.text-right= money summary[r][:free_fzp]
+  

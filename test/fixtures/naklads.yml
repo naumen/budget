@@ -1,0 +1,33 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+normativ_it_base_to_b_d_cfo_1:
+  normativ: normativ_it_base
+  budget: b_d_cfo_1
+  f_year: 2018
+
+normativ_it_base_to_b_invest:
+  normativ: normativ_it_base
+  budget: b_invest
+  f_year: 2018
+
+normativ_service_to_cfo_d_1:
+  normativ: normativ_service
+  budget: b_d_cfo_1
+  weight: 3.0
+  f_year: 2018
+
+normativ_service_to_cfo_d_2:
+  normativ: normativ_service
+  budget: b_d_cfo_2
+  weight: 7.0
+  f_year: 2018
+
+normativ_equally_to_cfo_d_1:
+  normativ: normativ_equally
+  budget: b_d_cfo_1
+  f_year: 2018
+
+normativ_equally_to_cfo_d_2:
+  normativ: normativ_equally
+  budget: b_d_cfo_2
+  f_year: 2018

@@ -1,0 +1,83 @@
+- if @investment_project.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @investment_project.errors.full_messages.each do |message|
+        %li= message
+
+
+:javascript
+  $(document).ready(function() {
+    $("#credit_budgets").select2({
+      language: "ru-RU",
+      theme: "bootstrap"
+    });
+  });
+
+  $(document).ready(function() {
+    $("#use_budgets").select2({
+      language: "ru-RU",
+      theme: "bootstrap"
+    });
+  });
+
+= form_for @investment_project do |f|
+  .row.m-2
+    .col-2
+      %label= t('investment_projects.form.name')
+    .col-8
+      %input{ :name => 'investment_project[name]', :class => 'form-control', :value => @investment_project.name }
+
+  .row.m-2
+    .col-2
+      %label
+        %b= t('investment_projects.form.use_budget_id')
+    .col-8
+      %select#use_budgets.d-none{ :name => 'investment_project[from_budget_id]' }
+        %option
+        - @using_budgets.each do |budget|
+          %option{ :value => budget.id, :selected => @investment_project.from_budget_id == budget.id || params[:from_budget_id].to_i == budget.id  ? true : false  }
+            = budget.name
+
+
+  .row.m-2
+    .col-2
+      %label= t('investment_projects.form.filling_budget_id')
+    .col-8
+      %select#credit_budgets.d-none{ :name => 'investment_project[to_budget_id]' }
+        %option
+        - @filling_budgets.each do |budget|
+          %option{ :value => budget.id, :selected => @investment_project.to_budget_id == budget.id || params[:to_budget_id].to_i == budget.id  ? true : false  }
+            = budget.name
+
+  .row.m-2
+    .col-2
+      %label
+        %b= t('investment_projects.form.currency')
+    .col-8
+      %select{ :name => 'investment_project[currency]', :class => 'form-control'}
+        - ["Рубль", "Доллар", "Евро"].each do |currency|
+          %option{ :value => currency }
+            = currency
+
+  .row.m-2
+    .col-2
+      %label= t('investment_projects.form.summ')
+    .col-8
+      %input{ :name => 'investment_project[summ]', :class => 'form-control', :value => @investment_project.summ }
+
+  .row.m-2
+    .col-2
+      %label Ссылка на NauDoc
+    .col-8
+      %input{ :name => 'investment_project[naudoc_link]', :class => 'form-control', :value => @investment_project.naudoc_link }
+
+  .row.m-2
+    .col-2
+      %label= t('investment_projects.form.document')
+    .col-8
+      = f.file_field :file
+
+  .row.m-2
+    = f.submit t('common.save'), :class => 'btn btn-primary'
+    = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'

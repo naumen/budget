@@ -1,0 +1,44 @@
+- if @salary.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @salary.errors.full_messages.each do |message|
+        %li= message
+= form_for @salary do |f|
+  .row.m-2
+    .col-2
+      %label= t('salarys.form.state_unit_id')
+    .col-8
+      %select{ :name => 'salary[state_unit_id]', :class => 'form-control'}
+        %option{ :value => 0 }
+        - @state_units.each do |state_unit|
+          %option{ :value => state_unit.id, selected: (params[:state_unit_id].to_i == state_unit.id) || (@salary.state_unit_id == state_unit.id) ? true : false }
+            - unless state_unit.user.nil?
+              = state_unit.user.name
+            - else
+              = "Вакантная штатная единица (#{state_unit.position})"
+
+  .row.m-2
+    .col-2
+      %label= t('salarys.form.month')
+    .col-8
+      %select{ :name => 'salary[month]', :class => 'form-control'}
+        %option{ :value => 0 }
+        - { 1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель', 5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август', 9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'}.each do |id, month|
+          %option{ :value => id, :selected => @salary.month == id ? true : false }
+            = month
+  .row.m-2
+    .col-2
+      %label= t('salarys.form.summ')
+    .col-8
+      %input{ :name => 'salary[summ]', :class => 'form-control', :value => @salary.summ }
+
+  .row
+    .col-12
+      %input{ type: "hidden", :name => 'salary[f_year]', :class => 'form-control', :value => session[:f_year] }
+
+
+
+  .row.m-2
+    = f.submit t('common.save'), :class => 'btn btn-primary'
+    = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'

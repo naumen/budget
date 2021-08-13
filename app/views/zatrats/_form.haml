@@ -1,0 +1,44 @@
+- if @zatrat.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @zatrat.errors.full_messages.each do |message|
+        %li= message
+= form_for @zatrat do |f|
+  .row.m-2
+    .col-2
+      %label= t('zatrats.form.stat_zatr')
+    .col-8
+      - @stat_zatrs.each do |spr|
+        - if @zatrat.stat_zatr_id == spr.id || params[:stat_zatr_id].to_i == spr.id
+          %input{:type => "hidden", :name => 'zatrat[stat_zatr_id]', :value => spr.id}
+          %input{ :value => spr.name, :class => 'form-control', disabled: true }
+            
+  .row.m-2
+    .col-2
+      %label= t('zatrats.form.month')
+    .col-8
+      %select{ :name => 'zatrat[month]', :class => 'form-control'}
+        %option{ :value => 0 }
+        - { 1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель', 5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август', 9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'}.each do |id, month|
+          %option{ :value => id, :selected => @zatrat.month == id ? true : false }
+            = month
+  .row.m-2
+    .col-2
+      %label= t('zatrats.form.summ')
+    .col-8
+      %input{ :name => 'zatrat[summ]', :class => 'form-control', :value => @zatrat.summ }
+
+  .row
+    .col-12
+      %input{ type: "hidden", :name => 'zatrat[year]', :class => 'form-control', :value => session[:f_year] }
+      
+  .row.m-2
+    .col-2
+      %label= t('zatrats.form.nal_beznal')
+    .col-8
+      = f.check_box('nal_beznal') 
+  
+  .row.m-2
+    = f.submit t('common.save'), :class => 'btn btn-primary'
+    = link_to t('common.cancel'), stat_zatr_path(@zatrat.stat_zatr), :class => 'btn btn-outline-second'

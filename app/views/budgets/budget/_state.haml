@@ -1,0 +1,18 @@
+- if params[:confirm_set_state]
+  %p
+  %b
+    Есть вложенные бюджеты, все эти бюджеты будут переведены в новый статус:
+  - Budget.each_with_level(@budget.self_and_descendants) do |b|
+    %p
+      = ('&nbsp;&nbsp;.&nbsp;&nbsp;' * b.level).html_safe
+      = b.name
+  %br
+  - if params[:confirm_set_state] == "to_confirm"
+    = button_to "На утверждение", "/budgets/#{@budget.id}/set_state?state=to_confirm&all=1", { class: "float-left btn btn-success", data: { confirm: "Выполнить переход?", disable_with: "Выполняем переход..." } }
+  - elsif params[:confirm_set_state] == "to_draft"
+    = button_to "В черновик", "/budgets/#{@budget.id}/set_state?state=to_draft&all=1", { class: "float-left btn btn-success", data: { confirm: "Выполнить переход?", disable_with: "Выполняем переход..." } }
+- else
+  - if @budget.state == 'Черновик'
+    = button_to "На утверждение", "/budgets/#{@budget.id}/set_state?state=to_confirm", { class: "float-left btn btn-success", data: { confirm: "Выполнить переход?", disable_with: "Выполняем переход..." } }
+  - elsif @budget.state == 'Отклонен' || (@budget.state == 'Утвержден' && current_user.is_admin)
+    = button_to "В черновик", "/budgets/#{@budget.id}/set_state?state=to_draft", { class: "float-left btn btn-success", data: { confirm: "Выполнить переход?", disable_with: "Выполняем переход..." } }

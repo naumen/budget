@@ -1,0 +1,128 @@
+<a name="change_form_<%= change.id ? change.id : 'new' %>"/>
+<div id="app">
+  {{info}}
+  <%
+    sub_path = change.f_type.underscore.gsub('staff_request_change/','')
+    partial_name = "/staff_requests/change/#{sub_path}/form"
+  %>
+  <div v-if="show_form">
+    <%= render \
+         :partial => partial_name, \
+         :locals => { change: change } %>
+    <br><input class="btn btn-success" type="button" @click="save" :value="saveBtnTitle">
+  </div>
+</div>
+
+<script>
+var app = new Vue({
+  el: '#app',
+  data: {
+    months: [["1", 'январь'], ["2", 'февраль'], ["3", 'март'], ["4", 'апрель'], ["5", 'май'], ["6", 'июнь'], ["7", 'июль'], ["8", 'август'], ["9", 'сентябрь'], ["10", 'октябрь'], ["11", 'ноябрь'], ["12", 'декабрь']],
+    month_items: [],
+    info: '',
+    show_form: true,
+    divisions: [],
+    staff_items: [],
+    rec: <%= change.as_json.html_safe %>,
+  },
+  watch: {
+     "rec.date_of_change": function(value){
+       this.onChangeDate(value);
+     },
+     "rec.division_id": function(value){
+       this.onChangeDivision(value);
+     },
+     "rec.old_division_id": function(value){
+       this.loadStaffItems(value);
+     },
+     divisions: function(){
+       if (this.rec.f_type == 'RenamingDivision'){ this.setDivisionOldName(this.rec.division_id); }
+     }
+  },
+  created: function(){
+    this.onChangeDate(this.rec.date_of_change);
+    if (this.rec.f_type == 'MovingStaffItem') { this.loadStaffItems(this.rec.old_division_id); }
+    if (this.rec.f_type == 'ChangingPosition'){ this.loadStaffItems(this.rec.division_id); }
+    if (this.rec.f_type == 'ChangingSalary')  { this.loadStaffItems(this.rec.division_id); }
+    if (this.rec.f_type == 'DeletingStaffItem')  { this.loadStaffItems(this.rec.division_id); }
+    this.initMonthItems();
+  },
+  computed: {
+    saveBtnTitle: function(){
+      if (this.newRecord()){ return "Создать"; }
+      else{ return "Сохранить"; }
+    }
+  },
+  methods: {
+    newRecord: function(){
+      return this.rec["id"] == undefined;
+    },
+    initMonthItems: function(){
+      if (this.rec.json != ''){
+        this.month_items = JSON.parse(this.rec.json);
+      };
+    },
+    onChangeDate: function(date){
+      this.info = 'Загружаем отделы на дату...';
+      axios.get('/staff_requests/get_divisions',{ responseType: 'json', params: { on_date: this.rec.date_of_change }})
+                  .then(response => {
+                    this.divisions = response.data;
+                    this.info = '';
+                   })
+                  .catch(error => {});
+    },
+    loadStaffItems: function(division_id){
+      axios.get('/staff_requests/get_staff_items',
+                { responseType: 'json', params: { division_id: division_id, on_date: this.rec.date_of_change }})
+                  .then(response => {
+                    console.log(response.data);
+                    this.staff_items = response.data;
+                   })
+                  .catch(error => {
+                    console.log('error loadStaffItems');
+                  });
+    },
+    setDivisionOldName: function(division_id){
+      if (division_id){
+        var div = this.getDivisionById(division_id);
+        if (div.name){
+          this.rec.old_name = div.name;
+        }
+      }
+    },
+    getDivisionById: function(division_id){
+      for(const division of this.divisions){
+        if (division.id == division_id){
+          return division;
+        }
+      }
+      return {}
+    },
+    save: function(){
+      axios.post(
+        '/staff_requests/set_change',
+        { params: { change: JSON.stringify(this.rec) } }
+      )
+      .then(response => this.handleSave(response.data))
+      .catch(error => {});
+    },
+    onChangeDivision: function(div_id){
+      if (this.rec.f_type == 'ChangingPosition'){ this.loadStaffItems(div_id); }
+      if (this.rec.f_type == 'ChangingSalary')  { this.loadStaffItems(div_id); }
+      if (this.rec.f_type == 'RenamingDivision'){ this.setDivisionOldName(div_id); }
+      if (this.rec.f_type == 'DeletingStaffItem')  { this.loadStaffItems(div_id); }
+    },
+    handleSave: function(response){
+      if (response.lastIndexOf('ok:', 0) === 0){
+        var arrayOfStrings = response.split(':');
+        var change_id = arrayOfStrings[1];
+        this.show_form = false;
+        this.info = 'Данные успешно сохранены. Обновляем страницу...';
+        window.location.href = '/staff_requests/<%= change.request_id %>'+'#change_'+change_id;
+      }else{
+        this.info = 'Ответ: '+response;
+      }
+    }
+  }
+})
+</script>

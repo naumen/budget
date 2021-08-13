@@ -1,0 +1,4 @@
+= card "Под-отделы" do
+  %ul
+    - @division.children.each do |division|
+      %li= link_to division.name, division_path(division)

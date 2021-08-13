@@ -1,0 +1,68 @@
+.row
+  .col-9
+    %h2
+      - if @budget
+        = "Нормативы #{@budget.name}"
+        - if !params[:naklads]
+          = link_to image_tag("add.png", width: "36px", title: "Создать норматив"), new_normativ_path + "?budget_id=#{@budget.id}"
+        - if @budget
+          = link_to(image_tag("return.png", width: "36px", title: "Вернуться к бюджету"), @budget)
+      - else
+        = "Нормативы"
+        = link_to image_tag("add.png", width: "36px", title: "Создать норматив"), new_normativ_path
+  .col-3
+    - unless @budget
+      - if session[:f_year] == 2018
+        = link_to "Перейти на 2019", '?f_year=2019'
+      - elsif session[:f_year] == 2019
+        = link_to "Перейти на 2018", '?f_year=2018'
+      %br
+    = link_to('Экспортировать в ексель', normativs_path(format: :xlsx, group_id: params[:group_id]))
+
+.row
+  .col
+    .normativ-types.pb-1
+      - selected = params[:group_id].nil?
+      - _class = selected ? "btn btn-info btn-sm" : nil
+      = link_to 'Все', normativs_path, class: _class
+      = '|'
+      - @normativ_types.each do |id, name|
+        - selected = id.to_s == params[:group_id].to_s
+        - _class = selected ? "btn btn-info btn-sm" : nil
+        = link_to name, "?group_id=#{id}", class: _class
+        = '|'
+
+%table#normativs.table.table-striped.table-bordered
+  %thead
+    %tr.bg-info.font-weight-bold.text-white
+      - @normativ_presenter.cols.each do |f_code, f_name|
+        %th{scope: "col"}
+          = f_name
+  %tbody
+    - @normativ_presenter.rows.each do |row|
+      %tr
+        - @normativ_presenter.cols.each do |f_code, f_name|
+          - normativ_id = row[:id]
+          - is_money_col = @normativ_presenter.money_cols.include?(f_code)
+          - val = row[f_code]
+          %td{ is_money_col ? { class: "text-right", 'data-sort': val } : {} }
+            - if f_code == :name
+              = link_to val, normativ_path(normativ_id)
+            - elsif [:norm, :norm_prev].include?(f_code)
+              = norm_money(val)
+            - elsif is_money_col
+              = money(val)
+            - elsif :description == f_code
+              - if val && !val.empty?
+                .collapse{id: "desciption_#{normativ_id}"}
+                  = val
+                %a{ href: "#", "data-toggle": "collapse", "data-target": "#desciption_#{normativ_id}", title: "#{val}"} подробнее
+            - elsif :sostav_zatrat == f_code
+              - if val && !val.empty?
+                .collapse{id: "sostav_zatrat_#{normativ_id}"}
+                  = val
+                %a{ href: "#", "data-toggle": "collapse", "data-target": "#sostav_zatrat_#{normativ_id}", title: "#{val}"} подробнее
+            - else
+              = val
+:javascript
+  new Tablesort(document.getElementById('normativs'));

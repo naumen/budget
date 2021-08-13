@@ -1,0 +1,74 @@
+%h2
+  Различные отделы у шт.единицы в HR2 и в Бюджете 2021
+
+%table#location-compare.table.table-striped.table-bordered.table-sm
+  %thead
+    %tr.bg-primary.text-white
+      %th ЦФО
+      %th Сотрудник
+      %th HR2 отдел/локация
+      %th Бюджет отдел/локация
+      %th
+  - cnt = 0
+  - not_found = []
+  - @items.select{|item| item["budget_staff_item_id"]}.each do |item|
+    - city_id   = item["city_id"]
+    - office_id = item["office_id"]
+    - state_unit = StateUnit.find(item["budget_staff_item_id"]) rescue nil
+    - if state_unit.nil?
+      - not_found << item["budget_state_item_id"]
+      - next
+    - if state_unit.f_year == 2020
+      - state_unit = state_unit.get_in_next_year
+    - budget_location_name = Location.find(state_unit.location_id).name
+    - budget_city_id = Location.find(state_unit.location_id).city_id
+    - user_id = nil
+    - user_id = item["employment_term"] && item["employment_term"]["user_id"]
+    - hr2_division_name    = @divisions[item["division_id"]] rescue '--'
+    - budget_division_name = state_unit.division.to_s
+    - next if hr2_division_name == budget_division_name
+    - cnt += 1
+    %tr
+      %td
+        = state_unit.budget.cfo.name
+      %td
+        - user = User.find(user_id) rescue nil
+        - if user
+          = user.name
+          %div{style: "font-size: 8pt; color: orange; font-style: italic"}
+            = user.employment_term_text
+      %td
+        %small{ style: 'color: gray', title: item["id"]}
+          [hr]
+        = hr2_division_name
+        %br
+        %small{style: "color: gray"}
+          = City.find(city_id).name rescue '-'
+          = Location.find(office_id).name rescue '-'
+
+        - if item["begin_date"] && item["begin_date"] > Date.today.to_s
+          %div{style: "color: green; font-size: 8pt; font-style: italic"}
+            Дата начала:
+            = item["begin_date"].to_date.strftime("%d.%m.%Y")
+        - if item["end_date"]
+          %div{style: "color: red; font-size: 8pt; font-style: italic"}
+            Дата закрытия:
+            = item["end_date"].to_date.strftime("%d.%m.%Y")
+      %td
+        %small{ style: 'color: gray'}
+          [Бюджет]
+        = budget_division_name
+        %br
+        %small{style: "color: gray"}
+          = budget_location_name
+      %td
+        %a{ target: "_blank", href: "/budgets/#{state_unit.budget.id}?state_unit_id=#{state_unit.id}#state_units"}
+          открыть
+
+%small
+  Записей: 
+  = cnt
+- unless not_found.empty?
+  = not_found
+:javascript
+  new Tablesort(document.getElementById('location-compare'));

@@ -1,0 +1,43 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ *= require select2
+ *= require select2-bootstrap
+ */
+
+ @import "variables";
+ @import "bootstrap";
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s
+}
+
+.fade-enter, .fade-leave-to  {
+  opacity: 0
+}
+
+.headerSortUp {
+  cursor: pointer;
+  background: url(asset-path("sort_by.svg#shape-sort-up-view"))
+              no-repeat center right;
+}
+
+.headerSortDown {
+  cursor: pointer;
+  background: url(asset-path("sort_by.svg#shape-sort-down-view"))
+              no-repeat center right;
+}
+body{
+  background-color: #f5faff
+}

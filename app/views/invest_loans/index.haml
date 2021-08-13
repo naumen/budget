@@ -1,0 +1,47 @@
+.row
+  .col-12
+    %h2
+      = "Cписок инвестзаймов"
+      = link_to(image_tag("add.png", width: "36px", title: "Создать новый инвестиционный займ"), new_invest_loan_path)
+      - if @budget
+        = link_to(image_tag("return.png", width: "36px", title: "Вернуться к бюджету"), @budget)
+%br/
+
+%table{ class: "table table-responsive" }
+  %thead
+    %tr
+      %th Год выдачи
+      %th Наименование
+      %th Сумма
+      %th Валюта
+      %th Ставка
+      %th Бюджет использования
+      %th Бюджет наполнения
+      %th Срок (лет)
+      %th Ссылка на документ
+  %tbody
+    - @invest_loans.each do |invest_loan|
+      %tr
+        %td
+          = invest_loan.use_budget.f_year
+        %td
+          = link_to(invest_loan.name, invest_loan)
+        %td
+          = money(invest_loan.summ)
+        %td
+          = invest_loan.currency
+        %td
+          = invest_loan.interest_rate
+        %td
+          = invest_loan.use_budget.name
+        %td
+          = invest_loan.credit_budget.name
+        %td
+          = invest_loan.term
+        %td
+          - if invest_loan.document
+            = link_to image_tag("save.png", width: "36px", title: "Скачать документ"), invest_loan.document, method: :get
+
+
+
+= paginate @investment_projects

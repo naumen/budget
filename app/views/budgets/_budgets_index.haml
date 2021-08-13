@@ -1,0 +1,37 @@
+- if @current_user.is_admin?
+  - @accessable_budgets.each do |budget|
+    - a = ''
+    - if budget.level != 0
+      - for i in 1..(budget.level-1)
+        - a += ("|&nbsp;&nbsp;&nbsp;&nbsp;")
+    %a{ :href => budget_path(budget) }
+      %u= a.html_safe + "|__#{budget.name}"
+    %br
+- else
+  - green = "#00a200"
+  - red   = "#ff0000"
+  %table#child-budgets.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th{width: "400px"} Наименование
+        - @child_budgets_columns.each do |code, name|
+          %th= name
+    - @all_budgets.each do |budget|
+      - next unless @accessable_budgets.include?(budget)
+      %tr
+        %td{style: budget.level > 0 ? "padding-left: #{15*budget.level}px" : nil}
+          %a{ :href => budget_path(budget) }= budget.name
+        - row = @budget_presenter.budget_row(budget)
+        - next if row.nil?
+        - @child_budgets_columns.each do |code, name|
+          %td{ [:in, :out, :plan_marga, :delta].include?(code) ? { class: "text-right"} : {} }
+            - val = row[code] rescue '-'
+            - if code == :name
+              = link_to val, budget_path(row[:id])
+            - elsif [:in, :out, :plan_marga].include?(code)
+              = summ_formatter val
+            - elsif :delta == code
+              %span.font-weight-bold{ val < 0.0 ? { style: "color: #{red}"} : { style: "color: #{green}"} }
+                = "#{val > 0.0 ? '+' : ''}#{money(val)}"
+            - else
+              = val

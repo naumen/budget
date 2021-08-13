@@ -1,0 +1,46 @@
+= card_primary 'Изменения' do
+  - _delta = @request_change.delta
+  - if _delta != 0.0
+    %span{style: "font-weight: bold; font-size: 13pt;"}
+      Дельта:
+      - if _delta > 0.0
+        - delta_sign = '+'
+        - delta_color = "brown"
+      - elsif _delta < 0.0
+        - delta_sign = '-'
+        - delta_color = "green"
+      %span{style: "color: #{delta_color}" }
+        = delta_sign
+        = money(_delta.abs)
+        руб.
+  - if !@request_change.editable?(@current_user)
+    = render 'actions_list'
+  - else
+    - if params[:do] == 'stat_zatr_edit' || @request_change_action && @request_change_action.action_type == 'stat_zatr_edit'
+      = render 'stat_zatr_edit'
+    - elsif params[:do] == 'stat_zatr_create' || @request_change_action && @request_change_action.action_type == 'stat_zatr_create'
+      = render 'stat_zatr_create'
+    - elsif params[:do] == 'set_budget_fot' || @request_change_action && @request_change_action.action_type == 'set_budget_fot'
+      = render 'set_budget_fot'
+    - elsif @request_change_action
+      - if @request_change_action.action_type == 'state_unit_create'
+        = render 'state_unit_create'
+      - elsif @request_change_action.action_type == 'state_unit_edit'
+        = render 'state_unit_edit'
+    - else
+      %ul
+        - unless @request_change.state == 'Обработано'
+          %li
+            = link_to "Новая бюджетная шт.единица &rarr;".html_safe, "/request_changes/#{@request_change.id}?do=state_unit_create"
+          - unless @request_change.budget.state_units.empty?
+            %li
+              = link_to "Редактирование шт.единицы &rarr;".html_safe, "/request_changes/#{@request_change.id}?do=state_unit_edit"
+          %li
+            = link_to "Новая статья затрат Бюджета &rarr;".html_safe, "/request_changes/#{@request_change.id}?do=stat_zatr_create"
+          - unless @request_change.budget.stat_zatr.empty?
+            %li
+              = link_to "Изменить статью затрат Бюджета &rarr;".html_safe, "/request_changes/#{@request_change.id}?do=stat_zatr_edit"
+          - unless @request_change.any_action_set_fot?
+            %li
+              = link_to "Изменить Резерв ФОТ Бюджета &rarr;".html_safe, "/request_changes/#{@request_change.id}?do=set_budget_fot"
+      = render 'actions_list'

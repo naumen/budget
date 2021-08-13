@@ -1,0 +1,6 @@
+- if @budget.parent
+  = render partial: "budgets/budget/header_ancestors", locals: { budget: @budget.parent }
+
+%h1= t('.title')
+
+= render 'form'

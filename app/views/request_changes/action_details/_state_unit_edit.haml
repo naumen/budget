@@ -1,0 +1,85 @@
+- if @request_change.state == 'Обработано'
+  - initial_state_unit = Budget.restore_state_unit(content["state_unit_id"], @budget_snapshot)
+  - salaries_as_hash   = Budget.restore_state_unit_salaries(content["state_unit_id"], @budget_snapshot)
+- else
+  - initial_state_unit = StateUnit.find(content["state_unit_id"])
+  - salaries_as_hash = initial_state_unit.salaries_as_hash
+
+%table
+  - if content["division"]
+    %tr
+      %td.text-right{style: "color: #909090; border: none"} Отдел
+      %td{style: "border: none"}= initial_state_unit['division']
+      %td{style: "border: none"} &rarr;
+      %td{style: "border: none"}= content["division"]
+  - if content["position"]
+    %tr
+      %td.text-right{style: "color: #909090; border: none"} Должность
+      %td{style: "border: none"}= initial_state_unit['position']
+      %td{style: "border: none"} &rarr;
+      %td{style: "border: none"}= content["position"]
+  - if content["location_id"]
+    %tr
+      %td.text-right{style: "color: #909090; border: none"} Локация
+      %td{style: "border: none"}= Location.find(initial_state_unit["location_id"]).name
+      %td{style: "border: none"} &rarr;
+      %td{style: "border: none"}= Location.find(content["location_id"]).name
+  - if content["salaries"]
+    %tr
+      %td.text-right{style: "color: #909090; border: none"} ФЗП
+      %td{style: "border: none"}
+      %td{style: "border: none"}
+      %td{style: "border: none"}
+    - itogo_before = 0.0
+    - itogo_after  = 0.0
+    - (1..12).to_a.each do |month_num|
+      %tr
+        %td.text-right{style: "border: none"}
+        %td.text-right{style: "border: none"}
+          %span{style: "color: #909090"}= StaffItemSalary.months[month_num.to_s.to_sym]
+          - val = salaries_as_hash[month_num]
+          = money(val)
+          - itogo_before += val
+        %td{style: "border: none"} &rarr;
+        %td.text-right{style: "border: none"}
+          - val = content["salaries"][month_num-1][1].to_f
+          = money(val)
+          - itogo_after += val
+    %tr{style: "font-weight: bold"}
+      %td{style: "border: none"}
+      %td.text-right{style: "border: none"}= money(itogo_before)
+      %td{style: "border: none"} &rarr;
+      %td.text-right{style: "border: none"}= money(itogo_after)
+    %tr{style: "font-weight: bold"}
+      - delta = a.delta
+      %td{style: "border: none"}
+      %td.text-right{style: "border: none"}
+      %td{style: "border: none"}
+      %td.text-right{style: "border: none; font-style: italic; font-size: 13pt;"}
+        - if delta > 0.0
+          - delta_sign = '+'
+          - delta_color = "brown"
+        - elsif delta < 0.0
+          - delta_sign = '-'
+          - delta_color = "green"
+        %span{style: "color: #{delta_color}" }
+          = delta_sign
+          = money(delta.abs)
+  - if content["selectedStatZatrFot"]
+    - stat_zatr = StatZatr.find(content["selectedStatZatrFot"])
+    %tr
+      %td.text-right{style: "color: #909090; border: none"}
+      %td{style: "border: none", colspan: 3}
+        %span{style: "color: #006600; font-weight: bold"}
+          Используется Резерв ФОТ.
+          %br
+          [
+          = stat_zatr.budget.name
+          ]
+        - if content["deltaStatZatrFot"]
+          %br
+          %b
+            Дельта: 
+            = money(content["deltaStatZatrFot"])
+
+

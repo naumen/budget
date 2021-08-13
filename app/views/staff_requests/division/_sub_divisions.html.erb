@@ -1,0 +1,13 @@
+  <% if @item.h_childs.size > 0 %>
+    <ul>
+    <% @item.h_childs.sort_by{|d| d.name}.each do |item| %>
+      <li>
+        <a href="/staff_requests/staff_show/<%= item.id %>?on_date=<%= item.record_on_date %>"><%= item['name'] %></a>
+      </li>
+    <% end %>
+    </ul>
+  <% else %>
+    нет
+  <% end %>
+
+

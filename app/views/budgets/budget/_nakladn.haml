@@ -1,0 +1,15 @@
+- if @budget_info.out.own.nakladn.to_f != 0.0
+  %h3.float-left Накладные по нормативам
+  %ul#pills-tab.nav.nav-pills.pl-2{:role => "tablist"}
+    %li.nav-item
+      %a#pills-digits-tab.nav-link.active{"aria-controls" => "pills-digits", "aria-selected" => "true", "data-toggle" => "pill", :href => "#pills-digits", :role => "tab"} Цифры
+    %li.nav-item
+      %a#pills-graph-tab.nav-link{"aria-controls" => "pills-graph", "aria-selected" => "false", "data-toggle" => "pill", :href => "#pills-graph", :role => "tab"} График
+
+  #pills-tabContent.tab-content{ style: "clear: left"}
+    #pills-digits.tab-pane.fade.show.active.pl-2{"aria-labelledby" => "pills-digits-tab", :role => "tabpanel"}
+      = render "budgets/budget/nakladn_digits"
+    #pills-graph.tab-pane.fade{"aria-labelledby" => "pills-graph-tab", :role => "tabpanel"}
+      = render "budgets/budget/chart_format_money"
+      - if @_rows_itogo > 0
+        = render partial: "budgets/budget/chart_pie", locals: { name: "nakladn", chart_data: @_chart_data }

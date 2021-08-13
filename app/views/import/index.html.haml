@@ -1,0 +1,32 @@
+.row
+  .col-12
+    %h2 Импорт
+
+%br
+
+.row
+  .col
+    %ul
+      //
+      //%li
+      //  .row.align-items-center
+      //    .col-3
+      //      Обновить ФОТ из 2018
+      //    .col-3
+      //      = button_to "Обновить", "/do_import/?kind=fot", { class: "btn btn-primary", data: { confirm: "Обновить?", disable_with: "Обновление..." } }
+      //%li{ style: "list-style-type: none"}
+      //  &nbsp;
+      //%li
+      //  .row.align-items-center
+      //    .col-3
+      //      Обновить Бюджеты Итого 2018
+      //    .col-3
+      //      = button_to "Обновить", "/do_import/?kind=budget2018_itogo", { class: "btn btn-primary", data: { confirm: "Обновить?", disable_with: "Обновление..." } }
+      //%li{ style: "list-style-type: none"}
+      //  &nbsp;
+      %li
+        .row.align-items-center
+          .col-3
+            Обновить Бюджеты Итого 2019
+          .col-3
+            = button_to "Обновить", "/do_import/?kind=budget2019_itogo", { class: "btn btn-primary", data: { confirm: "Обновить?", disable_with: "Обновление..." } }

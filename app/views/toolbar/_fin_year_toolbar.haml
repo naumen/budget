@@ -1,0 +1,11 @@
+- unless @hide_year_header
+  .row.justify-content-center
+    .col-1.text-right.pr-1
+      - if @prev_year_link
+        = link_to icon("svg_class align-bottom", "chevron-left", width: 15, fill: "green"), @prev_year_link, title: "Предыдущий год"
+    .col-1.text-center
+      %h3
+        %b= session[:f_year]
+    .col-1.text-left.pl-1
+      - if @next_year_link
+        = link_to icon("svg_class align-bottom", "chevron-right", width: 15, fill: "green"), @next_year_link, title: "Следующий год"

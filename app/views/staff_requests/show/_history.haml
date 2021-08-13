@@ -1,0 +1,16 @@
+= card_primary "История" do
+  %table.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-info.text-white
+        %td Сотрудник
+        %td Статус
+        %td Комментарий
+        %td Дата
+        %td Время
+    - @item.history.each do |history_item|
+      %tr
+        %td= history_item.user.name rescue ''
+        %td= history_item.state_name
+        %td= history_item.comment
+        %td= date(history_item.created_on)
+        %td= time(history_item.created_on)

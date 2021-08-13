@@ -1,0 +1,10 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# 18%
+# 1_000_000 = 100%
+# nds = 18 * 10_000 = 180_000.00
+sale1:
+  budget: b_d_cfo_1
+  summ: 1_000_000.00
+  is_with_nds: true
+  f_year: 2018

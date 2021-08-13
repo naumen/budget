@@ -1,0 +1,15 @@
+- stat_zatr_id = content["stat_zatr_id"]
+- stat_zatr_from_snapshot = @budget_snapshot['stat_zatrs'].select{|stat_zatr| stat_zatr['id'] == stat_zatr_id.to_i}[0]
+%b
+  = StatZatr.find(stat_zatr_id).name
+%table
+  - (1..12).each do |m|
+    - old_value = stat_zatr_from_snapshot["zatratas"].select{|z| z["month"] == m }[0]
+    - row = content["months"][m.to_s]
+    - next unless row
+    %tr
+      %td= StaffItemSalary::MONTHS[m.to_s.to_sym]
+      %td.text-right= money(old_value["summ"]) rescue 'не указано'
+      %td &rarr;
+      %td.text-right= money(row[0])
+      %td= row[1] == '1' ? 'безнал' : ''

@@ -1,0 +1,7 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+fot_change_action:
+  request_change: fot_change
+  action_type: state_unit_edit
+  json_content: '{"state_unit_id":109958,"salaries":[[1,"25300.0"],[2,"25300.0"],[3,"25300.0"],[4,"25300.0"],[5,"233444"],[6,"233444"],[7,"233444"],[8,"233444"],[9,"233444"],[10,"233444"],[11,"233444"],[12,"233444"]],"selectedStatZatrFot":12345,"deltaStatZatrFot":1665152}'
+

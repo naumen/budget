@@ -1,0 +1,59 @@
+%h2
+  Различие в локации у шт.единицы в HR2 и в Бюджете 2021
+
+%table#location-compare.table.table-striped.table-bordered.table-sm
+  %thead
+    %tr.bg-primary.text-white
+      %th Сотрудник
+      %th HR2 локация
+      %th Бюджет локация
+      %th ЦФО
+      %th
+  - cnt = 0
+  - not_found = []
+  - @items.select{|item| item["budget_staff_item_id"]}.each do |item|
+    - city_id   = item["city_id"]
+    - office_id = item["office_id"]
+    - state_unit = StateUnit.find(item["budget_staff_item_id"]) rescue nil
+    - if state_unit.nil?
+      - not_found << item["budget_state_item_id"]
+      - next
+    - if state_unit.f_year == 2020
+      - state_unit = state_unit.get_in_next_year
+    - next if office_id == state_unit.location_id
+    - budget_location_name = Location.find(state_unit.location_id).name
+    - budget_city_id = Location.find(state_unit.location_id).city_id
+    - next if budget_location_name == 'СВОБОДНЫЙ ЧЕЛОВЕК' && city_id.nil? && office_id.nil?
+    - next if budget_city_id == city_id && office_id.nil? && budget_location_name.include?('удаленно')
+    - user_id = nil
+    - user_id = item["employment_term"] && item["employment_term"]["user_id"]
+    - cnt += 1
+    %tr
+      %td
+        - user = User.find(user_id) rescue nil
+        - if user
+          = user.name
+          %div{style: "font-size: 8pt; color: orange; font-style: italic"}
+            = user.employment_term_text
+      %td
+        %small{ style: 'color: gray'}
+          [hr]
+        = City.find(city_id).name rescue '-'
+        = Location.find(office_id).name rescue '-'
+      %td
+        %small{ style: 'color: gray'}
+          [Бюджет]
+        = budget_location_name
+      %td
+        = state_unit.budget.cfo.name
+      %td
+        %a{ target: "_blank", href: "/budgets/#{state_unit.budget.id}?state_unit_id=#{state_unit.id}#state_units"}
+          открыть
+
+%small
+  Записей: 
+  = cnt
+- unless not_found.empty?
+  = not_found
+:javascript
+  new Tablesort(document.getElementById('location-compare'));

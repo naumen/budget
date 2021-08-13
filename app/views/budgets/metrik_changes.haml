@@ -1,0 +1,36 @@
+%h2 Изменения метрик
+%h2= @budget.name
+= link_to "&larr; вернуться".html_safe, @budget
+
+%table.table
+  - @metrik_changes.each do |time, changes|
+    %tr{style: "background-color: #e0f0f0"}
+      %th
+        - if time.blank?
+          Сейчас
+        - else
+          = Time.parse(time).strftime("%d.%m.%Y %H:%M")
+      %td{align: 'right'} Дельта
+      %td{align: 'right'} Было
+      %td
+      %td{align: 'right'} Стало
+    - changes.each do |m_id, old_new|
+      %tr
+        %td= Metrik.find(m_id).name
+        %td{align: 'right'}
+          - if old_new[0] && old_new[1]
+            - delta = old_new[1].to_f - old_new[0].to_f
+            = "#{'+' if delta > 0.0}#{delta.abs < 1000 ? delta : money(delta)}"
+        %td{align: 'right'}
+          - if old_new[0]
+            = old_new[0].abs < 1000 ? old_new[0] : money(old_new[0])
+        %td &rarr;
+        %td{align: 'right'}
+          - if old_new[1]
+            = old_new[1].abs < 1000 ? old_new[1] : money(old_new[1])
+    %tr
+      %td
+      %td
+      %td
+      %td
+      %td

@@ -1,0 +1,119 @@
+%nav.navbar.navbar-expand-md.navbar-dark.bg-primary.mt-1
+  %a.navbar-brand{ href: budgets_path, style: "font-weight: bold; color: #ffca48"}
+    = t 'app_name'
+  %button.navbar-toggler{"aria-controls" => "navbarsExampleDefault", "aria-expanded" => "false", "aria-label" => "Toggle navigation", "data-target" => "#navbarsExampleDefault", "data-toggle" => "collapse", :type => "button"}
+    %span.navbar-toggler-icon
+  - if logged_in?
+    #navbarsExampleDefault.collapse.navbar-collapse
+      %ul.navbar-nav.mr-auto.my-lg-0
+        %li.nav-item.active
+          %a.nav-link{ href: budgets_path}
+            Бюджеты
+        - if !current_user.is_admin? && current_user.any_budget_owner?
+          %li.nav-item.active
+            %a.nav-link{ href: '/budgets_graph'}
+              График
+        - if current_user.is_admin? || current_user.any_budget_owner?(2020) || BudgetParam.access_budget_report?(current_user)
+          %li.nav-item.dropdown
+            %a.nav-link.text-light.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => '#', :role => "button"}
+              Отчеты
+            .dropdown-menu          
+              - if current_user.is_admin? || current_user.any_budget_owner?(2020)
+                %a.dropdown-item{ href: '/budgets_fot?f_year=2020' } ФОТ 2020
+              - if current_user.is_admin? ||  current_user.any_budget_owner?(2021)
+                %a.dropdown-item{ href: '/budgets_fot?f_year=2021' } ФОТ 2021
+              - if current_user.is_admin? || BudgetParam.access_budget_report?(current_user)
+                %a.dropdown-item{ href: '/budgets/report' } Отчет по финансовым показателям Бюджетов БН
+              - if current_user.is_admin?
+                %a.dropdown-item{ href: '/budget_new_staff_items' } Не учтеные Шт.единицы в 2020 году
+                %a.dropdown-item{ href: '/state_units/location_compare' } Различие в локации у шт.единицы в HR2 и в Бюджете 
+                %a.dropdown-item{ href: '/state_units/division_compare' } Различие в отделе у шт.единицы в HR2 и в Бюджете 
+                
+                  
+        - if current_user.is_admin?
+          %li.nav-item.active
+            %a.nav-link{ href: sales_path}
+              Продажи
+          %li.nav-item.active
+            %a.nav-link{ href: normativs_path}
+              Нормативы
+          %li.nav-item.active
+            %a.nav-link{ href: naklamatr_path}
+              Матрица накладных
+          %li.nav-item.active
+            %a.nav-link{ href: '/budgets_graph', data: { turbolinks: "false" } }
+              График
+          %li.nav-item.dropdown
+            %a.nav-link.text-light.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => '#', :role => "button"}
+              Инвестиции
+            .dropdown-menu
+              %a.dropdown-item{ href: investment_projects_path } Внутренний инвестпроект
+              %a.dropdown-item{ href: invest_loans_path } Инвестиционный займ
+            /         - if current_user.is_admin
+            /           %li.nav-item.dropdown
+            /             %a.nav-link.text-light.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => '#', :role => "button"}
+            /               Холдинг
+            /             .dropdown-menu
+            /               %a.dropdown-item{ :href => divisions_path } Шт.расписание
+            /               %a.dropdown-item{ :href => divisions_path } Заявления
+          %li.nav-item.active
+            %a.nav-link{ href: motivations_path}
+              Мотивации
+          %li.nav-item.dropdown
+            %a.nav-link.text-light.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => '#', :role => "button", title: "Настройки" }
+              = icon("svg_class align-middle", "cog", width: 15, fill: "#f0f0f0")
+            .dropdown-menu
+              %a.dropdown-item{ href: settings_path } Таблица настроек
+              %a.dropdown-item{ href: snapshots_path } Список Snapshots
+              %a.dropdown-item{ href: divisions_path } Настройка направлений
+              %a.dropdown-item{ href: '/import' } Импорт
+              %a.dropdown-item{ href: '/users' } Сотрудники
+
+        - if !@user_wait_confirmation.empty? || !@user_wait_request_confirmation.empty?
+          %li.nav-item.dropdown
+            %a.nav-link.text-light.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => '#', :role => "button"}
+              Ожидают
+              = "(#{@user_wait_confirmation.size} / #{@user_wait_request_confirmation.size})"
+            .dropdown-menu
+              - unless @user_wait_confirmation.empty?
+                %a.dropdown-item{ href: '#' }
+                  %b
+                    Согласование Бюджетов:
+              - @user_wait_confirmation.each do |budget_id|
+                - budget = Budget.find(budget_id)
+                %a.dropdown-item{ href: budget_path(budget) }= "#{budget.f_year} #{budget.name}"
+                
+              - unless @user_wait_request_confirmation.empty?
+                %a.dropdown-item{ href: '#' }
+                  %b
+                    Согласование Заявлений на изменение:
+              - @user_wait_request_confirmation.each do |request_id|
+                - req = RequestChange.find(request_id)
+                %a.dropdown-item{ href: request_change_path(request_id) }= "#{req.budget.f_year} #{req.name}"
+        - if current_user.access_to_all_confirmations? && (!@current_confirmation.empty? || !@current_request_confirmation.empty?)
+          %li.nav-item.active
+            %a.nav-link{ href: "/budget_confirmations"}
+              Ожидают согласования
+              (
+              = @current_confirmation.size
+              = '/'
+              = @current_request_confirmation.size
+              )
+          %li.nav-item.dropdown
+            %a.nav-link.text-light.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => '#', :role => "button", title: "Настройки" }
+              = icon("svg_class align-middle", "question-mark", width: 15, fill: "#f0f0f0")
+            .dropdown-menu
+              %a.dropdown-item{ href: '/help/budget_fot' } Резерв ФОТ Бюджета
+
+      %span.text-light
+        =image_tag('face.png', width: "25px", title: @current_user.name)
+      %span.text-light
+        = @current_user.name
+      &nbsp;
+      - if session['_parent_user_id']
+        %a.text-light{:href => '/login_as/return', title: "Вернуться"}
+          = icon("svg_class align-middle", "account-login", width: 15, fill: "#17a2b8")
+      - else
+        %a.text-light{:href => logout_path, title: "Выход"}
+          = icon("svg_class align-middle", "account-login", width: 15, fill: "#17a2b8")
+%br/

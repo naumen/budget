@@ -1,0 +1,14 @@
+:javascript
+  $(document).ready(function() {
+    $("#owner").select2({
+      language: "ru-RU",
+      theme: "bootstrap"
+    });
+  });
+
+.col-8
+  %select#owner.d-none{ name: name}
+    %option
+    - users.each do |user|
+      %option{ :value => user.id, :selected => object.user_id == user.id ? true : false }
+        = user.name

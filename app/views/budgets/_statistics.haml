@@ -1,0 +1,85 @@
+.card.little-font-size
+  .row
+    .col-12
+      %h6 Статистика:
+  .row
+    .col-5
+      Название
+    .col-4
+      %span{ title: "Значение" } @
+    .col-1
+      %span{ title: "Изменение к прошлому году" } @
+    .col-1
+      %span{ title: "Изменение к прошлому году %" } @
+  .row
+    .col-5
+      %span{ title: "Сумма всего за исключением инвест займов и инвест проектов" }Наполнение бюджета
+    .col-4
+      = summ_formatter(@budget_statistics[:budget_filling], @budget.currency)
+    .col-1
+      0
+    .col-1
+      0
+  .row
+    .col-5
+      %span{ title: "Сумма всего" }Использование бюджета
+    .col-4
+      = summ_formatter(@budget_statistics[:budget_using], @budget.currency)
+    .col-1
+      0
+    .col-1
+      0
+  .row
+    .col-5
+      %span{ title: "Все" }Накладных
+    .col-4
+      = @budget_statistics[:all_naklads]
+    .col-1
+      0
+    .col-1
+      0
+  .row
+    .col-5
+      %span Плановая маржа
+    .col-4
+      = @budget_statistics[:plan_marga]
+    .col-1
+      0
+    .col-1
+      0
+  .row
+    .col-5
+      %span{ title: "Отношение разницы между доходами и расходами к наполнению за вычетом инвестов" }Плановая рентабельность
+    .col-4
+      = sprintf("%8.2f", @budget_statistics[:plan_profit])
+    .col-1
+      0
+    .col-1
+      0
+  .row
+    .col-5
+      %span{ title: "Отношение наполнения за вычетом инвестов к общему количеству штатных единиц без учета вакантности (ОКШЕ)" }Плановая выручка на 1 ШЕ
+    .col-4
+      = sprintf("%8.2f", @budget_statistics[:plan_revenue_on_state_unit])
+    .col-1
+      0
+    .col-1
+      0
+  .row
+    .col-5
+      %span{ title: "Отношение плановой рентабельности к ОКШЕ" }Плановая рентабельность на 1 ШЕ
+    .col-4
+      = sprintf("%8.2f", @budget_statistics[:plan_profit_on_state_unit])
+    .col-1
+      0
+    .col-1
+      0
+  .row
+    .col-5
+      %span{ title: "Отношение суммы всех месячных зп к их количеству" }Серднемесячная ЗП
+    .col-4
+      = sprintf("%8.2f", @budget_statistics[:average_salary])
+    .col-1
+      0
+    .col-1
+      0

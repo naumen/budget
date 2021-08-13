@@ -1,0 +1,12 @@
+= render partial: "budgets/budget/header_ancestors", locals: {budget: @budget}
+%h1 Редактирование Резерва на ФОТ
+= form_tag("/budget/#{@budget.id}/fot_edit", method: "post") do
+  Текущее значение: 
+  = money(@budget.fot_value) 
+  руб.
+  %br
+  Изменить (дельта):
+  = text_field_tag(:fot_delta_value)
+  = submit_tag("Сохранить")
+  %a{ href: "/budgets/#{@budget.id}"}
+    Отмена

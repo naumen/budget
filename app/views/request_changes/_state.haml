@@ -1,0 +1,8 @@
+- unless @request_change.request_change_actions.empty?
+  - if @request_change.state == 'Редактируется'
+    - if @request_change.direct_proceed?
+      = button_to "Обработать", "/request_change/#{@request_change.id}/set_state?state=direct_proceed", { class: "float-left btn btn-success", data: { confirm: "Выполнить переход?", disable_with: "Выполняем переход..." } }
+    - else
+      = button_to "На согласование", "/request_change/#{@request_change.id}/set_state?state=to_confirm", { class: "float-left btn btn-success", data: { confirm: "Выполнить переход?", disable_with: "Выполняем переход..." } }
+  - elsif @request_change.state == 'Отклонена'
+    = button_to "На редактирование", "/request_change/#{@request_change.id}/set_state?state=to_edit", { class: "float-left btn btn-success", data: { confirm: "Выполнить переход?", disable_with: "Выполняем переход..." } }

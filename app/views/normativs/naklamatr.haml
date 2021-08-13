@@ -1,0 +1,57 @@
+.row
+  .col.text-center
+    %h2
+      Распределение накладных по бюджетам
+.row
+  .col
+    %form{ method: 'post' }
+      %center
+        - f_year = session[:f_year]
+        %input{ type: "submit", class: "btn btn-primary", value: "Сохранить матрицу, #{f_year} год", data: { disable_with: "Сохранение..." } }
+      = hidden_field_tag :authenticity_token, form_authenticity_token
+      = hidden_field_tag :f_year, f_year
+      .normativ-types.pb-1
+        - @normativ_types.each do |id, name|
+          - selected = id == params[:group_id].to_i
+          - _class = selected ? "btn btn-info btn-sm" : nil
+          = link_to name, "?group_id=#{id}", style: selected ? "font-weight: bold" : nil, class: _class
+          = '|'
+      %table.table.table-bordered.table-sm
+        %tr
+          %td{bgcolor: "#eeffcc", class: "w-30"}
+            Бюджет
+          - @normativs.each_with_index do |normativ, _index|
+            - if (_index+1) % 13 == 0
+              %td{bgcolor: "#eeffcc"}
+            %td{bgcolor: "#eeffcc"}
+              %p= normativ.name
+              = hidden_field_tag "normativ_ids[]", normativ.id
+        - @budgets.each_with_index do |budget, index|
+          - if (index+1) % 8 == 0
+            %tr
+              %td{bgcolor: "#eeffcc", class: "w-30"}
+              - @normativs.each_with_index do |normativ, _index|
+                - if (_index+1) % 13 == 0
+                  %td{bgcolor: "#eeffcc"}
+                %td{bgcolor: "#eeffcc"}
+                  %p= normativ.name
+                  = hidden_field_tag "normativ_ids[]", normativ.id
+          %tr
+            %td{bgcolor: "#eeffcc"}
+              %b
+                = "[#{budget.cfo.name}]"
+              = budget.name
+            - @normativs.each_with_index do |normativ, _index|
+              - if (_index+1) % 13 == 0
+                %td{bgcolor: "#eeffcc"}
+                  %b
+                    = "[#{budget.cfo.name}]"
+                  = budget.name
+              - if normativ.metrik && normativ.metrik.name.eql?('По весу')
+                - val = !normativ.naklads.find_by(budget_id: budget.id).nil? ? normativ.naklads.find_by(budget_id: budget.id).weight.to_s : ''
+                %td.text-center{ !val.empty? ? {style: "background-color: #c2dec2"} : {} }
+                  %input{ name: "normative[#{normativ.id}][#{budget.id}]", value: val, size: 8, style: "border: 1px solid #ccc" }
+              - else
+                - is_checked = (normativ.naklads.pluck(:budget_id).include?(budget.id)) ? true : false
+                %td.text-center{ is_checked ? {style: "background-color: #c2dec2"} : {} }
+                  %input{ type: "checkbox", name: "normative[#{normativ.id}][#{budget.id}]", checked: is_checked }

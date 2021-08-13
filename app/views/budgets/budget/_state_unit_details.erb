@@ -1,0 +1,14 @@
+<template v-if="selected_state_unit_id == '<%= @state_unit_id %>'">
+  <tr v-for="salary in salaries">
+    <td></td>
+    <td align="right">{{monthName(salary.month)}}</td>
+    <td align="right">{{numberWithCommas(salary.salary)}}</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td colspan="7" bgcolor="#d0d0d0"></td>
+  </tr>
+</template>

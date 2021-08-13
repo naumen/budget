@@ -1,0 +1,28 @@
+- unless @presenter.normativs.empty?
+  %h3 Нормативы
+
+  %table#budget-normativs.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th Наименование
+        %th Описание
+        %th{style: "width: 150px"} Норматив
+        %th Метрика
+        %th Метрики Итого
+        %th{style: "width: 150px"} Накладные
+        %th Сумма
+    - @presenter.normativs.each do |row|
+      %tr
+        %td= link_to row[:name], normativ_path(row[:id])
+        %td= row[:description]
+        %td.text-right
+          - if row[:norm].to_f < 1.0
+            = row[:norm]
+          - else
+            = money row[:norm]
+        %td= row[:metrika]
+        %td.text-center= row[:metrik_value]
+        %td.text-center= row[:nakladn]
+        %td.text-right= money row[:summa]
+  :javascript
+    new Tablesort(document.getElementById('budget-normativs'));

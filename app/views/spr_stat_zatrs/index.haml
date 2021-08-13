@@ -1,0 +1,20 @@
+.row
+  .col-12
+    %h2
+      = "Справочник статей затрат"
+      = link_to(image_tag("new.png", title: "Создать новую запись"), new_spr_stat_zatr_path)
+
+
+%table.table.table-striped.table-bordered.table-sm
+  %thead
+    %tr.bg-primary.text-white
+      %th Наименование
+      %th
+  - @spr_stat_zatrs.each do |spr_stat_zatr|
+    %tr
+      %td
+        = spr_stat_zatr.name
+      %td
+        = link_to(image_tag("edit2.png", width: "15px", title: "Редактировать"), edit_spr_stat_zatr_path(spr_stat_zatr))
+        &nbsp;
+        = link_to(image_tag("delete-icon.png", width: "13px", title: "Удалить"), spr_stat_zatr_path(spr_stat_zatr), method: :delete,  data: { confirm: "Вы хотите удалить \"#{spr_stat_zatr.name}\"" })

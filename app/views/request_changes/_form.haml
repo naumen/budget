@@ -1,0 +1,36 @@
+- if @request_change.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @request_change.errors.full_messages.each do |message|
+        %li= message
+
+= form_for @request_change, :html => { :onsubmit => "return testForm()" } do |f|
+  %input{:type => "hidden", :name => 'request_change[budget_id]', :value => @request_change.budget_id}
+  .row.form-group
+    .col-1
+      %label Бюджет
+    .col-8
+      = @request_change.budget.name
+  .row.form-group
+    .col-1
+      %label Заголовок
+    .col-8
+      %input{ id: "request_change_name", name: 'request_change[name]', class: 'form-control', value: @request_change.name }
+
+  .row.form-group
+    .col-1
+      &nbsp;
+    .col-8
+      = f.submit t('common.save'), :class => 'btn btn-primary form-submit', data: { disable_with: false }
+      = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'
+:javascript
+  function testForm(){
+    if ($("#request_change_name").val() == ''){
+      alert("Не заполнено название"); 
+      $("#request_change_name").focus();
+      return false;
+    }
+    
+    return true;
+  }

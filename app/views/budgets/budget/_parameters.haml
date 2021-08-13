@@ -1,0 +1,18 @@
+%h2 Параметры бюджета
+/ .tablesorter{:border => "0", :cellpadding => "0", :cellspacing => "1"}
+%table.table.table-sm
+  %thead
+    %tr.bg-info.text-white
+      %th Наименование
+      %th Значение
+  - @presenter.budget_parameters.each do |budget_param|
+    %tr{ title: budget_param.title}
+      %td= budget_param.name
+      %td.text-right
+        - if budget_param.type == 'money'
+          = summ_formatter(budget_param.value)
+        - elsif budget_param.type == 'float'
+          = "%.02f" % budget_param.value
+        - else
+          = "%.02f" % budget_param.value
+          = '%'

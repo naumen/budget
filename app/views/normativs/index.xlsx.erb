@@ -1,0 +1,21 @@
+<table>
+  <tr>
+    <% @normativ_presenter.cols.each do |f_code, f_name| %>
+      <th><%= f_name %></th>
+    <% end %>
+  </tr>
+  <% @normativ_presenter.rows.sort_by{|r| r[:cfo]}.each do |row| %>
+    <tr>
+      <% is_selected = row[:budget_usage_delta_perc].to_f > 10.0 %>
+      <% @normativ_presenter.cols.each do |f_code, f_name| %>
+        <% is_money_col = @normativ_presenter.money_cols.include?(f_code) %>
+        <% val = row[f_code] %>
+        <% if is_money_col %>
+          <td x:num="<%= val.to_s %>"><%= '<b>'.html_safe if is_selected %><%= val.to_s.tr('.', ',') %><%= '</b>'.html_safe if is_selected %></td>
+        <% else %>
+          <td><%= '<b>'.html_safe if is_selected %><%= val %><%= '</b>'.html_safe if is_selected %></td>
+        <% end %>
+      <% end %>
+    </tr>
+  <% end %>
+</table>

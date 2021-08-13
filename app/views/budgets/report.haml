@@ -1,0 +1,92 @@
+%h2 Отчет по финансовым показателям Бюджетов БН
+
+= form_for "/budgets/report" do |f|
+  = render partial: "report_access"
+  %b Выберите бюджет(ы):
+  %br
+  %select{multiple: true, size: 15, name: "budget_ids[]"}
+    - @budgets.each do |budget|
+      %option{value: budget.id, selected: @budget_ids.include?(budget.id)}
+        = budget.name
+  %br
+  %input{ id: "include_prev_year", type: "checkbox", name: 'include_prev_year', value: 1, checked: params[:include_prev_year].to_i == 1 } 
+  %label{for: "include_prev_year"}
+    %b
+      включить сравнение с 
+      = @f_year - 1
+      годом
+  %br
+  %br
+  %input{ type: "submit", class: "btn btn-outline-primary", value: "Отобразить", data: { disable_with: "Рассчитываем ..." } }
+  %br
+  %br
+  %br
+  
+
+- if @report
+  - if @include_prev_year
+    %small
+      %a{href:"#", onclick: '$(".cell-details").toggle(); return false;'} отобразить/скрыть детализацию
+  %table#budget-report.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th Бюджет
+        - @report[:budget_params].each do |name, unit|
+          %th
+            = name
+            = "(#{unit})"
+    - @report[:rows].each do |row|
+      %tr
+        %td= link_to row[:budget_name], Budget.find(row[:budget_id])
+        - budget_params = row[:budget_params][@f_year]
+        - if @include_prev_year
+          - prev_budget_params = row[:budget_params][@f_year-1]
+        - @report[:budget_params].each do |name, unit|
+          - budget_param      = budget_params[name]
+          - prev_budget_param = prev_budget_params[name] if @include_prev_year
+          %td{style: "text-align: center"}
+            - next if budget_param.nil?
+            - if @include_prev_year
+              - prev_val = prev_budget_param[:value].to_f
+              - val = budget_param[:value].to_f
+
+              - delta = val - prev_val
+              - perc = "%0.2f %" % (delta.abs / (prev_val / 100.0) )
+              %nobr
+                %span{style: "font-size: 15pt; color: #{delta.to_f < 0.0 ? 'red' : 'green'}"}
+                  - if !['Inf %', 'NaN %'].include?(perc)
+                    = delta > 0.0 ? "+" : '-'
+                    = perc
+                  - else
+                    &nbsp;
+
+              %div{style: "color: gray; font-size: 9pt; display: none", class: "mt-1 cell-details"}
+                %span{title: prev_budget_param[:title]}
+                  - if budget_param[:type] == 'money'
+                    = summ_formatter(prev_val)
+                  - elsif budget_param[:type] == 'float'
+                    = "%.02f" % prev_val
+                  - else
+                    = "%.02f" % prev_val
+                    = '%' 
+                = " &rarr; ".html_safe
+                %span{title: budget_param[:title]}
+                  - if budget_param[:type] == 'money'
+                    = summ_formatter(val)
+                  - elsif budget_param[:type] == 'float'
+                    = "%.02f" % val
+                  - else
+                    = "%.02f" % val
+                    = '%' 
+            - else
+              %span{title: budget_param[:title]}
+                - val = budget_param[:value].to_f
+                - if budget_param[:type] == 'money'
+                  = summ_formatter(val)
+                - elsif budget_param[:type] == 'float'
+                  = "%.02f" % val
+                - else
+                  = "%.02f" % val
+                  = '%' 
+    / :javascript
+  /   new Tablesort(document.getElementById('budget-report'));

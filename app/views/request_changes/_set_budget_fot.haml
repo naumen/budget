@@ -1,0 +1,30 @@
+%h3 Резерв ФОТ Бюджета
+
+= form_for @request_change, url: request_change_set_action_path(@request_change), :html => { :onsubmit => "return testform()" } do |f|
+  = f.hidden_field :id
+  - if params[:action_id]
+    %input{:type => "hidden", :name => 'action_id', :value => params[:action_id]}
+  %input{:type => "hidden", :name => 'do', :value => params[:do]}
+  %table
+    %tr
+      %td
+        Изменение Резерва ФОТ (дельта):
+        &nbsp;
+      %td
+        %input{ :name => 'budget_fot_delta', id: 'budget_fot_delta', :class => 'form-control', value: @request_change_action_content ? @request_change_action_content["budget_fot_delta"] : '', style: 'width: 200px' }
+      %td
+        &nbsp; руб
+  %br
+
+  %button.btn.btn-primary Сохранить
+  &nbsp;
+  = link_to 'Отмена', "/request_changes/#{@request_change.id}"
+:javascript
+  function testform(){
+    var name = $('#budget_fot_delta').val();
+    if (name== ''){
+      alert('Укажите Сумму');
+      return false;
+    }
+    return true;
+  }

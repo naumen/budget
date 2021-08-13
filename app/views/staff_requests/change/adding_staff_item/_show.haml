@@ -1,0 +1,17 @@
+.row
+  .col-2.text-right Отдел:
+  .col
+    %a{href: "/staff_requests/staff_show/#{change.division_id.to_s}?on_date=#{change.date_of_change}"}
+      = change.division.name
+.row
+  .col-2.text-right Должность:
+  .col= change.position.name
+.row
+  .col-2.text-right Локация:
+  .col= change.location.name
+.row
+  .col-2.text-right Оклад:
+  .col= money(change.salary)
+.row
+  .col-2.text-right Ставка:
+  .col= change.rate

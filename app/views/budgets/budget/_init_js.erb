@@ -1,0 +1,7 @@
+<script>
+  var initial_values = {}; <% initial_summa = 0.0 %>
+  <% stat_zatr['zatratas'].sort_by{|z| z['month']}.each do |zatrat| %>
+    initial_values[<%= zatrat['month'] %>] = <%= zatrat['summ'] %>; <% initial_summa += zatrat['summ'].to_f %>
+  <% end %>
+  var initial_summa = <%= initial_summa %>;
+</script>

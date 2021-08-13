@@ -1,0 +1,179 @@
+<h3>
+  <% if @request_change_action.new_record? %> 
+    Новая бюджетная шт.единица
+  <% else %>
+    Редактирование
+  <% end %>
+</h3>
+
+
+<div id="app">
+  <table width="800px">
+    <tr>
+      <td align="right">Отдел:</td>
+      <td><input type="text" v-model="rec.division"></td>
+    </tr>
+    <tr>
+      <td align="right">Должность:</td>
+      <td><input type="text" v-model="rec.position"></td>
+    </tr>
+    <tr>
+      <td align="right">Локация:</td>
+      <td><select v-model="rec.location_id">
+    <% @request_change_action.locations.each do |l| %>
+    <option value="<%= l.id %>"><%= l.name %></option>
+    <% end %>
+  </select>
+      </td>
+    </tr>
+    <tr>
+      <td align="right" valign="top">Оклад:</td>
+      <td>
+        <div class="col-12 mt-2">
+          <div class="row align-items-center" style="border-bottom: 1px solid #c0c0c0; background-color: #e0e0e0">
+            <div class="col-4">Год, Месяц</div>
+            <div class="col-4">З/п, руб</div>
+            <div class="col-4">Начальное значение</div>
+          </div>
+          <div v-for="salary in rec.salaries" class="row align-items-center" style="border-bottom: 1px dashed #e6e6e6;  background-color: #f6f6f6">
+            <div class="col-4">2020 г., {{monthName(salary[0])}}</div>
+            <div class="col-4">
+              <input class       = "form-control-small salary-value"
+                     :data-month = "salary[0]"
+                     :value      = "salary[1]"
+                     readonly=1
+                     size="6">
+
+            </div>
+            <div class="col-4">
+              <input v-model="salaries_start[salary[0]]"
+                     size="6">
+            </div>
+          </div>
+          <div class="row align-items-center" style="border-bottom: 1px solid #c0c0c0; background-color: #e0e0e0">
+            <div class="col-4" style="text-align: right;">Итого, руб:</div>
+            <div class="col-4" style="font-weight: bold;">{{zpItogo()}}</div>
+            <div class="col-4"></div>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+        <br>
+        <div v-if="result == 'ok'">
+          Данные сохранены, обновляем страницу..
+        </div>
+        <div v-if="result == 'error'">
+          Ошибка при сохранении..
+        </div>
+        <button v-if="result != 'ok'" @click="onSave" class="btn btn-primary">Сохранить</button>
+        <a v-if="result != 'ok'" class="pl-2" href="/request_changes/<%= @request_change.id %>">Отмена</a>
+      </td>
+    </tr>
+  </table>
+<script>
+var app = new Vue({
+  el: "#app",
+  data: {
+    result: "",
+    rec: <%= @request_change_action.json_content.html_safe %>,
+    salaries_start: <%= @request_change_action.salaries_start.to_json.html_safe %> // начальные значения з/п полученные с бэкэнда {month: value, ...}
+  },
+  mounted: function(){
+    
+  },
+  watch: {
+    salaries_start: {
+      deep: true,
+      handler(){
+        this.recalcSalaries();
+      }
+    }
+  },
+  methods: {
+    formValid: function(){
+      var error_message = '';
+
+      if (this.rec.position == ''){
+        error_message += "Не заполнена Должность.\n";
+      }
+
+      if (this.rec.location_id == ''){
+        error_message += "Не заполнена Локация.\n";
+      }
+
+      if (error_message != ''){
+        alert(error_message);
+        return false;
+      }
+
+      return true;
+    },
+    onSave: function(){
+      if (this.formValid()){
+        // pass
+      }
+      else {
+        return false;
+      }
+      var info_to_save = JSON.stringify(this.rec);
+      axios.post(
+        '/request_change/<%= @request_change.id %>/create_save_action',
+        { action_type: "state_unit_create", action_id: "<%= @request_change_action.id %>", json_content: info_to_save }
+      )
+      .then(response => this.handleResult(response.data))
+      .catch(error => {});      
+    },
+    handleResult: function(result){
+      if (result["result"] == 'ok'){
+        this.result = 'ok';
+        var url= '/request_changes/<%= @request_change.id %>';
+        window.location = url;
+      }
+      else{
+        this.result = 'error';
+      }
+    },
+    zpItogo: function(){
+      var itogo = 0.0;
+      for(var i in this.salaries){
+        itogo += parseFloat(this.salaries[i][1]);
+      }
+      return this.numberWithCommas(itogo.toFixed(2));
+    },
+    // при редактировании шт. единицы, блок з/п
+    // динамическое обновление цифр по месяцам, при изменении данных в колонке "начиная с"
+    recalcSalaries: function(){
+      var months = [<%= (1..12).to_a.map{|i| "\"#{i}\""}.join(',').html_safe %>];
+      var curSalary = 0.0;
+      for(var i in months){
+        var month_num = months[i];
+        if (this.salaries_start[month_num]){
+          curSalary = this.salaries_start[month_num];
+        }
+        this.rec.salaries[month_num-1][1] = curSalary;
+      }
+    },
+    // форматирование числа (запятые на 1000 разряды)
+    numberWithCommas(x) {
+      x = x.toString();
+      var pattern = /(-?\d+)(\d{3})/;
+      while (pattern.test(x))
+        x = x.replace(pattern, "$1,$2");
+      return x;
+    },
+    monthName: function(num){
+      switch(num){
+      <% StaffItemSalary.months.each do |num, name| %>
+        case "<%= num.to_s %>":
+          return "<%= name %>";
+      <% end %>
+      }
+    },
+  }
+});
+</script>
+
+</div>

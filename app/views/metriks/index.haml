@@ -1,0 +1,27 @@
+.row
+  .col-12
+    %h2
+      = "Справочник метрик"
+
+%br/
+
+.row.form-group
+  .col-3
+    Наименование
+  .col-3
+    Код
+  .col-1
+  .col-1
+  .col-4
+
+%hr
+
+- @metriks.each do |metrik|
+  .row.form-group
+    .col-3
+      = metrik.name
+    .col-3
+      = metrik.code
+    .col-1
+    .col-1
+    .col-4

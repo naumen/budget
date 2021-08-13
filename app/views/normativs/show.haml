@@ -1,0 +1,63 @@
+.row
+  %h2
+    = "Норматив: " + @normativ.name
+    - if @normativ.budget.editable? && current_user.is_admin
+      = link_to(image_tag("edit.png", width: "24px", title: "Редактировать норматив"), edit_normativ_path)
+      = link_to(image_tag("delete.png", width: "24px", title: "Удалить норматив"), normativ_path,  method: :delete, data: { confirm: 'Вы хотите удалить норматив, вы уверены?' })
+
+.row.m-2
+  .col-2
+    %label= t('normativs.form.budget_id')
+  .col-8
+    = link_to( @normativ.budget.name, @normativ.budget)
+
+.row.m-2
+  .col-2
+    %label= t('normativs.form.metrik_id')
+  .col-8
+    = @normativ.metrik.name
+
+.row.m-2
+  .col-2
+    %label= t('normativs.form.norm')
+  .col-8
+    %b
+      = norm_money(@normativ.norm)
+
+.row.m-2
+  .col-2
+    %label Группа
+  .col-8
+    = @normativ.normativ_type.name rescue ''
+
+.row.m-2
+  .col-2
+    %label= t('normativs.form.description')
+  .col-8
+    .card.bg-light
+      .card-body
+        = @normativ.description.gsub("\n", '<br>').html_safe
+
+.row.m-2
+  .col-2
+    %label Состав затрат
+  .col-8
+    .card.bg-light
+      .card-body
+        = @normativ.sostav_zatrat.to_s.gsub("\n", '<br>').html_safe
+
+- unless @normativ.comment.blank?
+  .row.m-2
+    .col-2
+      %label Комментарий
+    .col-8
+      .card.bg-light
+        .card-body
+          = @normativ.comment.to_s.gsub("\n", '<br>').html_safe
+
+%hr
+%h2
+  Накладные
+  = "(#{@normativ.naklads.size})"
+= render partial: "table2"
+

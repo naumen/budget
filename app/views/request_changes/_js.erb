@@ -1,0 +1,84 @@
+<script>
+  function calc_itogo(){
+    var itogo = 0.0;
+    $.each( $('input.change'), function(){
+      var month = $(this).data('month');
+      var new_val = $('#input_'+month).val();
+      itogo += parseFloat(new_val);
+    });
+    return itogo;
+  }
+
+  function calc_itogo2(){
+    var itogo = 0.0;
+    $.each( $('input.changedValue2'), function(){
+      var new_val = $(this).val();
+      itogo += parseFloat(new_val);
+    });
+    return itogo;
+  }
+
+  function refresh_itogo(){
+    var new_itogo = calc_itogo();
+    $('#newitogo')[0].innerHTML = moneyFormat(new_itogo);
+    var delta = new_itogo - initial_summa;
+    if (delta > 0){
+      delta = '+' + delta;
+    }
+    delta = '&#916; ' + delta
+    $('#delta')[0].innerHTML = delta;
+  }
+
+  function refresh_itogo2(){
+    var new_itogo = calc_itogo2();
+    $('#newitogo')[0].innerHTML = moneyFormat(new_itogo);
+  }
+
+  function moneyFormat(n) {
+    return parseFloat(n).toFixed(0).replace(/(\d)(?=(\d{3})$)/g, "$1 ").replace(' ', ',');
+  }
+
+  function init_checked(){
+    $.each( $('input.change'), function(){
+      var month = $(this).data('month');
+      if ($(this).is(':checked')) {
+        select_row_for_month(month, this);
+      }
+    });
+    refresh_itogo();
+  }
+
+  function select_row_for_month(month, it){
+    $('#input_'+month).prop('disabled', false);
+    $('#checkbox_'+month).prop('disabled', false);
+    $(it).parent().css('background-color', '#ffffc7');
+    $(it).parent().parent().css('background-color', '#ffffc7');
+  }
+
+  $(document).ready( function() {
+    $('input.changedValue').on('input',function(e){
+     refresh_itogo();
+    });
+    $('input.changedValue2').on('input',function(e){
+     refresh_itogo2();
+    });
+    $('input:checkbox.change').click(function(){
+      month = $(this).data('month');
+      if ($(this).is(':checked')) {
+        select_row_for_month(month, this)
+      } else {
+        init_val = initial_values[month];
+        $('#input_'+month).val(init_val).prop('disabled', true);
+        $('#checkbox_'+month).prop('checked', false).prop('disabled', true);
+        $(this).parent().css('background-color', 'rgb(210, 255, 201)');
+        $(this).parent().parent().css('background-color', '');
+      }
+      refresh_itogo();
+    });
+    // init checked rows
+    if (typeof variable === 'undefined' || no_check){
+    }else{
+      init_checked();
+    }
+  } );
+</script>

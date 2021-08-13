@@ -1,0 +1,18 @@
+= card "Штатные единицы" do
+  %table.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th Должность
+        %th Оклад
+        %th Ставка
+        %th Сотрудник
+        %th Местоположение
+        %th
+    - @division.staff_items.sort_by{|staff_item| staff_item.position.name}.each do |staff_item|
+      %tr
+        %td= staff_item.position.name
+        %td= staff_item.current_salary
+        %td= staff_item.koeff
+        %td= staff_item.user_staff ? staff_item.user_staff.user.name : 'вакантна'
+        %td= staff_item.location.name
+        %td= link_to "зарплата", staff_item_salaries_path(staff_item)

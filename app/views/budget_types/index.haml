@@ -1,0 +1,18 @@
+.row
+  .col-12
+    %h2
+      = "Справочник типов бюджетов"
+      = link_to(image_tag("add.png", width: "36px", title: "Создать новый тип бюджета"), new_budget_type_path)
+
+%br/
+
+
+- @budget_types.each do |budget_type|
+  .row.form-group
+    .col-6
+      = budget_type.name
+    .col-1
+      = link_to(image_tag("edit.png", width: "24px", title: "Редактировать тип бюджета #{budget_type.name}"), edit_budget_type_path(budget_type))
+    .col-1
+      = link_to(image_tag("delete.png", width: "24px", title: "Удалить тип бюджета #{budget_type.name}"), budget_type_path(budget_type), method: :delete,  data: { confirm: "Удалить тип бюджета '#{budget_type.name}'?" })
+    .col-4

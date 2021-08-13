@@ -1,0 +1,84 @@
+  <table class="table table-striped table-bordered table-sm">
+    <tr class="bg-primary text-white">
+      <td>Должность</td>
+      <td>Оклад</td>
+      <td>Ставка</td>
+      <td>Сотрудник</td>
+      <td>Местоположение</td>
+    </tr>
+    <% pos = 0 %>
+    <% @h_staff_items.each do |staff_item| %>
+      <%
+        user_staff = staff_item.occupied_by_user
+        bgcolor = nil
+        if user_staff.nil?
+          bgcolor = "#e6ffdf" 
+        end
+        if params[:salary_staff_item_details] && staff_item.id == params[:salary_staff_item_details].to_i
+          bgcolor = "#FFD700" 
+        end
+      %>
+
+      <tr <%= "bgcolor=#{bgcolor}" if bgcolor %>>
+        <td><b><%= pos += 1 %>. <%= staff_item.position.name %></b></td>
+        <td align="right">
+          <% current_salary = staff_item.h_current_salary %>
+          <%= money(current_salary.salary) if current_salary %>
+          <% if params[:salary_staff_item_details].to_i == staff_item.id %>
+            <% new_params = params.dup %>
+            <% new_params.delete(:salary_staff_item_details) %>
+            <%= link_to "&larr;", new_params %>
+          <% else %>
+            <%# link_to "&rarr;", params.merge({:salary_staff_item_details=>staff_item.id}) %>
+          <% end %>
+        </td>
+        <td align="center"><%= staff_item.koeff %></td>
+        <td>
+          <%= user_staff.user.name if user_staff %>
+          <% if user_staff && user_staff.date_closed %>
+            <br>
+            <span style="font-style:italic; color: #606060">занята с <%= date(user_staff.date_from) %> по <%= date(user_staff.date_closed-1) %></span>
+          <% end %>
+
+          <% if user_staff.nil? && !staff_item.hr_order_confirmation.empty? %>
+            <% hr_order_priem = staff_item.hr_order_confirmation[0] %>
+            <i>Будет занята с 
+              <% if hr_order_priem.order_date_priem %>
+                <%= date(hr_order_priem.order_date_priem) %>
+              <% elsif hr_order_priem.order_date_perevod %>
+                <%= date(hr_order_priem.order_date_perevod) %>
+              <% end %>
+            </i>
+            (<%= User.find(hr_order_priem.user_id).short_name %>) 
+            <br>
+            <%= link_to "приказ 'На подписании' &gt;&gt;", :controller=>"hr_order", :action=>"show", :id=>hr_order_priem %>
+          <% end %>
+          <%= render :partial=>"/staff_requests/division/staff_item_comments", :locals=>{ :staff_item => staff_item }%>
+        </td>
+        <td><%= staff_item.location.name %></td>
+      </tr>
+      <% if params[:salary_staff_item_details] && staff_item.id == params[:salary_staff_item_details].to_i %>
+        <% salary_itogo = 0.0 %>
+        <% (1..12).each do |m| %>
+          <% _salary = staff_item.h_current_salary(m, @division.record_on_date.to_date.year) %>
+          <% salary_itogo += _salary.salary * staff_item.koeff if _salary%>
+        <tr bgcolor="#FFFACD">
+          <td align="right"><%= User.get_small_month2(m.to_s	) %></td>
+          <td align="right"><%= money(_salary.salary) if _salary %></td>
+          <td align="center"><%= staff_item.koeff %></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <% end %>
+        <tr bgcolor="#F0F0C0">
+          <td align="right"><b>ИТОГО</b></td>
+          <td align="right"><b><%= money(salary_itogo) %></b></td>
+          <td align="center"></td>
+          <td></td>
+          <td></td>
+        </tr>
+      <% end %>
+
+
+    <% end %>
+  </table>

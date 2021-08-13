@@ -1,0 +1,52 @@
+%h2 Штатные единицы в 2020 году, что отсутствуют в 2021 году
+
+- cnt_itogo = 0
+- cnt_not_closed = 0
+%table{border: 1}
+  %tr
+    %th ЦФО
+    %th Бюджет
+    %th Сотрудник
+    %th Отдел / Должность
+    %th ФЗП
+    %th ЗП декабрь 2020
+    %th Дата закрытия
+    %th
+  - @not_cloned.sort_by{|item| item.budget.cfo.name}.each do |item|
+    - cnt_itogo += 1
+    - cnt_not_closed += 1 unless item.date_closed
+    %tr{ bgcolor: item.date_closed ? '#c0c0c0' : nil}
+      %td= item.budget.cfo.name
+      %td
+        %a{ target: "_blank", href: "/budgets/#{item.budget_id}?state_unit_id=#{item.id}#state_units"}
+          = item.budget.name
+      %td
+        %i
+          = item.user.name rescue ''
+      %td
+        = item.division 
+        = '/'
+        %b
+          = item.position
+      %td.text-right= money(item.fzp)
+      %td.text-right
+        - salary_by_december = item.salary_by_december
+        %small
+          - if salary_by_december
+            %b
+              = salary_by_december
+          - else
+            %span{ style: "color: #660000"} не указана
+      %td= item.date_closed
+      %td
+        - unless item.date_closed
+          %small
+            = link_to "клонировать на 2021 &rarr;".html_safe, "/state_units/clone_to_2021?state_unit_id=#{item.id}", data: {confirm: "Клонировать на 2021?"}
+              
+
+%br
+Всего строк:
+= cnt_itogo
+%br
+Не закрытые:
+= cnt_not_closed

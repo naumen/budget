@@ -1,0 +1,2 @@
+class FotLog < ApplicationRecord
+end

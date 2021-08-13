@@ -1,0 +1,77 @@
+#
+# - Бюджет компании [b_top]
+#   - Бюджеты центров прибыли [b_d_cfos]
+#     - Бюджет ЦФО 1 [b_d_cfo_1]
+#       - Бюджет ЦФО 1 ФЗП [b_d_cfo_1_fzp]
+#       - Инвестиционный [b_invest]
+#     - Бюджет ЦФО 2 [b_d_cfo_2]
+#   - Накладные расходы [b_nakladn]
+#     - Накладные управления компанией [b_nakladn_management]
+#       - Службы информационных технологий [b_it]
+#       - Бюджет Сервисного Центра [b_service]
+#   - Распределение прибыли [b_profit_distribution]
+#
+b_top:
+  name: Бюджет компании
+  f_year: 2018
+
+b_profit_distribution:
+  name: Распределение прибыли
+  parent: b_top
+  f_year: 2018
+
+b_d_cfos:
+  name: Бюджеты центров прибыли
+  parent: b_top
+  owner: budget_top_owner
+  f_year: 2018
+
+b_d_cfo_1:
+  name: Бюджет ЦФО 1
+  parent: b_d_cfos
+  owner: budget_owner
+  f_year: 2018
+
+b_d_cfo_1_fzp_next:
+  name: Бюджет ЦФО 1 ФЗП (next)
+  parent: b_d_cfo_1
+  f_year: 2019
+
+b_d_cfo_1_fzp:
+  name: Бюджет ЦФО 1 ФЗП
+  parent: b_d_cfo_1
+  next_budget: b_d_cfo_1_fzp_next
+  f_year: 2018
+
+b_d_cfo_2:
+  name: Бюджет ЦФО 2
+  parent: b_d_cfos
+  f_year: 2018
+
+b_invest:
+  name: Инвестиционный
+  parent: b_d_cfo_1
+  budget_type: invest_company
+  f_year: 2018
+
+b_nakladn:
+  name: Накладные расходы
+  parent: b_top
+  f_year: 2018
+
+b_nakladn_management:
+  name: Накладные управления компанией
+  parent: b_nakladn
+  owner: budget_top_owner
+  f_year: 2018
+
+b_it:
+  name: Службы информационных технологий
+  parent: b_nakladn_management
+  f_year: 2018
+
+b_service:
+  name: Бюджет Сервисного Центра
+  parent: b_nakladn_management
+  owner: budget_owner
+  f_year: 2018

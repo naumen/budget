@@ -1,0 +1,49 @@
+<script type="text/javascript">
+var app = new Vue({
+  el: "#state_units",
+  data: {
+    selected_state_unit_id: '',
+    salaries: []
+  },
+  methods: {
+    bgStyleColor: function(state_unit_id){
+      if (this.selected_state_unit_id == state_unit_id){
+        return 'background-color: #fbffbc';
+      }
+      return '';
+    },
+    details: function(state_unit_id){
+      if (this.selected_state_unit_id == state_unit_id){
+        this.salaries = [];
+        this.selected_state_unit_id = '';
+        return;
+      }
+      this.selected_state_unit_id = state_unit_id;
+      this.loadSalaries();
+    },
+    loadSalaries: function(){
+      axios.get('/budget/<%= @budget.id %>/state_unit_salary', { params: { state_unit_id: this.selected_state_unit_id } })
+                  .then(response => {
+                    this.salaries = response.data;
+                   })
+                  .catch(error => {});
+    },
+    monthName: function(num){
+      switch(num){
+      <% StaffItemSalary.months.each do |num, name| %>
+        case "<%= num.to_s %>":
+          return "<%= name %>";
+      <% end %>
+      }
+    },
+    // форматирование числа (запятые на 1000 разряды)
+    numberWithCommas(x) {
+      x = x.toString();
+      var pattern = /(-?\d+)(\d{3})/;
+      while (pattern.test(x))
+        x = x.replace(pattern, "$1,$2");
+      return x;
+    },
+  }
+});
+</script>

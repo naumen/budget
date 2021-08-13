@@ -1,0 +1,11 @@
+- if a.action_type == 'stat_zatr_edit'
+  = render partial: "request_changes/action_details/stat_zatr_edit", locals: { a: a, content: content }
+- elsif a.action_type == 'stat_zatr_create'
+  = render partial: "request_changes/action_details/stat_zatr_create", locals: { a: a, content: content }
+- elsif a.action_type == 'state_unit_create'
+  = render partial: "request_changes/action_details/state_unit_create", locals: { a: a, content: content }
+- elsif a.action_type == 'state_unit_edit'
+  = render partial: "request_changes/action_details/state_unit_edit", locals: { a: a, content: content }
+- elsif a.action_type == 'set_budget_fot'
+  = render partial: "request_changes/action_details/set_budget_fot", locals: { a: a, content: content }
+

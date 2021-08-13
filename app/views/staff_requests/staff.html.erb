@@ -1,0 +1,109 @@
+<div align="right">
+<b>штатное расписание</b>
+|
+<a href="/staff_requests">заявления на изменение</a>
+</div>
+
+<h1>Штатное расписание Холдинг</h1>
+
+<% if @on_date == Time.now.strftime("%Y-%m-%d") %>
+  <span style="font-weight: bold; color: green">на сегодня</span> <i><%= date(@on_date) %></i>
+<% else %>
+   <span style="font-weight: bold; color: #060f60">на дату <i><%= date(@on_date) %></i></span>
+<% end %>
+
+<%
+  staff_items_cnt = 0
+  vacant_staff_items_cnt = 0
+  earth_staff_items_cnt = 0
+  division_comments = {} # { div_id => "text", ... }
+%>
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+  <tr class="bg-primary text-white">
+    <td>Отдел</td>
+    <td align="center">Кол-во шт.единиц</td> <% staff_items_cnt = 0 %>
+    <td align="center">
+      Кол-во вак. шт. единиц (комм.)
+      <br>
+      <% if params[:vac_details].blank? %>
+        <a class="text-white" title="Детализация вакатных шт. единиц по городам" href="?vac_details=1<%= "&on_date=#{params[:on_date]}" if params[:on_date] %>">детализация &rarr;</a>
+      <% else %>
+        <a class="text-white" href="?<%= "&on_date=#{params[:on_date]}" if params[:on_date] %>">&larr; скрыть</a>
+      <% end %>
+    </td>
+    <% if params[:vac_details] %>
+    <td>Детализация вакантных по Городам</td>
+    <% end %>
+    <td align="center">в т.ч. Планета Земля</td>
+  </tr>
+  </thead>
+<% @items.each do |item| %>
+  <%
+    division_id = item.id
+    staff_items = item.h_staff_items
+
+    comments = []
+    if !@staff_item_comments.empty?
+      staff_items.each do |staff_item|
+        comment = @staff_item_comments[staff_item.id]
+        comment_line = comment ? comment.text_for_line(staff_item) : nil
+        comments << comment_line if comment_line
+      end
+    end
+    division_comments[division_id] = comments.join("\n")
+
+    cnt              = staff_items.size
+    staff_items_cnt += cnt
+
+    vacant_cnt = staff_items.select{|st| st.is_vacant? }.size
+    vacant_staff_items_cnt += vacant_cnt
+
+    earth_cnt = staff_items.select{|st| st.is_earth? }.size
+    earth_staff_items_cnt += earth_cnt
+  %>
+  <tbody>
+  <tr class="EntryDetail">
+    <td>
+      <%= ('&nbsp;&nbsp;' * item.level).html_safe %>
+      <span style="font-size: 12pt"><%= item['name'] %>
+        <% if true %>
+          <a href="/staff_requests/staff_show/<%= item.id %>?on_date=<%= @on_date %>">&rarr;</a>
+        <% end %>
+      </span>
+    </td>
+    <td align="center"><%= cnt unless cnt == 0 %></td>
+    <td align="center">
+      <%= vacant_cnt unless vacant_cnt == 0 %>
+      <% division_comment = division_comments[item.id] %>
+      <% if division_comment.blank? %>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <% else %>
+        <img title="<%= division_comment %>" src="/images/edit.gif">
+      <% end %>
+    </td>
+
+    <% if params[:vac_details] %>
+    <td>
+      <% staff_items.select{|st| st.is_vacant? }.each do |st| %>
+        - <%= st.location.city.name %>
+        <br>
+      <% end %>
+    </td>
+    <% end %>
+
+    <td align="center"><%= earth_cnt unless earth_cnt == 0 %></td>
+  </tr>
+<% end %>
+  <tr bgcolor="#e0e0e0">
+    <td align="right">ИТОГО</td>
+    <td align="center"><%= staff_items_cnt %></td>
+    <td align="center"><%= vacant_staff_items_cnt %></td>
+    <% if params[:vac_details] %>
+    <td></td>
+    <% end %>
+    <td align="center"><%= earth_staff_items_cnt %></td>
+  </tr>
+  </tbody>
+</table>

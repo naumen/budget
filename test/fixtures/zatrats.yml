@@ -1,0 +1,32 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+komandirovka_b_d_cfo_1_m1:
+  stat_zatr: komandirovka_b_d_cfo_1
+  month: 1
+  summ: 1_000.00
+  f_year: 2018
+
+komandirovka_b_d_cfo_1_m2:
+  stat_zatr: komandirovka_b_d_cfo_1
+  month: 2
+  summ: 10_000.00
+  f_year: 2018
+
+premii_b_d_cfo_1_m1:
+  stat_zatr: premii_b_d_cfo_1
+  month: 1
+  summ: 20_000.00
+  f_year: 2018
+
+premii_b_d_cfo_1_m2:
+  stat_zatr: premii_b_d_cfo_1
+  month: 2
+  summ: 20_000.00
+  f_year: 2018
+
+
+fot_value_2mln:
+  stat_zatr_id: 12345
+  month: 12
+  summ: 2_000_000.00
+  f_year: 2019

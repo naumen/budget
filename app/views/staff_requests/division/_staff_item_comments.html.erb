@@ -1,0 +1,6 @@
+<% comment = @staff_item_comments[staff_item.id] %>
+  <% if comment %>
+    <div>
+      <b>Комментарий:</b> <%= comment.comment %> (<%= date(comment.created_on) %>, <%= User.find(comment.author_id).name %>)
+    </div>
+  <% end %>

@@ -1,0 +1,168 @@
+ru:
+  app_name: 'Бюджетный портал'
+
+  activerecord:
+    attributes:
+      budget:
+        f_year: "Финансовый год"
+        name: "Наименование"
+  budgets:
+    new:
+      title: 'Создание бюджета'
+    edit:
+      title: 'Редактирование бюджета'
+    form:
+      budget_id: 'Родительский бюджет'
+      budget_type_id: 'Тип бюджета*'
+      cfo_id: 'ЦФО'
+      cfo_type_id: 'Тип ЦФО'
+      name: 'Наименование*'
+      target: 'Цель бюджета'
+      user_id: 'Владелец'
+      budget_create: 'Сформирован'
+      state: 'Статус'
+      plan_marga: 'Плановая маржа'
+      plan_invest_marga: 'Плановая маржа для инвестиционного'
+      nepredv: 'Доля непредвиденных'
+      fin_year: 'Финансовый год*'
+      currency: 'Валюта*'
+  sales:
+    new:
+      title: 'Создание продажи'
+    edit:
+      title: 'Редактирование продажи'
+    form:
+      budget_id: 'Бюджет'
+      cfo_id: 'ЦФО'
+      name: 'Наименование'
+      sales_channel: 'Канал продаж'
+      user_id: 'Ответственный'
+      year: 'Год'
+      quarter: 'Квартал'
+      summ: 'Сумма'
+      currency: 'Валюта'
+  stat_zatrs:
+    new:
+      title: 'Создание статьи затрат'
+    edit:
+      title: 'Редактирование статьи затрат'
+    form:
+      budget_id: 'Бюджет*'
+      name: 'Наименование'
+  zatrats:
+    new:
+      title: 'Создание затрат'
+    edit:
+      title: 'Редактирование затрат'
+    form:
+      year: 'Год'
+      stat_zatr: 'Статьи затрат'
+      name: 'Наименование'
+      month: 'Месяц'
+      summ: 'Сумма'
+      currency: 'Валюта'
+      nal_beznal: 'Безнал'
+  normativs:
+    new:
+      title: 'Создание Норматива'
+    edit:
+      title: 'Редактирование Норматива'
+    form:
+      name: 'Наименование*'
+      budget_id: 'Бюджет провайдера*'
+      metrik_id: 'Метрика*'
+      city: 'Город'
+      norm: 'Норматив*'
+      description: 'Описание'
+      comment: 'Комментарий'
+      normativ_in_prev_year: 'Норматив в прошлом году'
+      diff_in_rub: 'Разница в рублях'
+      diff_in_proc: 'Разница в процентах'
+      normativ_type: 'Тип норматива'
+  investment_projects:
+    new:
+      title: 'Создание Инвестпроекта'
+    edit:
+      title: 'Редактирование Инвестпроекта'
+    form:
+      name: 'Наименование*'
+      use_budget_id: 'Бюджет Использования*'
+      filling_budget_id: 'Бюджет Наполнения*'
+      currency: 'Валюта*'
+      summ: 'Сумма'
+      document: 'Документ'
+  invest_loans:
+    new:
+      title: 'Создание Инвест займа'
+    edit:
+      title: 'Редактирование Инвест займа'
+    form:
+      use_budget_id: 'Бюджет использования*'
+      fin_year: 'Год выдачи'
+      credit_budget_id: 'Бюджет наполнения*'
+      currency: 'Валюта*'
+      summ: 'Сумма'
+      interest_rate: 'Ставка'
+  salarys:
+    new:
+      title: 'Создание зарплаты'
+    edit:
+      title: 'Редактирование зарплаты'
+    form:
+
+  ### Справочники ###
+  spr_budget_types:
+    new:
+      title: 'Создание типа бюджета'
+    edit:
+      title: 'Редактирование типа бюджета'
+    form:
+      name: 'Наименование'
+  spr_cfo_types:
+    new:
+      title: 'Создание типа ЦФО'
+    edit:
+      title: 'Редактирование типа ЦФО'
+    form:
+      name: 'Наименование'
+  spr_locations:
+    new:
+      title: 'Создание типа локаций'
+    edit:
+      title: 'Редактирование типа локаций'
+    form:
+      name: 'Наименование'
+      code: 'Код локации'
+  metriks:
+    new:
+      title: 'Создание метрики'
+    edit:
+      title: 'Редактирование метрики'
+    form:
+      name: 'Наименование'
+      code: 'Код метрики'
+  normativ_types:
+    new:
+      title: 'Создание типа норматива'
+    edit:
+      title: 'Редактирование типа норматива'
+    form:
+      name: 'Наименование'
+
+  common:
+    save: 'Сохранить'
+    cancel: 'Отменить'
+    errors: 'Ошибки'
+  errors:
+    messages:
+      blank: "не может быть пустым"
+    access: 'Нет доступа к содержимому'
+
+
+  authorization:
+    title:  'Вход'
+    fields:
+      login: 'Логин'
+      password: 'Пароль'
+    submit: "Войти"
+    logout: "Выйти"

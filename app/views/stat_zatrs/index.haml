@@ -1,0 +1,44 @@
+.row
+  .col-12
+    %h2
+      - if @budget
+        = "Cписок статей затрат  #{@budget.name}"
+        = link_to(image_tag("add.png", width: "36px", title: "Создать новую статью затрат"), new_stat_zatr_path + "?budget_id=#{@budget.id}")
+        = link_to(image_tag("return.png", width: "36px", title: "Вернуться к бюджету"), @budget)
+      - else
+        = "Cписок статей затрат "
+        = link_to(image_tag("add.png", width: "36px", title: "Создать новую статью затрат"), new_stat_zatr_path)
+
+%br/
+
+.row
+  .col-1
+    %b
+  .col-2
+    %b Наименование
+  .col-2.text-right
+    %b Сумма затрат
+  .col-2
+    %b Кол-во затрат
+  .col-2
+    %b
+  .col-2
+    %b
+  .col-2
+    %b
+%hr
+- @stat_zatrs.each do |stat_zatr|
+  .row
+    .col-1.text-right
+      = link_to(image_tag("paypal_256.ico", width: "36px", title: "Редактировать продажу"), edit_stat_zatr_path(stat_zatr))
+    .col-2
+      =link_to(stat_zatr.name, stat_zatr_path(stat_zatr.id))
+    .col-2.text-right
+      = summ_formatter(stat_zatr.zatrats.sum(:summ), stat_zatr.budget.currency)
+    .col-2
+      = stat_zatr.zatrats.count
+    .col-2
+      = link_to(image_tag("delete.png", width: "24px", title: "Удалить статью затрат"), stat_zatr_path(stat_zatr),  method: :delete, data: { confirm: 'Вы хотите удалить статью затрат, вы уверены' })
+    .col-2
+
+= will_paginate @sales

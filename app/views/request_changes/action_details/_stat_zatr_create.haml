@@ -1,0 +1,10 @@
+%b= content["stat_zatr_name"]
+[
+= SprStatZatr.find(content["spr_stat_zatrs_id"]).name
+]
+%table
+  - content["months"].each do |m, val|
+    %tr
+      %td= StaffItemSalary::MONTHS[m.to_s.to_sym]
+      %td.text-right= money(val[0])
+      %td= val[1] == '1' ? 'безнал' : ''

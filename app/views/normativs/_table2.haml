@@ -1,0 +1,57 @@
+- all_summ = 0
+- all_metrik = 0
+%table#normativ-nakladn-items.table.table-striped.table-bordered.table-sm
+  %thead
+    %tr.bg-primary.text-white
+      %th Наименование
+      %th ЦФО
+      %th Название бюджета потребителя
+      %th Метрика
+      - if @normativ.metrik.name != 'По весу'
+        %th Значение метрики
+      %th Сумма
+      %th.text-right Вес
+      - weight_itogo = 0.0
+  - @normativ.naklads.sort_by{|nakladn| nakladn.budget.cfo.name}.each do |naklad|
+    - metrik_summ = nil
+    %tr
+      %td
+        = @normativ.name
+      %td
+        = naklad.budget.cfo.name rescue '-'
+      %td
+        = link_to( naklad.budget.name, naklad.budget)
+      %td
+        = @normativ.metrik.name
+      - if !['По весу', 'Поровну'].include?(@normativ.metrik.name)
+        - budget_metrik = BudgetMetrik.where( budget_id: naklad.budget_id, metrik_id: @normativ.metrik_id, archived_at: nil ).first
+        - if budget_metrik
+          - metrik_value = budget_metrik.value.to_f
+          - metrik_summ = @normativ.norm * metrik_value
+        %td.text-right
+          = metrik_value.to_f
+          - all_metrik += metrik_value.to_f
+      - else
+        - metrik_summ = naklad.summ
+      %td.text-right
+        = summ_formatter(metrik_summ.to_f)
+        - all_summ += metrik_summ.to_f
+      %td.text-right
+        = naklad.weight
+        - weight_itogo += naklad.weight.to_f
+  %tfoot
+    %tr
+      %td
+      %td
+      %td
+      %td.font-weight-bold
+        ИТОГО
+      - if @normativ.metrik.name != 'По весу'
+        %td.text-right.font-weight-bold
+          = money(all_metrik)
+      %td.text-right.font-weight-bold
+        = summ_formatter(all_summ, @normativ.budget.currency)
+      %td.text-right.font-weight-bold
+        = money(weight_itogo)
+:javascript
+  new Tablesort(document.getElementById('normativ-nakladn-items'));

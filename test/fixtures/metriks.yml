@@ -1,0 +1,26 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+all_state_units:
+  name: "Общее кол-во штатных единиц"
+  code: "all_state_units"
+
+by_weight:
+  name: "По весу"
+  code: "by_weight"
+
+location_state_unit_msk_m:
+  name: "Помесячно по ШЕ Москва"
+  code: "location_state_unit_msk_m"
+
+location_state_unit_ekb_m:
+  name: "Помесячно по ШЕ Екатеринбург"
+  code: "location_state_unit_ekb_m"
+
+premii:
+  name: "Премии"
+  code: "premii"
+
+
+equally:
+  name: "Поровну"
+  code: "equally"

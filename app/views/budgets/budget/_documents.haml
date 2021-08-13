@@ -1,0 +1,23 @@
+%a{name: "docs"}
+.row
+  .col.mt-2
+    %h3
+      Документы
+      = link_to image_tag("new.png", title: "Добавить"), "?add_doc=1#docs"
+    - if params[:add_doc]
+      Новый документ:
+      = form_for @budget, url: "/budgets/#{@budget.id}/load_doc" do |f|
+        = f.file_field :file
+        = submit_tag "Добавить"
+      %br
+
+- if !@budget.documents.empty?
+  %ul
+    - @budget.documents.each do |doc|
+      %li
+        = link_to doc.original_file_name, doc, method: :get      
+        %small{ style: "color: #a0a0a0"}
+          = "|"
+          = link_to "x", doc, method: :delete, title: "Удалить", data: {confirm: "Удалить?"}
+          = "|"
+          = doc.created_at.strftime("%d.%m.%Y %H:%M")

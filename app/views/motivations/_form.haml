@@ -1,0 +1,48 @@
+- if @motivation.errors.any?
+  .alert.alert-danger
+    %h5= Ошибки
+    %ul
+      - @motivation.errors.full_messages.each do |message|
+        %li= message
+
+%h2
+  Бюджет:
+  = @motivation.stat_zatr.budget.name
+%h3
+  Ст.затрат:
+  = @motivation.stat_zatr.name
+
+
+= form_for @motivation do |f|
+  = hidden_field_tag "motivation[stat_zatr_id]", @motivation.stat_zatr_id
+  .row.form-group
+    .col-2
+      %label ФИО
+    .col-8{style: "padding-left: 0px;"}
+      = render('shared/form_elements/users_selected', users: @users, object: @motivation, name: 'motivation[user_id]')
+
+  .row.form-group
+    .col-2
+      %label Наименование
+    .col-8
+      %input{ :name => 'motivation[name]', :class => 'form-control', :value => @motivation.name }
+
+  .row.form-group
+    .col-2
+      %label Документ
+    .col-8
+      - if !@motivation.document.nil?
+        загружен файл:
+        = link_to @motivation.document.original_file_name, @motivation.document, method: :get, target: :blank
+        %br
+
+      = f.file_field :file
+
+
+  .row.form-group
+    = f.submit t('common.save'), :class => 'btn btn-primary'
+    = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'
+  - if @motivation.id
+    .row.form-group
+      = link_to( "Удалить", motivation_path(@motivation), method: :delete,  data: { confirm: "Вы хотите удалить мотивацию #{@motivation.name}, вы уверены" }, class: "btn btn-danger")
+

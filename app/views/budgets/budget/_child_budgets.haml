@@ -1,0 +1,39 @@
+%h3
+  Подбюджеты
+  - if @budget.allow?("link_new_childbudget", current_user)
+    = link_to image_tag("new.png", title: "Добавить"), new_budget_path(budget_id: @budget.id), id: "link_new_childbudget"
+
+- rows, itogo = @presenter.child_budgets
+- unless rows.empty?
+  - @_budgets_chart_data = {}
+  - green = "#00a200"
+  - red   = "#ff0000"
+  %table#child-budgets.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        - @presenter.child_budgets_columns.each do |code, name|
+          %th= name
+    - rows.each do |row|
+      %tr
+        - @presenter.child_budgets_columns.each do |code, name|
+          - if code == :delta
+            - @_budgets_chart_data[row[:name]] = row[code]
+          %td{ [:in, :out, :plan_marga, :delta].include?(code) ? { class: "text-right"} : {} }
+            - val = row[code] rescue '-'
+            - if code == :name
+              = link_to val, budget_path(row[:id])
+            - elsif [:in, :out, :plan_marga].include?(code)
+              = summ_formatter val
+            - elsif :delta == code
+              %span.font-weight-bold{ val < 0.0 ? { style: "color: #{red}"} : { style: "color: #{green}"} }
+                = "#{val > 0.0 ? '+' : ''}#{money(val)}"
+            - else
+              = val
+
+  :javascript
+    new Tablesort(document.getElementById('child-budgets'));
+/ TODO fix this!
+- if @budget.id == 70275
+  %h2 График дефицит/профицит
+  = render "budgets/budget/chart_format_money"
+  = render partial: "budgets/budget/chart_bar", locals: { name: "child_budgets", chart_data: @_budgets_chart_data }

@@ -1,0 +1,47 @@
+<h2>Отчет по финансовым показателям Бюджетов БН</h2>
+<div id="app">
+
+Выберите бюджет(ы):
+<br>
+<table border="1">
+  <tr>
+    <th>Бюджет</th>
+    <th v-for="header in headers">{{header}}</th>
+  </tr>
+  <tr v-for="row in rows">
+    <td>{{row.budget_name}} : {{row.budget_id}}</td>
+    <td v-for="header in headers">{{row["cols"][header]}}</td>
+  </tr>
+</table>
+
+<button @click="addRow">add row</button>
+
+</div>
+<script type="text/javascript">
+var app = new Vue({
+  el: "#app",
+  data: {
+    headers: ["Планируемая рентабельность (%)", "Планируемая выручка на одного сотрудника (руб)"],
+    rows: []
+  },
+  methods: {
+    addRow: function(){
+      this.addBudgetRow(1);
+    },
+    addBudgetRow: function(budget_id){
+      var info = this.getBudgetInfo(budget_id);
+      this.rows.push(info);
+    },
+    getBudgetInfo: function(budget_id){
+      return {
+        budget_name: "Бюджет", budget_id: 1, cols:
+        {
+          "Планируемая рентабельность (%)": "col1.1",
+          "Планируемая выручка на одного сотрудника (руб)": "col1.2",
+        }
+      };
+    }
+  }
+});
+
+</script>

@@ -1,0 +1,29 @@
+%h2 Согласование Бюджетов
+%table.table.table-striped.table-bordered.table-sm
+  - @current_confirmation.each do |user_id, budget_ids|
+    - user = User.find(user_id)
+    - budget_ids.each do |budget_id|
+      - budget = Budget.find(budget_id)
+      %tr
+        %td= user.name
+        %td
+          = budget.f_year
+          %a{ href: budget_path(budget) }
+            = budget.name
+            &rarr;
+
+%br
+%h2 Согласование заявок на изменение
+%table.table.table-striped.table-bordered.table-sm
+  - @current_request_confirmation.each do |user_id, request_ids|
+    - user = User.find(user_id)
+    - request_ids.each do |request_id|
+      - r = RequestChange.find(request_id)
+      %tr
+        %td= user.name
+        %td
+          = r.budget.f_year
+          %a{ href: request_change_path(r) }
+            = r.name
+            = r.budget.name
+            &rarr;

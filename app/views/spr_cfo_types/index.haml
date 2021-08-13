@@ -1,0 +1,18 @@
+.row
+  .col-12
+    %h2
+      = "Справочник типов ЦФО"
+      = link_to(image_tag("add.png", width: "36px", title: "Создать новый тип цфо"), new_spr_cfo_type_path)
+
+%br/
+
+
+- @cfo_types.each do |cfo_type|
+  .row.form-group
+    .col-6
+      = cfo_type.name
+    .col-1
+      = link_to(image_tag("edit.png", width: "24px", title: "Редактировать тип цфо #{cfo_type.name}"), edit_spr_cfo_type_path(cfo_type))
+    .col-1
+      = link_to(image_tag("delete.png", width: "24px", title: "Удалить тип цфо #{cfo_type.name}"), spr_cfo_type_path(cfo_type), method: :delete,  data: { confirm: "Вы хотите удалить тип продаж <<#{cfo_type.name}>>, вы уверены" })
+    .col-4

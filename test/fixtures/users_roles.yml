@@ -1,0 +1,12 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+budget_editor:
+  budget: b_d_cfo_1
+  user: budget_editor
+  role: editor
+
+budget_reader:
+  budget: b_d_cfo_1
+  user: budget_reader
+  role: reader
+

@@ -1,0 +1,9 @@
+- @sale_channels.each do |sale_channel|
+  .row
+    .col-5
+      = sale_channel.name
+    .col-1
+      = sale_channel.archived_date
+    .col-1
+      = link_to(image_tag("delete.png", width: "24px", title: "Удалить продажу"), sale_channel_path(sale_channel),  method: :delete, data: { confirm: 'Вы хотите удалить канал продаж, вы уверены?' })
+

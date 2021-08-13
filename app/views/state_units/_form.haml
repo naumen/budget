@@ -1,0 +1,88 @@
+- if @state_unit.errors.any?
+  .alert.alert-danger
+    %h5 Ошибки
+    %ul
+      - @state_unit.errors.full_messages.each do |message|
+        %li= message
+
+= form_for @state_unit, :html => { :onsubmit => "return testform()" } do |f|
+  .row.form-group
+    .col-2
+      %label Бюджет
+    .col-8
+      - if params[:budget_id]
+        - @budgets.each do |budget|
+          - if params[:budget_id].to_i == budget.id
+            %input{:type => "hidden", :name => 'state_unit[budget_id]', :value => budget.id}
+            %input{ :value => budget.name, :class => 'form-control', disabled: true }
+      - else
+        %select{ name: 'state_unit[budget_id]', id: 'budget_id', class: 'form-control'}
+          - @budgets.each do |budget|
+            %option{ value: budget.id, selected: @state_unit.budget_id == budget.id || params[:budget_id].to_i == budget.id ? true : false }
+              = ('&nbsp;&nbsp;.&nbsp;&nbsp;' * budget.level).html_safe
+              = budget.name
+
+  .row.form-group
+    .col-2
+      %label Отдел
+    .col-8
+      %input{ :name => 'state_unit[division]', :class => 'form-control', id: 'state_unit_division', :value => @state_unit.division }
+      %a{ id: 'state_unit_division_tiggler', style: "display: none", onclick: "return show_division();", href: '#' } указать
+
+  .row.form-group
+    .col-2
+      %label Должность
+    .col-8
+      %input{ :name => 'state_unit[position]', id: "state_unit_position", :class => 'form-control', :value => @state_unit.position }
+
+  .row.form-group
+    .col-2
+      %label Локация
+    .col-8
+      %select{ :name => 'state_unit[location_id]', id: 'state_unit_location', :class => 'form-control'}
+        %option
+        - @locations.each do |location|
+          %option{ :value => location.id, :selected => @state_unit.location_id == location.id }
+            = location.name
+
+  = render partial: 'state_units/salaries'
+
+  .row.form-group
+    .col-2
+    .col-8
+      %br
+      = f.submit t('common.save'), :class => 'btn btn-primary', :id=>"form_submit", data: { disable_with: false }
+      = link_to t('common.cancel'), budget_path(@state_unit.budget, anchor: "state_units"), { :class => 'btn btn-outline-second' }
+:javascript
+
+  var division_name = $('#state_unit_division').val();
+  if (division_name == ''){
+    $('#state_unit_division').hide();
+    $('#state_unit_division_tiggler').show();
+    $('#state_unit_position').focus();
+  }
+
+  function show_division(){
+    $('#state_unit_division').show();
+    $('#state_unit_division').focus();
+    $('#state_unit_division_tiggler').hide();
+    return false;
+  }
+
+  function testform(){
+    var name = $('#state_unit_position').val();
+    if (name== ''){
+      alert('Укажите Должность');
+      $('#state_unit_position').focus();
+      return false;
+    }
+
+    var location = $('#state_unit_location').val();
+    if (location== ''){
+      alert('Укажите Локацию шт. единицы');
+      $('#state_unit_location').focus();
+      return false;
+    }
+
+    return true;
+  }

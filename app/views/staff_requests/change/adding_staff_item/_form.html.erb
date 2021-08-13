@@ -1,0 +1,31 @@
+  <h2>Новая Штатная Единица</h2>
+
+  Дата внесения изменения:
+  <input type="date" v-model="rec.date_of_change">
+  <br>
+
+  Отдел:
+  <select v-model="rec.division_id">
+    <option v-for="div in divisions" :value="div.id">{{' . '.repeat(div.level)}} {{div.name}}</option>
+  </select>
+  <br>
+
+  Должность:
+  <select v-model="rec.position_id">
+    <% change.positions.each do |pos| %>
+    <option value="<%= pos.id %>"><%= pos.name %></option>
+    <% end %>
+  </select>
+  <br>
+
+  Локация:
+  <select v-model="rec.location_id">
+    <% change.locations.each do |l| %>
+    <option value="<%= l.id %>"><%= l.name %></option>
+    <% end %>
+  </select>
+  <br>
+
+  Оклад: <input type="text" v-model="rec.salary">
+  <br>
+  Ставка: <input type="text" v-model="rec.rate">

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<defs></defs>
+
+<symbol viewBox="-10 -10 30 30" id="shape-sort-up"><title>sort up</title>
+  <path fill="#f0f0f0" d="M 5,1 9,9 1,9 z"/>
+</symbol>
+
+<symbol viewBox="-10 -10 30 30" id="shape-sort-down"><title>sort down</title>
+  <path fill="#f0f0f0" d="M 1,1 9,1 5,9 z"/>
+</symbol>
+
+<!-- define view locations for each icon -->
+    <view id="shape-sort-up-view"   viewBox="0  0 10 10" />
+    <view id="shape-sort-down-view" viewBox="0 10 10 10" />
+
+	<use xlink:href="#shape-sort-up"   width="10" height="10" x="0" y="0" id="sort-up"></use>
+	<use xlink:href="#shape-sort-down" width="10" height="10" x="0" y="10" id="sort-down"></use>
+
+</svg>

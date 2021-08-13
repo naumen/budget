@@ -1,0 +1,19 @@
+<tr v-for="(salary, month) in salaries" style="background-color: rgb(238, 255, 231)" v-bind:key="'details_' + item.id + '_' + month">
+  <td colspan="5"></td>
+  <td :style="salaries_start[month] ? 'font-weight: bold' : ''">{{monthName(month)}}</td>
+  <td :style="salaries_start[month] ? 'font-weight: bold' : ''" align="right">{{numberWithCommas(salary)}}</td>
+  <td></td>
+</tr>
+<tr style="background-color: white" v-bind:key="'details_' + item.id + '_last_row'">
+  <td colspan="5"></td>
+  <td>
+    <!-- <button v-if="edited_item.staff_item_id" class="btn btn-primary btn-sm" type="button" @click="gotoStaffItem(edited_item.staff_item_id)" title="Перейти на HR"><%= icon("svg_class", "external-link", width: 12, fill: "white") %></button> -->
+    <br>
+    <span v-if="edited_item.date_closed != ''">
+      сокращена с {{edited_item.date_closed}}
+    </span>
+      <a :href="'/budgets/'+edited_item.budget_id + '?staff_item_id=' + edited_item.staff_item_id + '#state_units'">на бюджет &rarr;</a>
+  </td>
+  <td></td>
+  <td></td>
+</tr>

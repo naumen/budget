@@ -1,0 +1,5 @@
+.card.border-info.mb-3
+  .card-header.text-white.font-weight-bold.text-uppercase{ class: bg_color }= card_title
+  .card-body.p-3{ class: @_card_body_class || 'bg-light' }
+    - @_card_body_class = nil
+    = card_content

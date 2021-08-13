@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  author: 1
+  budget: b_service
+
+fot_change:
+  name: For change
+  author: 1
+  budget: b_d_cfo_1_fzp_next

@@ -1,0 +1,14 @@
+.row
+  .col-2.text-right Отдел:
+  .col
+    %a{href: "/staff_requests/staff_show/#{change.division_id.to_s}?on_date=#{change.date_of_change}"}
+      = change.division.name
+.row
+  .col-2.text-right Должность:
+  .col= change.staff_item.position.name
+.row
+  .col-2.text-right Локация:
+  .col= change.staff_item.location.name
+.row
+  .col-2.text-right Ставка:
+  .col= change.staff_item.koeff

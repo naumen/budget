@@ -1,0 +1,23 @@
+- if @metrik.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @metrik.errors.full_messages.each do |message|
+        %li= message
+
+= form_for @metrik do |f|
+  .row.form-group
+    .col-2
+      %label= t('metriks.form.name')
+    .col-8
+      %input{ :name => 'metrik[name]', :class => 'form-control', :value => @metrik.name }
+
+  .row.form-group
+    .col-2
+      %label= t('metriks.form.code')
+    .col-8
+      %input{ :name => 'metrik[code]', :class => 'form-control', :value => @metrik.code }
+
+  .row.form-group
+    = f.submit t('common.save'), :class => 'btn btn-primary'
+    = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'

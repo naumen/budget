@@ -1,0 +1,52 @@
+.row
+  .col-12
+    %h2
+      = "Карточка штатной единицы"
+      = link_to(image_tag("return.png", width: "36px", title: "Вернуться к бюджету"), @state_unit.budget)
+
+.card.bg_budget{style: "width: 40%"}
+  .row
+    .col-6
+      Сотрудник:
+    .col-6
+      = @state_unit.user.name if @state_unit.user
+
+  .row
+    .col-6
+      Должность:
+    .col-6
+      = @state_unit.position
+
+  .row
+    .col-6
+      Локация:
+    .col-6
+      = @state_unit.location.name
+
+  .row
+    .col-6
+      Подразделение:
+    .col-6
+      = @state_unit.division
+
+  .row
+    .col-6
+    .col-6
+
+
+%br/
+
+%h5 Зарплата
+
+- unless @salaries.where(f_year: session[:f_year]).empty?
+  .row
+    .col-2
+      %b Месяц
+    .col-2
+      %b Сумма
+  - @salaries.where(f_year: session[:f_year]).each do |salary|
+    .row
+      .col-2= salary.month
+      .col-2= salary.summ
+
+%br/

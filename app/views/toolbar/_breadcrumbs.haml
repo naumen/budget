@@ -1,0 +1,9 @@
+.row
+  .col-12
+    %nav.breadcrumb
+      - @breadcrumbs.each do |bread|
+        %a.breadcrumb-item{:href => budget_path(bread)}
+          = bread.name
+      %span.breadcrumb-item.active
+        %a.breadcrumb-item{:href => budget_path(@last_open_budget)}
+          = @last_open_budget.name

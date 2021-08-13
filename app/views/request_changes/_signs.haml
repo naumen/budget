@@ -1,0 +1,59 @@
+- unless @request_change.signs_current.empty?
+  - current_sign = @request_change.current_sign
+  %a{name: 'confirmation'}
+  %h3 Согласование
+  %table.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th Пользователь
+        %th Статус
+        %th
+    - there_is_cancel = false
+    - @request_change.signs_current.each do |s|
+      %tr
+        %td= s.user.name
+        %td
+          - if s.confirmed?
+            %span{style: "color: green"}
+              Согласовано
+          - elsif s.rejected?
+            - there_is_cancel = true
+            %span{style: "color: red"}
+              Отклонено
+          - unless s.result.nil?
+            = "(#{s.result_date.strftime("%d.%m.%Y")})"
+        %td
+          - if !there_is_cancel && current_sign && s == current_sign
+            - if current_sign.user_id == current_user.id || (Rails.env.development? && current_user.id == 50)
+              - postfix = params[:confirm_sign_all] ? "&confirm_sign_all=#{params[:confirm_sign_all]}" : ''
+              = button_to "Согласовать", "/request_change/#{@request_change.id}/sign?result=1#{postfix}", { class: "float-left btn btn-success mr-1", data: { confirm: "Согласовать?", disable_with: "Обработка..." } }
+              = button_to "Отклонить", "/request_change/#{@request_change.id}/sign?result=0#{postfix}", { class: "float-left btn btn-danger", data: { confirm: "Отклонить?", disable_with: "Обработка..." } }
+            - else
+              Ожидает согласования
+
+- unless @request_change.signs_old.empty?
+  %h3
+    Согласование (архив)
+    %a{ title: "Подробнее", "aria-controls" => "confirmationArchive", "aria-expanded" => "false", "data-toggle" => "collapse", :href => "#confirmationArchive", :role => "button"}
+      = icon("svg_class", "menu", width: 15, fill: "blue")
+
+  #confirmationArchive.collapse
+    %table.table.table-striped.table-bordered.table-sm
+      %thead
+        %tr.bg-primary.text-white
+          %th Пользователь
+          %th Статус
+          %th
+      - @request_change.signs_old.each do |s|
+        %tr
+          %td= s.user.name
+          %td
+            - if s.confirmed?
+              %span{style: "color: green"}
+                Согласовано
+            - elsif s.rejected?
+              %span{style: "color: red"}
+                Отклонено
+            - unless s.result.nil?
+              = "(#{s.result_date.strftime("%d.%m.%Y")})"
+          %td

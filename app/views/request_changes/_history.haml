@@ -1,0 +1,14 @@
+- unless @request_change.request_change_histories.empty?
+
+  %h3 Изменение состояния
+  %table.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th Дата/Время
+        %th Пользователь
+        %th Статус
+    - @request_change.request_change_histories.each do |log|
+      %tr
+        %td= log.created_at.strftime("%d.%m.%Y %H:%M")
+        %td= log.user.name
+        %td= log.state

@@ -1,0 +1,27 @@
+- if @location.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @location.errors.full_messages.each do |message|
+        %li= message
+
+= form_for @location do |f|
+  .row.form-group
+    .col-2
+      %label= t('spr_locations.form.name')
+    .col-8
+      %input{ :name => 'location[name]', :class => 'form-control', :value => @location.name }
+
+  .row.form-group
+    .col-2
+      %label Город
+    .col-8
+      %select{ :name => 'location[city_id]', :class => 'form-control'}
+        %option
+        - City.all.each do |city|
+          %option{ :value => city.id, :selected => @location.city_id == city.id  ? true : false }
+            = city.name
+
+  .row.form-group
+    = f.submit t('common.save'), :class => 'btn btn-primary'
+    = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'

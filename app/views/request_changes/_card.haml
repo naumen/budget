@@ -1,0 +1,30 @@
+= card_primary @budget.name do
+  - if @request_change.editable?(@current_user)
+    .float-right
+      = link_to image_tag("edit2.png", width: "15px", title: "Редактировать"), ['edit', @request_change]
+      - if @budget.is_deletable?(current_user)
+        = link_to image_tag("delete-icon.png", width: "13px", title: "Удалить"), '/budgets/delete/'+@budget.id.to_s
+  %div
+    = link_to "&larr; вернуться".html_safe, @budget
+    %table
+      %tr
+        %td.text-right Название:
+        %td
+          %b= @request_change.name
+      %tr
+        %td.text-right Бюджет:
+        %td
+          %b= @request_change.budget.name
+      %tr
+        %td.text-right Создан:
+        %td
+          %b= date(@request_change.created_at)
+      %tr
+        %td.text-right Автор:
+        %td
+          %b= @request_change.author.name
+      %tr
+        %td.text-right  Состояние:
+        %td
+          %b= @request_change.state
+    = render partial: "state"

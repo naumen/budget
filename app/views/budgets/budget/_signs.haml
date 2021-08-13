@@ -1,0 +1,68 @@
+- unless @budget.budget_signs_current.empty?
+  - current_sign = BudgetSign.current_sign(@budget)
+  %a{name: 'confirmation'}
+  %h3 Согласование
+  %table.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th Пользователь
+        %th Статус
+        %th
+    - there_is_cancel = false
+    - @budget.budget_signs_current.each do |bs|
+      %tr
+        %td= bs.user.name
+        %td
+          - if bs.result == 1
+            %span{style: "color: green"}
+              Согласовано
+          - elsif bs.result == 0
+            - there_is_cancel = true
+            %span{style: "color: red"}
+              Отклонено
+          - unless bs.result.nil?
+            = "(#{bs.result_date.strftime("%d.%m.%Y")})"
+        %td
+          - if !there_is_cancel && current_sign && bs == current_sign
+            - if current_sign.user_id == current_user.id
+              - postfix = params[:confirm_sign_all] ? "&confirm_sign_all=#{params[:confirm_sign_all]}" : ''
+              = button_to "Согласовать", "/budgets/#{@budget.id}/sign?result=1#{postfix}", { class: "float-left btn btn-success mr-1", data: { confirm: "Согласовать?", disable_with: "Обработка..." } }
+              = button_to "Отклонить", "/budgets/#{@budget.id}/sign?result=0#{postfix}", { class: "float-left btn btn-danger", data: { confirm: "Отклонить?", disable_with: "Обработка..." } }
+            - else
+              Ожидает согласования
+- if params[:confirm_sign_all]
+  %p
+  %b
+    Есть вложенные бюджеты, все эти бюджеты будут переведены в новый статус:
+  - Budget.each_with_level(@budget.self_and_descendants) do |b|
+    %p
+      = ('&nbsp;&nbsp;.&nbsp;&nbsp;' * b.level).html_safe
+      = b.name
+  %br
+
+- unless @budget.budget_signs_old.empty?
+  %h3
+    Согласование (архив)
+    %a{ title: "Подробнее", "aria-controls" => "confirmationArchive", "aria-expanded" => "false", "data-toggle" => "collapse", :href => "#confirmationArchive", :role => "button"}
+      = icon("svg_class", "menu", width: 15, fill: "blue")
+
+  #confirmationArchive.collapse
+    %table.table.table-striped.table-bordered.table-sm
+      %thead
+        %tr.bg-primary.text-white
+          %th Пользователь
+          %th Статус
+          %th
+      - @budget.budget_signs_old.each do |bs|
+        %tr
+          %td= bs.user.name
+          %td
+            - if bs.result == 1
+              %span{style: "color: green"}
+                Согласовано
+            - elsif bs.result == 0
+              %span{style: "color: red"}
+                Отклонено
+            - unless bs.result.nil?
+              = "(#{bs.result_date.strftime("%d.%m.%Y")})"
+          %td

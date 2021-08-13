@@ -1,0 +1,27 @@
+- if @budget_info.plan_marga
+  .row
+    .col-6.text-right
+      Маржа план:
+    .col.text-right
+      %b
+        = money(@budget_info.plan_marga)
+    .col
+.row
+  .col-6.text-right
+    Разница между доходами и расходами:
+  .col.text-right
+    %b
+      = money(@budget_info.diff_between_in_and_out)
+  .col
+
+.row
+  .col-6.text-right
+    дефицит/профицит:
+  .col.text-right
+    - green = "#00a200"
+    - red   = "#ff0000"
+    %span.font-weight-bold{ @budget_info.marga_delta < 0.0 ? { style: "color: #{red}"} : { style: "color: #{green}"} }
+      = "#{@budget_info.marga_delta > 0.0 ? '+' : ''}#{money(@budget_info.marga_delta)}"
+  .col
+
+

@@ -1,0 +1,14 @@
+- if params[:change_type]
+  %div{ style: "background-color: #ececec; border: 1px solid #606060; padding: 10px"}
+    %b Новое изменение
+    - change = HrStaffRequest.factory_get_new(@item, params[:change_type])
+    = render partial: "/staff_requests/change/new", locals: { change: change  }
+- else
+  %b Добавить изменение:
+  %br
+  - HrStaffRequest.types_of_change.each do |item|
+    = '-'
+    %a{ href: "/staff_requests/#{@item.id}?change_type=#{item[:code]}#change_form_new"}
+      = item[:name]
+      &rarr;
+    %br

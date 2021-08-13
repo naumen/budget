@@ -1,0 +1,44 @@
+.row
+  %h1= @budget.name
+  = link_to 'Назад', @budget
+%br
+%table.table
+  %thead
+    %tr
+      %th Сотрудник
+      %th Роль
+      %th 
+  %tbody
+    - unless @budget.users.empty?
+      -@budget.users.each do |user|
+        %tr
+          %td= user.name
+          %td= user.users_role.where(budget_id: @budget.id).first.role
+          %td= link_to 'Удалить', users_role_path(:delete) + "?budget_id=#{@budget.id}&user_id=#{user.id}", method: :delete
+
+:javascript
+  $(document).ready(function() {
+    $("#owner").select2({
+      language: "ru-RU",
+      theme: "bootstrap"
+    });
+  });
+
+= form_for @users_role do |f|
+  .row
+    %input{ type: "hidden", :name => 'users_role[budget_id]', value: @budget.id } 
+    %input{ type: "hidden", :name => 'budget_id', value: @budget.id }
+    .col-4
+      %select#owner.d-none{ name: 'users_role[user_id]'}
+        %option
+        - @users.each do |user|
+          %option{ :value => user.id }
+            = user.name
+    .col-4
+      %select{ :name => 'users_role[role]', :class => 'form-control'}
+        %option
+        - ['editor', 'reader'].each do |role|
+          %option{ :value => role }
+            = role
+    .col-4
+      %input.btn.btn-primary{:name => "commit", :type => "submit", :value => "Сохранить"}

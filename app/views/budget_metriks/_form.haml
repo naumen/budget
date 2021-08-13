@@ -1,0 +1,35 @@
+- if @budget_metrik.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @budget_metrik.errors.full_messages.each do |message|
+        %li= message
+= form_for @budget_metrik do |f|
+  .row.m-2
+    .col-2
+      %label= t('budget_metriks.form.budget_id')
+    .col-8
+      - @budgets.each do |budget|
+        - if @budget_metrik.budget_id == budget.id || params[:budget_id].to_i == budget.id
+          %input{:type => "hidden", :name => 'budget_metrik[budget_id]', :value => budget.id}
+          %input{ :value => budget.name, :class => 'form-control', disabled: true }
+
+  .row.m-2
+    .col-2
+      %label= t('budget_metriks.form.metrik_id')
+    .col-8
+      %select{ :name => 'budget_metrik[metrik_id]', :class => 'form-control'}
+        %option
+        - @metriks.each do |metrik|
+          %option{ :value => metrik.id, :selected => @budget_metrik.metrik_id == metrik.id  ? true : false }
+            = metrik.name
+
+  .row.m-2
+    .col-2
+      %label= t('budget_metriks.form.value')
+    .col-8
+      %input{ :name => 'budget_metrik[value]', :class => 'form-control', :value => @budget_metrik.value }
+  
+  .row.m-2
+    = f.submit t('common.save'), :class => 'btn btn-primary'
+    = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'

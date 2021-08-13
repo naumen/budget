@@ -1,0 +1,10 @@
+  <h2>Сокращение отдела</h2>
+
+  Дата внесения изменения:
+  <input type="date" v-model="rec.date_of_change">
+  <br>
+
+  Отдел:
+  <select v-model="rec.division_id">
+    <option v-for="div in divisions" :value="div.id">{{' . '.repeat(div.level)}} {{div.name}}</option>
+  </select>

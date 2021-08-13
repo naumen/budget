@@ -1,0 +1,9 @@
+- if @item.state_name == 'Редактируется'
+  %div{align: "right"}
+    %a{ href: "?edit=#{change.id}#change_#{change.id}"} редактировать
+    |
+    %a{ href: '/staff_requests/change/delete/'+change.id.to_s} удалить
+.row
+  .col-2.text-right Дата внесения изменения:
+  .col= date(change.date_of_change)
+= render :partial => "/staff_requests/change/#{change.f_type.underscore}/show", locals: {:change => change}

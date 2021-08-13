@@ -1,0 +1,30 @@
+.row
+  .col-12
+    %h2
+      = "Справочник локаций"
+      = link_to(image_tag("add.png", width: "36px", title: "Создать новую локацию"), new_location_path)
+
+%br/
+
+.row.form-group
+  .col-3
+    Наименование
+  .col-3
+    Город
+  .col-1
+  .col-1
+  .col-4
+
+%hr
+
+- @locations.each do |location|
+  .row.form-group
+    .col-3
+      = location.name
+    .col-3
+      = location.city.name
+    .col-1
+      = link_to(image_tag("edit.png", width: "24px", title: "Редактировать локацию #{location.name}"), edit_location_path(location))
+    .col-1
+      = link_to(image_tag("delete.png", width: "24px", title: "Удалить локацию #{location.name}"), location_path(location), method: :delete,  data: { confirm: "Вы хотите удалить локацию <<#{location.name}>>, вы уверены" })
+    .col-4

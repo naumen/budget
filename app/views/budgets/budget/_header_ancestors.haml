@@ -1,0 +1,9 @@
+- if budget.self_and_ancestors.size > 1
+  %nav{"aria-label" => "breadcrumb"}
+    %ol.breadcrumb
+      - budget.self_and_ancestors.each do |_budget|
+        %li.breadcrumb-item
+          - if _budget == budget
+            %b= _budget.name
+          - else
+            = link_to _budget.name, budget_path(_budget.id)

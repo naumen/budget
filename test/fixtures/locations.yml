@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+office_ekb:
+  name: Офис в Екб
+  city: city_ekb
+
+office_msk:
+  name: Офис в Мск
+  city: city_msk
+
+office_ekb_remote:
+  name: Екатеринбург, удаленно
+  city: city_ekb

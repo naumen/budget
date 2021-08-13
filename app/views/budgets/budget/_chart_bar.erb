@@ -1,0 +1,29 @@
+<%
+  chart = PiCharts::Bar.new
+
+  chart_data.each do |name, summa|
+    chart.add_dataset(label: name, data: summa)
+  end
+
+  chart.hover
+  chart.responsive
+
+  # label:
+  chart.config.data[:options] = {
+    tooltips: {
+      callbacks: {
+        title: "__title__",
+        label: "__label__",
+      }
+    }
+  }
+
+  js_funs = {}
+  js_funs['title'] = """function(tooltipItem, data) {
+          return data['datasets'][tooltipItem[0]['datasetIndex']]['label'];
+        }"""
+  js_funs['label'] = """function(tooltipItem, data) {
+          return formatMoney(data['datasets'][tooltipItem['datasetIndex']]['data'][0]);
+        }"""
+%>
+<%= chart.html(width: 60, js_funs: js_funs, name: name).html_safe %>

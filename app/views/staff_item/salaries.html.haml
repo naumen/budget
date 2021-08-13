@@ -1,0 +1,35 @@
+= card "Штатная единица" do
+  %table
+    %tr
+      %td Отдел:
+      %td= @staff_item.division.name
+    %tr
+      %td Должность:
+      %td= @staff_item.position.name
+    %tr
+      %td Местоположение:
+      %td= @staff_item.location.name
+    %tr
+      %td Ставка:
+      %td= @staff_item.koeff
+    %tr
+      %td Сотрудник:
+      %td
+        - if @staff_item.user_staff
+          = @staff_item.user_staff.user.name
+        - else
+          вакантна
+  %br
+  = link_to "&larr; на карточку отдела".html_safe, division_path(@staff_item.division)
+
+= card "Зарплата" do
+  %table.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th Начисление с месяца
+        %th Холдинг
+
+    - @staff_item.staff_item_salaries.each do |salary|
+      %tr
+        %td= salary.month_name
+        %td= salary.salary

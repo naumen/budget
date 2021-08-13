@@ -1,0 +1,50 @@
+.row
+  .col-12
+    %h2
+      - if @budget
+        = "Cписок продаж #{@budget.name}"
+        = link_to(image_tag("add.png", width: "36px", title: "Создать новую продажу"), new_sale_path + "?budget_id=#{@budget.id}")
+        = link_to(image_tag("return.png", width: "36px", title: "Вернуться к бюджету"), @budget)
+      - else
+        = "Cписок продаж"
+        = link_to(image_tag("add.png", width: "36px", title: "Создать новую продажу"), new_sale_path)
+
+%br
+.row
+  .col-1
+    %b
+  .col-1
+    %b Квартал
+  .col-2
+    %b Наименование
+  .col-2
+    %b Бюджет
+  .col-2
+    %b Канал продаж
+  .col-1
+    %b Ответственный
+  .col-2.text-right
+    %b Сумма
+  .col-1
+    %b
+%hr
+- @sales.each do |sale|
+  .row
+    .col-1.text-right
+      = link_to(image_tag("paypal_256.ico", width: "42px", title: "Редактировать продажу"), edit_sale_path(sale))
+    .col-1.text-center
+      = sale.quarter
+    .col-2
+      = sale.name
+    .col-2
+      = link_to(sale.budget.name, sale.budget)
+    .col-2
+      = sale.sale_channel.name if sale.sale_channel
+    .col-1
+      = sale.owner.name if sale.owner
+    .col-2.text-right
+      = summ_formatter(sale.summ, sale.budget.currency)
+    .col-1
+      = link_to(image_tag("delete.png", width: "24px", title: "Удалить продажу"), sale_path(sale),  method: :delete, data: { confirm: 'Вы хотите удалить продажу, вы уверены?' })
+
+= paginate @sales

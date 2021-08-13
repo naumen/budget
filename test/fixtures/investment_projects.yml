@@ -1,0 +1,8 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+investment_project1:
+  name: "Инвестиция"
+  from_budget: b_profit_distribution
+  to_budget: b_invest
+  summ: 2_000.0
+  f_year: 2018

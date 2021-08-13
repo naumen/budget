@@ -1,0 +1,28 @@
+<span style="font-weight: bold; font-style: italic; color: green">
+  (<%= date(@item_record_on_date.to_date) %>)
+</span>
+
+[<% (1..12).each do |m| %>
+ <% cur_on_date = "2019-#{'%02d' % m}-01" %>
+ <a <%= 'style="font-weight: bold"'.html_safe if @on_date == cur_on_date %> href="/staff_requests/staff_show/<%= @division_id %>?on_date=<%= cur_on_date %>"><%= m %></a>
+ <%= '|' unless m == 12 %>
+<% end %>]
+
+<% if @division.nil? %>
+    Объект не существует на указанную дату <%= date(@item_record_on_date) %>.
+    <br>
+    Либо ещё не создан, либо удален.
+<% else %>
+
+
+  <h3>Отдел</h3>
+ <%= render :partial=>"/staff_requests/division/info" %>
+
+  <h3>Вложенные отделы/подразделения</h3>
+  <%= render :partial=>"/staff_requests/division/sub_divisions" %>
+
+
+  <h3>Штатные единицы</h3>
+  <%= render :partial=>"/staff_requests/division/staff_items" %>
+
+<% end %>

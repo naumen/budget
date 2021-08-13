@@ -1,0 +1,17 @@
+= card_primary "Список согласования" do
+  %table.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-info.text-white
+        %td Сотрудник
+        %td Согласовано
+        %td Дата
+        %td Время
+        %td Комментарий
+    - @item.current_signs.each do |user_sign|
+      %tr
+        %td= user_sign.user.name rescue '-'
+        %td= user_sign.result ? 'Да' : user_sign.result.nil? ? 'Нет' : 'Отклонено'
+        %td= date(user_sign.result_date)
+        %td= user_sign.result_date.strftime("%H:%M:%S") if user_sign.result_date
+        %td= user_sign.comment
+

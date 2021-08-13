@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+#
+#one:
+#  budget_id: 1
+#  fin_year: 1
+#  month: 1
+#  summ: 1.5
+#
+#two:
+#  budget_id: 1
+#  fin_year: 1
+#  month: 1
+#  summ: 1.5

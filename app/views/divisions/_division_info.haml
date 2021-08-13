@@ -1,0 +1,13 @@
+= card "Отдел" do
+  %nav{"aria-label" => "breadcrumb"}
+    %ol.breadcrumb
+      - @division.ancestors.each do |node|
+        %li.breadcrumb-item
+          = link_to node.name, division_path(node)
+      %li.breadcrumb-item.active{"aria-current" => "page"}= @division.name
+  %h2= @division.name
+  %br
+  Руководитель:
+  = @division.chief.name if @division.chief
+  %br
+  = link_to "назад к списку отделов", divisions_path

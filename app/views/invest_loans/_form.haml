@@ -1,0 +1,85 @@
+- if @invest_loan.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @invest_loan.errors.full_messages.each do |message|
+        %li= message
+
+:javascript
+  $(document).ready(function() {
+    $("#credit_budgets").select2({
+      language: "ru-RU",
+      theme: "bootstrap"
+    });
+  });
+
+  $(document).ready(function() {
+    $("#use_budgets").select2({
+      language: "ru-RU",
+      theme: "bootstrap"
+    });
+  });
+
+= form_for @invest_loan do |f|
+
+  .row.m-2
+    .col-2
+      %label
+        %b= t('invest_loans.form.name')
+    .col-8
+      %input{ :name => 'invest_loan[name]', :class => 'form-control', value: @invest_loan.name}
+
+  .row.m-2
+    .col-2
+      %label
+        %b= t('invest_loans.form.use_budget_id')
+    .col-8
+      %select#use_budgets.d-none{ name: 'invest_loan[use_budget_id]'}
+        %option
+        - @using_budgets.each do |budget|
+          %option{ :value => budget.id, :selected => @invest_loan.use_budget_id == budget.id || params[:budget_id].to_i == budget.id  ? true : false  }
+            = "#{ budget.name }"
+
+  .row.m-2
+    .col-2
+      %label
+        %b= t('invest_loans.form.credit_budget_id')
+    .col-8
+      %select#credit_budgets.d-none{ name: 'invest_loan[credit_budget_id]'}
+        %option
+        - @filling_budgets.each do |budget|
+          %option{ :value => budget.id, :selected => @invest_loan.credit_budget_id == budget.id || params[:budget_id].to_i == budget.id  ? true : false  }
+            = "#{ budget.name }"
+
+  .row.m-2
+    .col-2
+      %label
+        %b= t('invest_loans.form.currency')
+    .col-8
+      %select{ :name => 'invest_loan[currency]', :class => 'form-control'}
+        - ["Рубль", "Доллар", "Евро"].each do |currency|
+          %option{ :value => currency, :selected => @invest_loan.currency == currency }
+            = currency
+
+  .row.m-2
+    .col-2
+      %label
+        %b= t('invest_loans.form.summ')
+    .col-8
+      %input{ :name => 'invest_loan[summ]', :class => 'form-control', value: @invest_loan.summ}
+
+  .row.m-2
+    .col-2
+      %label= t('invest_loans.form.interest_rate')
+    .col-8
+      %input{ :name => 'invest_loan[interest_rate]', :class => 'form-control', value: @invest_loan.interest_rate}
+
+  .row.m-2
+    .col-2
+      %label= t('invest_loans.form.document')
+    .col-8
+      = f.file_field :file
+
+  .row.m-2
+    = f.submit t('common.save'), :class => 'btn btn-primary'
+    = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'

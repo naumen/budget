@@ -1,0 +1,35 @@
+.row
+  .col-12
+    %h2
+      = "Snapshots"
+      %a{ id: "add", href: snapshots_path, data: { method: :post }}
+        = image_tag("add.png", width: "36px", title: "Создать новый snapshot", onclick: "$('#add').hide(); $('#preloader').show();")
+      = image_tag("snapshot_preload.png", title: "Создать новый snapshot", id: "preloader", style: "display: none")
+
+%br
+
+.row
+  .col-2
+    Дата создания
+  .col-2
+    Наполнение
+  .col-2
+    Дефицит\Профицит
+  .col-2
+  .col-4
+    %p= link_to("Ссылка на snapshot", root_url(:port => 4000), target: :blank)
+- @snapshots.each do |snapshot|
+  %hr
+  .row
+    .col-2
+      = snapshot.created_at.strftime('%d-%m-%Y в %I:%M')
+    .col-2
+      = summ_formatter(snapshot.filling_money)
+    .col-2
+      = summ_formatter(snapshot.def_prof_money)
+    .col-2
+      - if snapshot.active
+        %p
+          %b.text-success= "Активен"
+      - else
+        %p= link_to("Восстановить", backups_snapshot_path(snapshot.id), method: :post)

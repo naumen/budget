@@ -1,0 +1,89 @@
+- if @stat_zatr_id
+  - stat_zatr_from_snapshot = @budget_snapshot['stat_zatrs'].select{|stat_zatr| stat_zatr['id'] == @stat_zatr_id.to_i}[0]
+  %br
+  Статья затрат:
+  %b= stat_zatr_from_snapshot['name']
+
+  = render partial: 'budgets/budget/init_js', locals: { stat_zatr: stat_zatr_from_snapshot }
+
+  = form_for @request_change, url: request_change_set_action_path(@request_change) do |f|
+    = f.hidden_field :id
+    %input{:type => "hidden", :name => 'stat_zatr_id', :value => params[:stat_zatr_id]}
+    - if params[:action_id]
+      %input{:type => "hidden", :name => 'action_id', :value => params[:action_id]}
+    %input{:type => "hidden", :name => 'do', :value => params[:do]}
+    %table.table{ style: "width: 600px"}
+      %thead
+        %tr.bg-info.font-weight-bold.text-white
+          %th Месяц
+          %th.text-right Сумма
+          %th Безнал
+          %th Изменить
+          %th Сумма
+          %th Безнал
+      %tbody
+        - itogo = 0.0
+        - (1..12).to_a.each do |z_month|
+          - # stat_zatr_from_snapshot['zatratas'].sort_by{|z| z["month"]}.each do |zatrat|
+          - # z_month  = zatrat['month']
+          - zatrat = stat_zatr_from_snapshot['zatratas'].select{|z| z["month"] ==  z_month}[0] rescue nil
+          - if zatrat
+            - z_summa  = zatrat['summ'].to_f
+            - z_beznal = zatrat['is_beznal']
+          - else
+            - z_summa  = 0.0
+            - z_beznal = false
+          - itogo += z_summa
+          - new_zatrat = @request_change_action_content && @request_change_action_content['months'] && @request_change_action_content['months'][z_month.to_s]
+          - checked = !new_zatrat.nil?
+          %tr
+            %td= StaffItemSalary::MONTHS[z_month.to_s.to_sym]
+            %td.text-right= money(z_summa)
+            %td= z_beznal ? "Да" : "Нет"
+            %td.text-center{ style: 'background-color: rgb(210, 255, 201)'}
+              %input.change{ type: "checkbox", name: 'months[]', value: z_month, data: {month: z_month }, checked: checked }
+            %td
+              %input.changedValue{ id: "input_#{z_month}", name: "summa_#{z_month}", value: new_zatrat ? new_zatrat[0] : z_summa, type: "text", size: 8, disabled: !checked}
+            %td
+              %input{ id: "checkbox_#{z_month}", value: "1", name: "beznal_#{z_month}", type: "checkbox", disabled: true, checked: z_beznal}
+        %tr{ style: "background-color: #eee"}
+          %td.text-right Итого
+          %td.text-right
+            %b
+              = money(itogo)
+          %td
+          %td
+          %td
+            %b#newitogo
+          %td#delta
+
+    %button.btn.btn-primary Сохранить
+    &nbsp;
+    = link_to 'Отмена', "/request_changes/#{@request_change.id}"
+
+- else
+  - rows = @presenter.zatratas
+  %br
+  %b Выберите статью затрат для корректировки:
+
+  %table.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th Наименование
+        %th Затр в бюджет
+        %th Статья затрат (спр)
+        %th Год
+        %th Суммы
+        %th
+    - itogo_summ = 0.0
+    - rows.each do |row|
+      %tr
+        %td= row.name
+        %td.text-right
+          = money row.summa
+          - itogo_summ += row.summa
+        %td= row.spr_stat_zatrs
+        %td= row.year
+        %td= row.cnt
+        %td= link_to 'Далее &rarr;'.html_safe, "/request_changes/#{@request_change.id}?do=stat_zatr_edit&stat_zatr_id="+row.id.to_s
+%br

@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# Норматив
+normativ_it_base:
+  name: "normativ it base"
+  budget: b_it
+  metrik: all_state_units
+  norm: 48100.0
+  f_year: 2018
+
+normativ_service:
+  name: "normativ service"
+  budget: b_service
+  metrik: by_weight
+  norm: 1000.0
+  f_year: 2018
+
+normativ_equally:
+  name: "normativ equally"
+  budget: b_service
+  metrik: equally
+  norm: 222.0
+  f_year: 2018

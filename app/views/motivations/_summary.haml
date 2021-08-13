@@ -1,0 +1,22 @@
+%table.table{width: '80%'}
+  %tr{style: "background-color: #e0e0e0"}
+    %th ЦФО/Бюджет
+    %th{width: '10%'} Ст.затраты (премия)
+    %th{width: '10%'} Мотивации
+  - @cfos.each do |cfo|
+    - budgets = @summary_cfos[cfo.id] || []
+    - next if budgets.size == 0
+    %tr{style: "background-color: #f0f0f0"}
+      %td{width: "50%"}
+        %a{name: "cfo_top_#{cfo.id}"}
+        %b
+          %a{href: "#cfo_#{cfo.id}", 'data-turbolinks': "false"}= cfo.name
+      %td
+      %td
+    - budgets.each do |budget_id, info|
+      %tr
+        %td{style: "padding-left: 30px"}
+          %a{href: "#budget_#{budget_id}", 'data-turbolinks': "false"}
+            = Budget.find(budget_id).name
+        %td= info[:stat_zatrs]
+        %td= info[:motivations]

@@ -1,0 +1,97 @@
+.row
+  .col-5
+    %h5 Наполнение:
+  .col-7
+    %h5
+      = summ_formatter(Budget.itogi_dohods(@budget), @budget.currency)
+      = image_tag("down_arrow.png", id: "filling_up", width: "24px", title: "Подробнее", :onclick => '$("#filling_data").removeClass("d-none"); $("#filling_down").removeClass("d-none"); $("#filling_up").addClass("d-none")')
+      = image_tag("up_arrow.png", id: "filling_down", width: "24px", title: "Подробнее", :onclick => '$("#filling_data").addClass("d-none"); $("#filling_up").removeClass("d-none"); $("#filling_down").addClass("d-none");', class: "d-none")
+
+#filling_data.card.text-right.bg_budget.d-none
+  .row
+    .col-5
+      %h6 В бюджете
+  %br
+
+  - if !@budget_setting.joins(:setting_params).where( "setting_params.name = 'Продажи'").empty? || !@sales.empty?
+    .row
+      .col-5
+        %h6
+          = link_to 'Продаж', sales_path + "?budget_id=#{@budget.id}", { class: "simple_link" }
+      .col-7
+        - if @sales.empty?
+          = summ_formatter(0, @budget.currency)
+        - else
+          = summ_formatter(@sales.sum("summ"), @budget.currency)
+
+  - if !@budget_setting.joins(:setting_params).where( "setting_params.name = 'Нормативы'").empty? || !@budget.normativ.empty?
+    .row
+      .col-5
+        %h6
+          = link_to 'Нормативов', normativs_path + "?budget_id=#{@budget.id}", { class: "simple_link" }
+      .col-7
+        - if @budget.normativ.empty?
+          = summ_formatter(0, @budget.currency)
+        - else
+          = summ_formatter(@budget.normativs_summ, @budget.currency)
+
+  - if !@budget_setting.joins(:setting_params).where( "setting_params.name = 'Инвест проекты'").empty? || !@budget.filling_investment_project.empty?
+    .row
+      .col-5
+        %h6
+          = link_to 'Инвест проектов', investment_projects_path + "?filling_budget_id=#{@budget.id}", { class: "simple_link" }
+      .col-7
+        - if @budget.filling_investment_project.empty?
+          = summ_formatter(0, @budget.currency)
+        - else
+          = summ_formatter(@budget.filling_investment_project.sum("summ"), @budget.currency)
+
+  - if !@budget_setting.joins(:setting_params).where( "setting_params.name = 'Инвест займ'").empty? || !(@budget.credit_invest_loans.empty? && @budget.use_repayment_loans.empty?)
+    .row
+      .col-5
+        %h6
+          Инвест займ:
+      .col-7
+        - if @budget.credit_invest_loans.empty? && @budget.use_repayment_loans.empty?
+          = summ_formatter(0, @budget.currency)
+        - else
+          = summ_formatter(@budget.credit_invest_loans.sum("summ") + @budget.use_repayment_loans.sum("summ"), @budget.currency)
+
+  %br
+
+  .row
+    .col-5
+      %h6 В подбюджетах
+
+  %br
+
+  .row
+    .col-5
+      %h6 Продажи:
+    .col-7
+      = summ_formatter(@budget.get_children_sales, @budget.currency)
+
+  .row
+    .col-5
+      %h6 Нормативы:
+    .col-7
+      = summ_formatter(Budget.children_naklads_dohods(@budget), @budget.currency)
+
+  .row
+    .col-5
+      %h6 Инвестпроект:
+    .col-7
+      = summ_formatter(Budget.children_investment_project_dohods(@budget), @budget.currency)
+
+  .row
+    .col-5
+      %h6 Инвест займ:
+    .col-7
+      = summ_formatter(Budget.children_invest_loans_dohods(@budget), @budget.currency)
+  %hr
+
+  .row
+    .col-5
+      %h6 Итого доходов:
+    .col-7
+      = summ_formatter(Budget.itogi_dohods(@budget).to_s, @budget.currency)

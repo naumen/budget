@@ -1,0 +1,37 @@
+.row
+  .col-12
+    %h1
+      = "Продажа: " + @sale.name
+      = link_to(image_tag("edit.png", width: "24px", title: "Редактировать продажу"), edit_sale_path)
+      = link_to(image_tag("delete.png", width: "24px", title: "Удалить"), sale_path,  method: :delete, data: { confirm: 'Вы хотите удалить продажу, вы уверены?' })
+      = link_to(image_tag("return.png", width: "24px", title: "Вернуться к списку продаж"), sales_path + "?budget_id=#{@budget.id}")
+
+.row.m-2
+  .col-2
+    %label= t('sales.form.budget_id')
+  .col-8
+    = link_to( @budget.name, @budget)
+
+.row.m-2
+  .col-2
+    %label= t('sales.form.sales_channel')
+  .col-8
+    = @sales_channel.name
+
+.row.m-2
+  .col-2
+    %label= t('sales.form.user_id')
+  .col-8
+    = @user.name
+
+.row.m-2
+  .col-2
+    %label= t('sales.form.quarter')
+  .col-8
+    = @sale.quarter
+
+.row.m-2
+  .col-2
+    %label= t('sales.form.summ')
+  .col-8
+    = money(@sale.summ)

@@ -1,0 +1,116 @@
+<% if current_user.is_admin? %>
+
+<div id="app">
+  <button class="btn" @click.prevent="onShow">
+    <%= image_tag("key.png", width: "15px", title: "Доступ к отчету") %>
+  </button>
+
+  <div v-if="show">
+    <b>Сотрудники</b>
+    <br>
+    <table>
+      <tr>
+        <td valign="top">
+            <input style="border-radius: 5px; padding: 2px" type="text" v-model="search" placeHolder="Поиск по сотрудникам">
+            <br>
+            <select size="10">
+              <option value="" @click="onSelectUser('')" ></option>
+              <option @click="onSelectUser(user.id)" v-if="!isSelected(user.id) && ((search == '' && search.length > 1) || user.l_name.toLowerCase().indexOf(search) > -1)" v-for="user in users" :value="user.id">{{user.l_name}} {{user.f_name}} {{user.s_name}}</option>
+            </select>
+        </td>
+        <td>
+          <button v-if="selected_user_id != ''" class="btn" @click.prevent="addUser">&gt;&gt;</button>
+        </td>
+        <td valign="top">
+          <ul>
+            <li v-for="user in access_users">
+              {{user.name}}
+
+<button title="Удалить из списка" class="btn btn-danger btn-sm" type="button" @click="delAccessUsers(user.id)"><%= icon("svg_class", "x", width: 8, fill: "white") %></button>              
+    <%= icon("svg_class", "x", width: 8, fill: "white") %>
+  </button>
+<li v-for="cfo_name_user_id_user_name in main_budget_users">{{cfo_name_user_id_user_name[2]}} <span style="color: #999">[{{cfo_name_user_id_user_name[0]}}]</span> </li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+
+  </div>
+
+</div>
+
+<script type="text/javascript">
+var app = new Vue({
+  el: "#app",
+  data: {
+    show: false,
+    users: '',
+    access_users: [],
+    search: '',
+    selected_user_id: '',
+    main_budget_users: <%= BudgetParam.main_budget_users.to_json.html_safe %>
+  },
+  methods: {
+    userFio: function(user){
+      return user.l_name + " " + user.f_name + " " + user.s_name;
+    },
+    onShow: function(){
+      this.show = !this.show;
+      if (this.users.length == 0){
+        this.loadUsers();
+        this.loadAccessUsers();
+      }
+    },
+    addUser: function(){
+      this.addAccessUsers(this.selected_user_id);
+    },
+    onSelectUser: function(user_id){
+      this.selected_user_id = user_id;
+    },
+    buttonName: function(){
+      if (this.show){
+        return "Скрыть"
+      }else{
+        return "Доступ"
+      }
+    },
+    isSelected: function(user_id){
+      const user_ids = this.access_users.map(item => { return item.id });
+      return user_ids.includes(user_id);
+    },
+    loadUsers: function(){
+      axios.get('/api/v1/users.json')
+                  .then(response => {
+                    this.users = response.data;
+                   })
+                  .catch(error => {});
+    },    
+    loadAccessUsers: function(){
+      axios.get('/budget_report/access_users.json')
+                  .then(response => {
+                    this.access_users = response.data;
+                   })
+                  .catch(error => {});
+    },    
+    addAccessUsers: function(user_id){
+      axios.post(
+        '/budget_report/add_access_user',
+        { params: { user_id: user_id } }
+      )
+      .then(response => this.loadAccessUsers())
+      .catch(error => {});
+    },    
+    delAccessUsers: function(user_id){
+      axios.post(
+        '/budget_report/del_access_user',
+        { params: { user_id: user_id } }
+      )
+      .then(response => this.loadAccessUsers())
+      .catch(error => {});
+    },    
+  }
+});
+
+</script>
+
+<% end %>

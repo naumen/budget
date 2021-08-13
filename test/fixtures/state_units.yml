@@ -1,0 +1,30 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+cfo_d_1_user1:
+  budget: b_d_cfo_1_fzp
+  location: office_ekb
+  f_year: 2018
+  division: "Division name"
+  position: "Position name"
+  user: fo_user
+  staff_item_id: 12345
+
+cfo_d_1_remote_user1:
+  budget: b_d_cfo_1_fzp
+  location: office_ekb_remote
+  f_year: 2018
+
+invest_user:
+  budget: b_invest
+  location: office_ekb
+  f_year: 2018
+
+# 
+
+cfo_1_fzp_next_user1:
+  id: 109958
+  budget: b_d_cfo_1_fzp_next
+  location: office_ekb
+  f_year: 2019
+  division: "Division name"
+  position: "Position name"

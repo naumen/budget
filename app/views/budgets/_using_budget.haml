@@ -1,0 +1,118 @@
+.row
+  .col-5
+    %h5 Использование:
+  .col-7
+    %h5
+      = summ_formatter(Budget.itogi_rashods(@budget).to_s, @budget.currency)
+      = image_tag("down_arrow.png", id: "use_up", width: "24px", title: "Подробнее", :onclick => '$("#use_data").removeClass("d-none"); $("#use_down").removeClass("d-none"); $("#use_up").addClass("d-none")')
+      = image_tag("up_arrow.png", id: "use_down", width: "24px", title: "Подробнее", :onclick => '$("#use_data").addClass("d-none"); $("#use_up").removeClass("d-none"); $("#use_down").addClass("d-none");', class: "d-none")
+
+#use_data.card.text-right.bg_budget.d-none
+  .row
+    .col-5
+      %h6 В бюджете
+  %br
+
+  - if !@budget_setting.joins(:setting_params).where( "setting_params.name = 'Статьи затрат'").empty? || !@stat_zatrs.nil?
+    .row
+      .col-5
+        %h6
+          = link_to 'Статьи затрат', stat_zatrs_path + "?budget_id=#{@budget.id}", { class: "simple_link" }
+      .col-7
+        = summ_formatter(@zatrats_sum, @budget.currency)
+
+  - if !@budget_setting.joins(:setting_params).where( "setting_params.name = 'Накладные'").empty? || !@budget.naklads.empty?
+    .row
+      .col-5
+        %h6
+          = link_to 'Накладных', normativs_path + "?budget_id=#{@budget.id}&naklads=true", { class: "simple_link" }
+      .col-7
+        - if @budget.naklads.empty?
+          = summ_formatter(0, @budget.currency)
+        - else
+          = summ_formatter(@budget.naklads.sum("summ"), @budget.currency)
+
+  - if !@budget_setting.joins(:setting_params).where( "setting_params.name = 'Инвест проекты'").empty?
+    .row
+      .col-5
+        %h6
+          = link_to 'Инвест проектов', investment_projects_path + "?use_budget_id=#{@budget.id}", { class: "simple_link" }
+      .col-7
+        - if @budget.use_investment_project.empty?
+          = summ_formatter(0, @budget.currency)
+        - else
+          = summ_formatter(@budget.use_investment_project.sum("summ"), @budget.currency)
+
+  - if !@budget_setting.joins(:setting_params).where( "setting_params.name = 'Инвест займ'").empty?
+    .row
+      .col-5
+        %h6
+          Инвест займов
+      .col-7
+        - if @budget.use_invest_loans.empty? && @budget.filling_repayment_loans.empty?
+          = summ_formatter(0, @budget.currency)
+        - elsif !@budget.use_invest_loans.empty? && @budget.filling_repayment_loans.empty?
+          = summ_formatter(@budget.use_invest_loans.sum("summ"), @budget.currency)
+        - elsif @budget.use_invest_loans.empty? && !@budget.filling_repayment_loans.empty?
+          = summ_formatter(@budget.filling_repayment_loans.sum("summ"), @budget.currency)
+        - else
+          = summ_formatter(@budget.filling_repayment_loans.sum("summ") + @budget.use_invest_loans.sum("summ"), @budget.currency)
+
+
+  - if !@budget_setting.joins(:setting_params).where( "setting_params.name = 'ФЗП'").empty?
+    .row
+      .col-5
+        %h6
+          ФЗП
+      .col-7
+        - if @budget.salaries.empty?
+          = summ_formatter(0, @budget.currency)
+        - else
+          = summ_formatter(@budget.salaries.where(f_year: session[:f_year]).sum(:summ), @budget.currency)
+
+  %br
+
+  .row
+    .col-5
+      %h6 В подбюджетах
+
+  %br
+
+  .row
+    .col-5
+      %h6 Статьи затрат
+    .col-7
+      = summ_formatter(@budget.get_children_stat_zatr, @budget.currency)
+
+  .row
+    .col-5
+      %h6 Накладные:
+    .col-7
+      - p Budget.children_naklads_zatrats(@budget)
+      = summ_formatter(Budget.children_naklads_zatrats(@budget), @budget.currency)
+
+  .row
+    .col-5
+      %h6 Инвестпроекты:
+    .col-7
+      = summ_formatter(Budget.children_investment_project_zatrats(@budget), @budget.currency)
+
+  .row
+    .col-5
+      %h6 ФЗП:
+    .col-7
+      = summ_formatter(Budget.children_salary(@budget), @budget.currency)
+
+  .row
+    .col-5
+      %h6 Инвест займ:
+    .col-7
+      = summ_formatter(Budget.children_invest_loans_zatrats(@budget), @budget.currency)
+
+  %hr/
+
+  .row
+    .col-5
+      %h6 Итого расходов:
+    .col-7
+      = summ_formatter(Budget.itogi_rashods(@budget), @budget.currency)

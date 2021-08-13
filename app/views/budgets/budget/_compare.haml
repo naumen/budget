@@ -1,0 +1,29 @@
+%h2 Сравнение с прошлым периодом
+
+- budget_diff   = @presenter.budget_diff
+- normativ_diff = @presenter.normativ_diff
+%table.table.table-sm
+  %thead
+    %tr.bg-info.text-white
+      %th Критерий
+      %th Абс. изм.
+      %th % изм.
+  %tr
+    %td{ colspan: 3 }
+      %b= @budget.name
+  %tr
+    %td Прирост бюджета
+    %td.text-right
+      - if budget_diff
+        = summ_formatter(budget_diff[:delta])
+    %td
+      - if budget_diff
+        = budget_diff[:delta_percent]
+  %tr
+    %td Прирост норматива
+    %td.text-right
+      - if normativ_diff
+        = summ_formatter(normativ_diff[:delta])
+    %td
+      - if normativ_diff
+        = normativ_diff[:delta_percent]

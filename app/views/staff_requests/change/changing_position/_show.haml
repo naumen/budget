@@ -1,0 +1,21 @@
+.row
+  .col-2.text-right Отдел:
+  .col
+    %a{href: "/staff_requests/staff_show/#{change.division_id.to_s}?on_date=#{change.date_of_change}"}
+      = change.division.name rescue ''
+.row
+  .col-2.text-right Штатная единица:
+  .col= change.staff_item.name_for_select(@item.on_date)
+.row
+  .col-2.text-right Старая должность:
+  .col= change.old_position.name rescue ''
+.row
+  .col-2.text-right Новая должность:
+  .col= change.new_position.name
+- if change.new_salary
+  .row
+    .col-2.text-right Старый оклад:
+    .col= money(change.old_salary.salary) rescue '-'
+  .row
+    .col-2.text-right Новый оклад:
+    .col= money(change.new_salary)

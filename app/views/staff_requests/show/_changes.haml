@@ -1,0 +1,10 @@
+= card_primary "Изменения" do
+  - @item.request_changes.each do |change|
+    %a{ name: "change_#{change.id}"}
+    = card change.type_ru do
+      - if params[:edit].to_i == change.id
+        = render partial: "/staff_requests/change/form", locals: {:change => change}
+      - else
+        = render partial: "/staff_requests/change/show", locals: {:change => change}
+  - if @item.state_name == 'Редактируется'
+    = render partial: "/staff_requests/show/select_new"

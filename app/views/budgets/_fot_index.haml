@@ -1,0 +1,18 @@
+%br
+%h3 выберите бюджет
+- @all_budgets.each do |budget|
+  - next unless @accessable_budgets.include?(budget)
+  - if budget.level == 0
+    = budget.name
+    - if current_user.is_admin || current_user.hr_manager?
+      %a{ :href => "/budgets/#{budget.id}/fot" } &rarr;
+  - else
+    = ("&nbsp;&nbsp;<span style='color: #c0c0c0'>.</span>&nbsp;&nbsp;"*(budget.level-1)).html_safe
+    - if (!current_user.is_admin && budget.access?(current_user) == "editor") || (current_user.is_admin && !budget.state_units.empty?) 
+      %a{ :href => "/budgets/#{budget.id}/fot" }
+        = budget.name
+    - else
+      = budget.name
+      - if current_user.is_admin && budget.state_units.empty?
+        %a{ :href => "/budgets/#{budget.id}/fot" } &rarr;
+  %br

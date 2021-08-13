@@ -1,0 +1,64 @@
+.row
+  .col
+    %b Наименование
+  .col
+    %b ЦФО
+  .col
+    %b Название бюджета потребителя
+  .col
+    %b Метрика
+  - if @normativ.metrik.name != 'По весу'
+    .col
+      %b Значение метрики
+  .col.text-right
+    %b Сумма
+  .col.text-right
+    %b Вес
+    - weight_itogo = 0.0
+%hr
+
+- all_summ = 0
+- all_metrik = 0
+
+- @normativ.naklads.sort_by{|nakladn| nakladn.budget.cfo.name}.each do |naklad|
+  - metrik_summ = nil
+  .row
+    .col
+      = @normativ.name
+    .col
+      = naklad.budget.cfo.name rescue '-'
+    .col
+      = link_to( naklad.budget.name, naklad.budget)
+    .col
+      = @normativ.metrik.name
+    - if !['По весу', 'Поровну'].include?(@normativ.metrik.name)
+      - budget_metrik = BudgetMetrik.where( budget_id: naklad.budget_id, metrik_id: @normativ.metrik_id, archived_at: nil ).first
+      - if budget_metrik
+        - metrik_value = budget_metrik.value.to_f
+        - metrik_summ = @normativ.norm * metrik_value
+      .col.text-right
+        = metrik_value.to_f
+        - all_metrik += metrik_value.to_f
+    - else
+      - metrik_summ = naklad.summ
+    .col.text-right
+      = summ_formatter(metrik_summ.to_f)
+      - all_summ += metrik_summ.to_f
+    .col.text-right
+      = naklad.weight
+      - weight_itogo += naklad.weight.to_f
+  %hr
+
+.row.font-weight-bold
+  .col
+  .col
+  .col
+  .col
+    ИТОГО
+  - if @normativ.metrik.name != 'По весу'
+    .col.text-right
+      = all_metrik
+  .col.text-right
+    = summ_formatter(all_summ, @normativ.budget.currency)
+  .col.text-right
+    = money(weight_itogo)

@@ -1,0 +1,66 @@
+- rows, itogo = @presenter.state_units
+- if (@budget.f_year < 2020 && @budget.budget_type.name == "Зарплата подразделений") || !rows.empty? || (@budget.f_year >= 2020 && !['Сводный компании', 'Сводный'].include?(@budget.budget_type.name))
+  %a{ name: :state_units }
+  #state_units
+    %h3
+      Штатные единицы
+      - if @budget.allow?("link_new_state_unit", current_user)
+        = link_to image_tag("new.png", title: "Добавить"), new_state_unit_path( budget_id: @budget ), id: "link_new_state_unit"
+    %table.table.table-striped.table-bordered.table-sm
+      %thead
+        %tr.bg-primary.text-white
+          %th{width: 50}
+          - @presenter.state_units_columns.each do |code, name|
+            %th= name
+          %th{width: 50}
+      - pos = 0
+      - rows.each do |row|
+        - @state_unit_id = row[:id]
+        - row_selected = params[:staff_item_id] ? params[:staff_item_id].to_i == row[:staff_item_id] : false
+        - if !row_selected
+          - row_selected = params[:state_unit_id] && params[:state_unit_id].to_i == row[:id]
+        - default_row_style = row[:date_closed] ? "color: gray" : nil
+        %tr{ ":style": "bgStyleColor(#{@state_unit_id})", style: row_selected ? "background-color: yellow" : default_row_style }
+          %td= pos += 1
+          - @presenter.state_units_columns.each do |code, name|
+            %td{ code == :fzp ? { class: "text-right"} : {} }
+              - val = row[code] rescue '-'
+              - if code == :name
+                = link_to val, budget_path(row[:id])
+              - elsif code == :fio
+                = val
+                - if row[:user_id]
+                  = link_to icon("svg_class", "external-link", width: 9, fill: "#0a5cb4"), "https://hr/users/#{row[:user_id]}/main_details", title: "перейти на карточу сотрудника в HR2", target: "_blank"
+                  - unless row[:employment_term].blank?
+                    %div{style: "color: orange; font-style: italic; font-size: 8pt"}
+                      = row[:employment_term]
+                - if row[:date_closed]
+                  %span{style: "color: #fb7676; font-style: italic"}
+                    сокращена: 
+                    = date(row[:date_closed])
+              - elsif code == :fzp
+                = money(val)
+                
+              - else
+                = val
+          %td
+            %nobr
+              - state_unit = StateUnit.find(@state_unit_id)
+              - if @budget.allow?("link_edit_state_unit", current_user)
+                = link_to icon("svg_class", "pencil", width: 12, fill: "#0a5cb4"), [:edit, state_unit]
+              - if row[:staff_item_id]
+                = link_to icon("svg_class", "external-link", width: 12, fill: "#0a5cb4"), "https://hr/staff_schedule/staff_items/#{row[:staff_item_id]}", { target: "blank", title: "Перейти на карточку шт.единицы в HR2", class: "pl-2" }
+              - if @budget.allow?("link_edit_state_unit", current_user) && state_unit.is_deletable?(current_user)
+                = link_to(image_tag("delete-icon.png", width: "15px", title: "Удалить"), state_unit_path(state_unit),  method: :delete, data: { confirm: 'Удалить бюджетную шт. единицу?' })
+
+              %button.btn.btn-primary.btn-sm.ml-2{ title: "Открыть детализацию по з/п", type: "button",  "@click": "details(#{row[:id]})"}
+                = icon("svg_class", "menu", width: "8", fill: "white")
+
+        = render partial: "budgets/budget/state_unit_details"
+      %tr
+        %td
+        - @presenter.state_units_columns.each do |code, name|
+          %td{ code == :fzp ? { class: "text-right"} : {} }
+            = money(itogo[code]) if itogo[code]
+        %td
+  = render partial: "budgets/budget/state_unit_js"

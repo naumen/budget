@@ -1,0 +1,26 @@
+.row
+  .col.mt-2
+    %h3
+      Продажи
+      - if @budget.allow?("link_new_sale", current_user)
+        = link_to image_tag("new.png", title: "Добавить"), new_sale_path(budget_id: @budget.id), id: "link_new_sale"
+  - rows, itogo = @presenter.sales
+  - unless rows.empty?
+    .col
+      %ul#pills-tab.nav.nav-pills.mb-1.float-right{:role => "tablist"}
+        %li.nav-item
+          %a#pills-sales-digits-tab.nav-link.active{"aria-controls" => "pills-sales-digits", "aria-selected" => "true", "data-toggle" => "pill", :href => "#pills-sales-digits", :role => "tab"} Таблицей
+        %li.nav-item
+          %a#pills-sales-graph-tab.nav-link{"aria-controls" => "pills-sales-graph", "aria-selected" => "false", "data-toggle" => "pill", :href => "#pills-sales-graph", :role => "tab"} График
+
+
+- unless rows.empty?
+  #pills-tabContent.tab-content
+    #pills-sales-digits.tab-pane.fade.show.active{"aria-labelledby" => "pills-sales-digits-tab", :role => "tabpanel"}
+      = render partial: "budgets/budget/sales_digits", locals: { rows: rows, itogo: itogo }
+    #pills-sales-graph.tab-pane.fade{"aria-labelledby" => "pills-sales-graph-tab", :role => "tabpanel"}
+      - @_chart_data[''] = 0.0
+      = render partial: "budgets/budget/chart_bar", locals: { name: "sales", chart_data: @_chart_data }
+
+  :javascript
+    new Tablesort(document.getElementById('sale-rows'));

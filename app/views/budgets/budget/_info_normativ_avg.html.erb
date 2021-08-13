@@ -1,0 +1,65 @@
+<div id="app_info_normativ_avg">
+<h2>Среднее по нормативу</h2>
+<table class="table table-sm">
+  <tbody>
+    <tr v-for="row in rows">
+      <td>{{row.name}}</td>
+      <td :title="row.title">{{numberWithCommas(row.koeff)}}</td>
+    </tr>
+    <tr v-if="this.rows.length == 2" bgcolor="#f0f0f0">
+      <td align="right">Дельта</td>
+      <td>{{this.delta()}}</td>
+    </tr>
+  </tbody>
+</table>
+
+<% if @budget.f_year == 2020 && @budget.prev_budget %>
+<div align="right">
+<button v-if="this.rows.length == 1" class="btn btn-outline-info btn-smll" @click="compare">сравнить с 2019</button>
+</div>
+<% end %>
+
+</div>
+<script type="text/javascript">
+var app = new Vue({
+  el: "#app_info_normativ_avg",
+  data: {
+    rows: [],
+    prev_info_normativ_avg: {}
+  },
+  created: function(){
+    this.rows.push(<%= @budget.info_normativ_avg(@budget_info).to_json.html_safe %>);
+  },
+  methods: {
+    delta: function(){
+      var v1 = this.rows[1].koeff;
+      var v2 = this.rows[0].koeff;
+      var delta = v2 - v1;
+      // var perc = delta / v1 / 100.0;
+      if (delta > 0){
+        delta = "+" + delta;
+      }
+      return delta;
+    },
+    compare: function(){
+      this.loadInfo();
+    },
+    loadInfo: function(){
+      <% if @budget.prev_budget %>
+      axios.get('/budgets/<%= @budget.prev_budget.id %>/info_normativ_avg')
+                  .then(response => {
+                    this.rows.push(response.data);
+                   })
+                  .catch(error => {});
+      <% end %>
+    },
+    numberWithCommas(x) {
+      x = x.toString();
+      var pattern = /(-?\d+)(\d{3})/;
+      while (pattern.test(x))
+        x = x.replace(pattern, "$1,$2");
+      return x;
+    },
+  }
+});  
+</script>

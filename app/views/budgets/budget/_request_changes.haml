@@ -1,0 +1,20 @@
+%h3
+  Заявки на изменение
+  - if @budget.allow?("link_new_request_change", current_user)
+    = link_to image_tag("new.png", title: "Добавить"), new_request_change_path( budget_id: @budget ), id: "link_new_request_change"
+
+- rows = @budget.request_changes
+- unless rows.empty?
+  %table.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th Создано
+        %th Автор
+        %th Наименование
+        %th Статус
+    - rows.each do |row|
+      %tr
+        %td= row.created_at.strftime("%d.%m.%Y")
+        %td= row.author.name rescue '-'
+        %td= link_to row.name, request_change_path(row.id)
+        %td= row.state

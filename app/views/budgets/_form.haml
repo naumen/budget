@@ -1,0 +1,135 @@
+- if @budget.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @budget.errors.full_messages.each do |message|
+        %li= message
+
+= form_for @budget do |f|
+  .row.m-2
+    .col-3
+      %label Родительский бюджет
+    .col-8
+      -if @current_user.is_admin
+        %select{ name: 'budget[parent_id]', id: 'budget_id', class: 'form-control'}
+          %option{ value: 0 }
+          - @budgets.each do |budget|
+            - next if params[:id].to_i == budget.id
+            %option{ value: budget.id, selected: @budget.parent_id == budget.id || params[:budget_id].to_i == budget.id ? true : false }
+              = ('&nbsp;&nbsp;.&nbsp;&nbsp;' * budget.level).html_safe
+              = budget.name
+      - else
+        = @budget.parent.name
+        %input{:type => "hidden", :name => 'budget[parent_id]', :value => @budget.parent_id}
+
+  .row.m-2
+    .col-3
+      %label
+        %b Наименование*
+    .col-8
+      %input{ :name => 'budget[name]', :class => 'form-control', :value => @budget.name }
+
+  .row.m-2
+    .col-3
+      %label
+        %b Валюта*
+    .col-8
+      %select{ :name => 'budget[currency]', :class => 'form-control'}
+        - ["Рубль", "Доллар", "Евро"].each do |currency|
+          %option{ :value => currency }
+            = currency
+
+  .row.m-2
+    .col-3
+      %label
+        %b Тип бюджета
+    .col-8
+      %select{ name: 'budget[budget_type_id]', id: "budget_type_id", class: 'form-control'}
+        %option
+        - @budgets_type.each do |type|
+          %option{ :value => type.id, :selected => @budget.budget_type_id == type.id ? true : false }
+            = type.name
+
+  .row.m-2
+    .col-3
+      %label ЦФО
+    .col-8
+      %select{ :name => 'budget[cfo_id]', :class => 'form-control' }
+        %option
+        - @cfos.each do |cfo|
+          %option{ :value => cfo.id, :selected => @budget.cfo_id == cfo.id ? true : false }
+            = cfo.name
+
+  .row.m-2
+    .col-3
+      %label Тип ЦФО
+    .col-8
+      %select{ :name => 'budget[cfo_type_id]', :class => 'form-control'}
+        %option
+        - @cfo_type.each do |type|
+          %option{ :value => type.id, :selected => @budget.cfo_type_id == type.id ? true : false  }
+            = type.name
+
+  .row.m-2
+    .col-3
+      %label
+        %b Финансовый год*
+    .col-8
+      %input{ type: "hidden", :name => 'budget[f_year]', value: session[:f_year] }
+      %span= session[:f_year]
+
+
+  .row.m-2
+    .col-3
+      %label Владелец
+    = render('shared/form_elements/users_selected', users: @users, object: @budget, name: 'budget[user_id]')
+
+  .row.m-2
+    .col-3
+      %label= t('budgets.form.state')
+    .col-8
+      %select{ :name => 'budget[state]', :class => 'form-control'}
+        %option
+        - ['На доработке', "На утверждении", "Отклонен", "Утвержден", "Черновик"].each do |state|
+          %option{ :value => state, :selected => @budget.state == state ? true : false }
+            = state
+
+  .row.m-2
+    .col-3
+      %label= t('budgets.form.plan_marga')
+    .col-8
+      %input{ :name => 'budget[plan_marga]', :class => 'form-control', :value => @budget.plan_marga}
+
+  .row.m-2
+    .col-3
+      %label= t('budgets.form.plan_invest_marga')
+    .col-8
+      %input{ :name => 'budget[plan_invest_marga]', :class => 'form-control', :value => @budget.plan_invest_marga}
+
+  .row.m-2
+    .col-3
+      %label= t('budgets.form.nepredv')
+    .col-8
+      %input{ :name => 'budget[nepredv]', :class =>  'form-control', :value => @budget.nepredv}
+
+  .row.m-2
+    = f.submit t('common.save'), :class => 'btn btn-primary'
+    = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'
+
+
+/ :javascript
+/   $("#budget_id").change(function() {
+/     $.ajax({
+/       method: "POST",
+/       url: "/budget_setting",
+/       data: { budget_id: $(this).val() }
+/     })
+/     .done(function( msg ) {
+/       $("#budget_type_id").empty();
+/       $("#budget_type_id").append(`<option></option>`);
+/
+/       msg.map(function(item) {
+/         $("#budget_type_id").append(`<option value='${item[0]}'>${item[1]}</option>`);
+/       });
+/     });
+/   });

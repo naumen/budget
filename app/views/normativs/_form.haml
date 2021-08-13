@@ -1,0 +1,80 @@
+- if @normativ.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @normativ.errors.full_messages.each do |message|
+        %li= message
+
+
+= form_for @normativ, url: ['new', 'create'].include?(action_name) ? normativs_path : normativ_path(@normativ.id) do |f|
+  %input{:type => "hidden", :name => 'normativ[f_year]', :value => session[:f_year]}
+
+  .row.form-group
+    .col-2
+      %label
+        %b= t('normativs.form.name')
+    .col-8
+      %input{ :name => 'normativ[name]', :class => 'form-control', :value => @normativ.name }
+
+  .row.form-group
+    .col-2
+      %label
+        %b= t('normativs.form.budget_id')
+    .col-8
+      %select{ :name => 'normativ[budget_id]', :class => 'form-control' }
+        %option
+        - @budgets.each do |budget|
+          %option{ :value => budget.id, :selected => @normativ.budget_id == budget.id || params[:budget_id].to_i == budget.id  ? true : false  }
+            = budget.name
+
+  .row.form-group
+    .col-2
+      %label
+        %b= t('normativs.form.metrik_id')
+    .col-8
+      %select{ :name => 'normativ[metrik_id]', :class => 'form-control'}
+        %option
+        - @metriks.sort_by{|m| m.name}.each do |metrik|
+          %option{ :value => metrik.id, :selected => @normativ.metrik_id == metrik.id  ? true : false }
+            = metrik.name
+
+  .row.form-group
+    .col-2
+      %label
+        %b= t('normativs.form.norm')
+    .col-8
+      %input{ :name => 'normativ[norm]', :class => 'form-control', :value => @normativ.norm }
+  
+  .row.form-group
+    .col-2
+      %label= t('normativs.form.description')
+    .col-8
+      = f.text_area :description, value: @normativ.description, class: 'form-control', size: '20x15'
+
+  .row.form-group
+    .col-2
+      %label Состав затрат
+    .col-8
+      = f.text_area :sostav_zatrat, value: @normativ.sostav_zatrat, class: 'form-control', size: '20x5'
+
+  .row.form-group
+    .col-2
+      %label= t('normativs.form.comment')
+    .col-8
+      = f.text_area :comment, value: @normativ.comment, class: 'form-control'
+
+  .row.form-group
+    .col-2
+      %label= t('normativs.form.normativ_type')
+    .col-8
+      %select{ :name => 'normativ[normativ_type_id]', :class => 'form-control' }
+        %option
+        - @normativ_types.each do |normativ_type|
+          %option{ :value => normativ_type.id, :selected => @normativ.normativ_type_id == normativ_type.id ? true : false  }
+            = normativ_type.name
+
+  .row.form-group.pt-2
+    .col-2
+    .col-8
+      = f.submit t('common.save'), :class => 'btn btn-primary'
+      = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'

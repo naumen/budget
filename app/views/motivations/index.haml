@@ -1,0 +1,59 @@
+.row
+  .col-12
+    %h2
+      = "Мотивации"
+
+%br/
+
+%a{name: "top"}
+= render partial: "motivations/summary"
+
+%br/
+
+- @cfos.each do |cfo|
+  - rows = []
+  - @rows.each do |r|
+    - s = r[:stat_zatr]
+    - rows << r if s.budget.cfo.id == cfo.id
+  - next if rows.empty?
+  .row
+    .col-12
+      %a{name: "cfo_#{cfo.id}"}
+      %h2
+        = cfo.name
+        %a{href: "#top", 'data-turbolinks': "false", style: "font-size: 12pt"} &uarr;
+    %br
+  %table.table{style: "border: 1px solid #e0e0e0"}
+    %tr{ style: "background-color: #a3a3ff" }
+      %th{width: '50%'} Бюджет/Ст.затрат
+      %th Сумма
+      %th Мотивация
+    - cur_budget_name = nil
+    - rows.each do |r|
+      - s = r[:stat_zatr]
+      - budget_name = s.budget.name
+      - if cur_budget_name != budget_name
+        %tr{ style: "background-color: #e0f0f0; padding-top: 30" }
+          %td{colspan: 3}
+            %a{name: "budget_#{s.budget.id}"}
+            %b
+              = link_to budget_name, s.budget
+            %a{href: "#cfo_top_#{cfo.id}", 'data-turbolinks': "false", style: "font-size: 12pt"} &uarr;
+      %tr{ style: "background-color: #fafafa"}
+        %td
+          %a{name: "stat_zatr_#{s.id}"}
+          = s.name
+        %td{ style: "text-align: right"}= money(s.itogo)
+        %td
+          %ul
+            - s.motivations.each do |m|
+              %li
+                = m.name
+                = "(#{m.user.name})" if m.user
+                - if !m.document.nil?
+                  [
+                  = link_to m.document.original_file_name, m.document, method: :get
+                  ]
+                = link_to "ред", edit_motivation_path(m)
+          = link_to(image_tag("add.png", width: "36px", title: "Создать запись по мотивации"), new_motivation_path(stat_zatr_id: s))
+      - cur_budget_name = budget_name

@@ -1,0 +1,33 @@
+- if @export
+  %b Отчет по затратам по месяцам
+  %br
+  %b
+    = @budget.name
+    = @budget.f_year
+    год
+- else
+  %a{href: "/budgets/#{@budget.id}"}
+    &larr;
+    %b
+      = @budget.name
+    |
+    = link_to('экспортировать отчет в Excel', "/budgets/#{@budget.id}/report_by_months.xlsx")
+  %h1 Отчет по затратам по месяцам
+
+%table#normativs.table-sm.table-striped.table-bordered
+  %thead
+    %tr.bg-info.font-weight-bold.text-white
+      %th
+      %th Всего
+      - @report.months.each do |month_num|
+        %th= StaffItemSalary.months[month_num.to_s.to_sym]
+  %tbody
+    - @report.rows.each_with_index do |row, index|
+      - next if row[:itogo].to_i == 0
+      %tr{style: ["ВСЕГО затрат", "Кол-во ШЕ всего, без СЧ"].include?(row[:name]) ? "font-weight: bold" : nil }
+        %td= row[:name]
+        %td.text-right
+          - unless @report.skip_itogo_row.include?(row[:name])
+            = money(row[:itogo])
+        - @report.months.each do |month_num|
+          %td.text-right= money(row[:cols][month_num])

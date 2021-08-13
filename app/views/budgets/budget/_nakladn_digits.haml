@@ -1,0 +1,38 @@
+- @_chart_data = {}
+- @_rows_itogo = 0
+- @presenter.nakladn_groups.each do |code, name|
+  - rows, itogo = @presenter.nakladn_by_group(code)
+  - next if itogo.summ == 0.0
+  - @_rows_itogo += rows.size
+  - @_chart_data[name] = itogo.summ
+  %h4
+    Накладные
+    = name
+    = "(#{money(itogo.summ)})"
+    /     %a.btn.btn-outline-info.btn-sm{"aria-controls" => "collapseExample", "aria-expanded" => "false", "data-toggle" => "collapse", :href => "#collapse_"+code, :role => "button"}
+    /       подробнее
+    %a{ title: "Подробнее", "aria-controls" => "collapse_"+code, "aria-expanded" => "false", "data-toggle" => "collapse", :href => "#collapse_"+code, :role => "button"}
+      = icon("svg_class", "menu", width: 15, fill: "#17a2b8")
+
+  %div.collapse{ :id => "collapse_#{code}" }
+    %table.table.table-striped.table-bordered.table-sm
+      %thead
+        %tr.bg-primary.text-white
+          %th Наименование
+          %th Метрика (наименование)
+          %th Метрика (значение)
+          %th Норматив
+          %th.text-right Сумма
+      - rows.each do |row|
+        %tr
+          %td= row.normativ_name
+          %td= row.metrik_name
+          %td= row.metrik_value
+          %td.text-right= row.norm
+          %td.text-right= money(row.summ)
+      %tr
+        %td
+        %td
+        %td
+        %td
+        %td.text-right= money(itogo.summ)

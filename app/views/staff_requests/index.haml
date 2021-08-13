@@ -1,0 +1,29 @@
+%div{align: "right"}
+  %a{href: '/staff_requests/staff'} штатное расписание
+  = '|'
+  %b заявления на изменение
+
+%h1 Заявления на изменение Штатного Расписания Холдинга
+
+%table.table.table-striped.table-bordered.table-sm
+  %thead
+    %tr.bg-primary.text-white
+      %td Дата создания
+      %td Дата внесения изменений
+      %td Автор
+      %td Согласовывает
+      %td Состояние
+      %td Краткое содержание
+      %td
+    - @items.each do |item|
+      %tr{class: item.get_status_css}
+        %td= date(item.created_on)
+        %td= date(item.date_of_change)
+        %td= item.creator.name
+        %td
+        %td
+          %nobr
+            = item.state_name
+        %td
+          = item.request_changes.size
+        %td= link_to "просмотр", staff_request_path(item)

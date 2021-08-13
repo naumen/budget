@@ -1,0 +1,65 @@
+%h2 Работа с ФОТ Бюджета (шт. единицы)
+
+- if @accessable_budgets
+  = render partial: "fot_index"
+- else
+  %h3= @budget.name
+  = link_to "&larr; вернуться на карточку бюджета".html_safe, @budget
+  |
+  = link_to "на отчет", '/budgets_fot'
+  %br
+  %br
+
+  %h4 Суммарно
+  = render partial: "fot_summary"
+
+  %h4 Детализация
+  %table#fot-state-units.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th ЦФО
+        %th Бюджет
+        %th Должность
+        %th Локация
+        %th Вак/Занята
+        %th ФОТ
+        %th
+    - @budget.self_and_descendants.each do |b|
+      - if !b.state_units.empty?
+        - b.state_units.each do |state_unit|
+          - selected_state_unit = state_unit.id == params[:details].to_i
+          %tr{ style: selected_state_unit ? "background-color: #fcffca" : nil }
+            %td= b.cfo.name rescue ''
+            %td
+              %a{name: "su_#{state_unit.id}"}
+              = link_to b.name, budget_path(b , anchor: "state_units")
+            %td= state_unit.position
+            %td= state_unit.location.name
+            %td
+              - if state_unit.staff_item_id
+                - if state_unit.user_id
+                  = HrUser.find(state_unit.user_id).short_name rescue '--'
+                - else
+                  (вакантна)
+              - else
+                вакантна (нет в HR)
+            %td.text-right{ style: selected_state_unit ? "font-weight: bold" : nil }
+              = money(state_unit.fzp)
+            %td
+              %small
+                - if selected_state_unit
+                  %a{ href: "?details=#su_#{state_unit.id}"} закрыть
+                - else
+                  %a{ href: "?details=#{state_unit.id}#su_#{state_unit.id}"} подробнее
+          - if selected_state_unit
+            - state_unit.salaries.each do |s|
+              %tr{ style: "background-color: #d9ffca"}
+                %td{ colspan: 4}
+                %td.text-right= StaffItemSalary.months[s.month.to_s.to_sym]
+                %td.text-right= money(s.summ)
+                %td
+
+  :javascript
+    new Tablesort(document.getElementById('fot-state-units'));
+
+

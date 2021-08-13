@@ -1,0 +1,5 @@
+- @_card_body_class = @item.get_status_css
+= card_primary "Статус" do
+  Статус:
+  %span{style: "font-size: 13pt"}
+    = @item.state_name

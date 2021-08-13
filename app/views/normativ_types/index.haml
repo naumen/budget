@@ -1,0 +1,18 @@
+.row
+  .col-12
+    %h2
+      = "Справочник типов нормативов"
+      = link_to(image_tag("add.png", width: "36px", title: "Создать новый тип норматива"), new_normativ_type_path)
+
+%br/
+
+
+- @normativ_types.each do |normativ_type|
+  .row.form-group
+    .col-6
+      = normativ_type.name
+    .col-1
+      = link_to(image_tag("edit.png", width: "24px", title: "Редактировать тип цфо #{normativ_type.name}"), edit_normativ_type_path(normativ_type))
+    .col-1
+      = link_to(image_tag("delete.png", width: "24px", title: "Удалить тип цфо #{normativ_type.name}"), normativ_type_path(normativ_type), method: :delete,  data: { confirm: "Вы хотите удалить тип продаж <<#{normativ_type.name}>>, вы уверены" })
+    .col-4

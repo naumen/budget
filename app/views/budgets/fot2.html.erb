@@ -1,0 +1,617 @@
+<div id="app">
+  <a name="new_form"></a>
+  <h3 style="color: gray; display: inline-block;">ФОТ / Бюджет /</h3>
+  <h2 style="display: inline-block;"><%= @budget.name %></h2>
+  <br/>
+  <template v-if="allow_edit"><a href="/budgets/<%= @budget.id %>">← вернуться на карточку бюджета</a> |</template> <a href="/budgets_fot">на отчет</a>
+  <br/>
+  <br/>
+
+  <h4>Суммарно</h4>
+  {{status_summary}}
+  <%= render partial: "fot_summary2" %>
+
+  <template v-if="allow_edit">
+    <button v-if="!is_new" class="btn btn-success btn-sm mb-1" style="display: block;" type="button" @click="newItem()">Новая бюджетная Шт.Единица</button>
+    <div v-if="is_new || save_message != ''" class="m-3">
+      <%= render partial: "fot_edit" %>
+    </div>
+  </template>
+
+  <%= render partial: "fot_filter" %>
+  {{status}}
+  <table id="fot-state-units" class="table table-striped table-bordered table-sm">
+    <thead>
+    <tr class="bg-primary text-white">
+      <th v-for="header in headers" :class="headerClass(header[0])" @click="sortByHeader(header[0])">{{header[1]}}</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody name="fade" is="transition-group">
+    <template v-for="(item, index) in sorted_and_filtered_fot_items">
+      <tr v-if="edit_pos == index" v-bind:key="item.id" >
+        <td colspan="8" align="center">
+          <a :name="'item_'+item.id"></a>
+          <%= render partial: "fot_edit" %>
+        </td>
+      </tr>
+      <tr v-if="edit_pos != index && !archived_ids.includes(item.id)" v-bind:key="item.id" :style="selected_state_unit_id == item.id ? 'background-color: rgb(255, 252, 193)' : ''">
+        <td>{{item.cfo_name}}</td>
+        <td>{{item.budget_name}}</td>
+        <td>{{item.division}}</td>
+        <td>{{item.position}}</td>
+        <td>{{item.location}}</td>
+        <td>
+          {{item.busy_info}}
+          <div v-if="item.employment_term && item.employment_term != ''" style="font-size: 8pt; color: orange; font-style: italic">
+          {{item.employment_term}}
+          </div>
+        </td>
+        <td align="right">{{numberWithCommas(item.fot)}}</td>
+        <td>
+          <nobr>
+          <button title="Открыть детализацию по з/п" v-if="detailed_pos < 0 || detailed_pos != index" class="btn btn-primary btn-sm" type="button" @click="setDetailedItem(index)"><%= icon("svg_class", "menu", width: 12, fill: "white") %></button>
+          <button v-else class="btn btn-sm" type="button" @click="cancelEdit()"><%= icon("svg_class", "menu", width: 12, fill: "black") %></button>
+          <button v-if="allow_edit" :disabled="'Черновик' != item.budget_state || item.date_closed != ''" title="Редактировать бюджетную шт. единицу" class="btn btn-primary btn-sm" type="button" @click="setEditItem(index)"><%= icon("svg_class", "pencil", width: 12, fill: "white") %></button>
+          <button v-if="allow_edit && isDeletable(item)" :disabled="'Черновик' != item.budget_state"  title="Сократить бюджетную шт. единицу" class="btn btn-danger btn-sm" type="button" @click="onDelete(item, index)"><%= icon("svg_class", "x", width: 8, fill: "white") %></button>
+          </nobr>
+        </td>
+      </tr>
+      <template v-if="detailed_pos == index">
+        <%= render partial: "fot_detailed" %>
+      </template>
+    </template>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td style="font-weight: bold; text-align: right" v-for="header in headers">
+          <span v-if="header[0] == 'busy_info'">ИТОГО [{{fot_itogo_info['cnt']}}]:</span>
+          <span v-if="header[0] == 'fot'">{{numberWithCommas(fot_itogo_info['fot_itogo'])}}</span>
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td style="font-weight: bold; text-align: right" v-for="header in headers">
+          <span v-if="header[0] == 'busy_info'">в т.ч. вакантные [{{fot_itogo_info['vacant_cnt']}}]:</span>
+          <span v-if="header[0] == 'fot'">{{numberWithCommas(fot_itogo_info['vacant_fot_itogo'])}}</span>
+        </td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<script type="text/javascript">
+var app = new Vue({
+  el: "#app",
+  data: {
+    allow_edit: <%= session[:f_year] == 2020 && (current_user.is_admin || @budget.access?(current_user) == "editor") ? 'true' : 'false' %>,
+    headers: [["cfo", "ЦФО"], ["budget", "Бюджет"], ["division", "Отдел"], ["position", "Должность"], ["location", "Локация"], ["busy_info", "Вак/Занята"], ["fot", "ФОТ"]],
+    status: '',
+    status_summary: '',
+    sort_by: 'budget', // cfo | budget | division | position | location | busy_info | fot
+    sort_order: 1, // 1 | -1
+
+    // "Локация", "Кол-во", "ФОТ", "в т.ч. вакантн.", "в т.ч. ФОТ вакантн.", "в т.ч. сокр.", "в т.ч. ФОТ сокр."
+    summary_rows: [],
+
+    // фильтрация, выбранные значения на списках/фильтрах
+    filter_by_cfo: '',
+    filter_by_division: '',
+    filter_by_budget: '',
+    filter_by_location: '',
+    filter_by_busy_info: '',
+
+    // фильтрация, список элементов для списков фильтрации
+    filter_cfos: [],
+    filter_divisions: [],
+    filter_budgets: [],
+    filter_locations: [],
+    filter_busy_infos: [],
+
+    form_show_division: false, // отображаем или нет поле для ввода названия отдела
+    edit_pos: -1,       // редактируемые элемент позиция элемента в массие fot_items
+    detailed_pos: -1,   // элемент в режиме редактирования - " -
+    is_new: false,      // флаг отображения формы создания 
+
+    fot_items: [],      // список элементов для таблицы (шт. единицы)
+    archived_ids: [],   // архивные ид (для удаления при отображении из списка)
+    edited_item: {},    // элемент для хранения формы
+    save_message: '',   // сообщение при сохранении формы (изменение, добавление)
+    locations: [],      // справочник локаций
+    budgets: [],        // бюджеты - текущий+вложенные
+    salaries: [],       // зп по месяцам {month: value, ...} - month:=1..12
+    salaries_start: [], // начальные значения з/п полученные с бэкэнда {month: value, ...}
+
+    selected_state_unit_id: '', // подсветка элемента после редактирования
+  },
+  created: function(){
+    this.loadFotSummary();  // загрузка суммарной информации
+    this.loadFotItems();  // загрузка строк таблицы (шт. единиц бюджета и вложенных)
+    this.loadLocations(); // загрузка справочника локаций, для формы редактирования/создания
+    this.loadBudgets();   // загрузка списка бюджетов (текущего и вложенных), необходимо для формы добавления
+  },
+  computed: {
+    fot_itogo_info: function(){
+      var info = {};
+      // sorted_and_filtered_fot_items
+      // sorted_and_filtered_vacant_fot_items
+
+      info['fot_itogo'] = this.sorted_and_filtered_fot_items.reduce( 
+        (previousValue, currentValue) => previousValue + currentValue.fot_integer, 0);
+      info['cnt'] = this.sorted_and_filtered_fot_items.length;
+
+      info['vacant_fot_itogo'] = this.sorted_and_filtered_vacant_fot_items.reduce( 
+        (previousValue, currentValue) => previousValue + currentValue.fot_integer, 0);
+      info['vacant_cnt'] = this.sorted_and_filtered_vacant_fot_items.length;
+
+      return info;
+    },
+    sorted_fot_items: function(){
+      return this.fot_items.sort(this.sortItem);
+    },
+    sorted_and_filtered_fot_items: function(){
+      return this.sorted_fot_items.filter(item => this.filterItem(item));
+    },
+    sorted_and_filtered_vacant_fot_items: function(){
+      return this.sorted_and_filtered_fot_items.filter(item => !item.is_busy);
+    },
+    zpItogo: function(){
+      var itogo = 0.0;
+      for(var k in this.salaries){
+        itogo += parseFloat(this.salaries[k]);
+      }
+      return this.numberWithCommas(itogo.toFixed(2));
+    },
+    // изменение заголовка списка фильтра, при выборе
+    // todo refactoring
+    filter_by_budget_option_title: function(){
+      if (this.filter_by_budget != ''){
+        return "-- сбросить фильтр --";
+      }else{
+        return "-- фильтр по бюджету --";
+      }
+    },
+    filter_by_cfo_option_title: function(){
+      if (this.filter_by_cfo != ''){
+        return "-- сбросить фильтр --";
+      }else{
+        return "-- фильтр по ЦФО --";
+      }
+    },
+    filter_by_division_option_title: function(){
+      if (this.filter_by_division != ''){
+        return "-- сбросить фильтр --";
+      }else{
+        return "-- фильтр по отделу --";
+      }
+    },
+    filter_by_location_option_title: function(){
+      if (this.filter_by_location != ''){
+        return "-- сбросить фильтр --";
+      }else{
+        return "-- фильтр по локации --";
+      }
+    },
+    filter_by_busy_info_option_title: function(){
+      if (this.filter_by_busy_info != ''){
+        return "-- сбросить фильтр --";
+      }else{
+        return "-- фильтр по сотруднику/вакантно --";
+      }
+    },
+  },
+  watch: {
+    salaries_start: {
+      deep: true,
+      handler(){
+        this.recalcSalaries();
+      }
+    }
+  },
+  methods: {
+    gotoStaffItem: function(staff_item_id){
+      var url = "<%= User.hr_base %>/staff_item2/goto_by_id?staff_item_id="+staff_item_id;
+      window.open(url, "_blank"); 
+    },
+    headerClass: function(header_name){
+      if (this.sort_by == header_name){
+        if (this.sort_order == 1){
+          return "headerSortDown";
+        }
+        else{
+          return "headerSortUp";
+        }
+      }
+      return '';
+    },
+    sortByHeader: function(header){
+      // prevent collisions
+      this.is_new = false;
+      this.form_show_division = false;
+      this.edit_pos = -1;
+      this.detailed_pos = -1;
+
+      if (this.sort_by == header){
+        // inverse
+        this.sort_order = this.sort_order * -1;
+      }else{
+        this.sort_order = 1; // by default new
+        this.sort_by = header;
+      }
+    },
+    // sort_by: // cfo_name | budget | division | position | location | busy_info | fot
+    sortItem: function(a, b){
+      var d1 = -1 * this.sort_order;
+      var d2 = 1 * this.sort_order;
+      if (app.$data.sort_by == 'budget'){
+        return a.budget_name == b.budget_name ? 0 : a.budget_name < b.budget_name ? d1 : d2
+      }
+      if (app.$data.sort_by == 'cfo'){
+        return a.cfo_name == b.cfo_name ? 0 : a.cfo_name < b.cfo_name ? d1 : d2
+      }
+      if (app.$data.sort_by == 'division'){
+        return a.division == b.division ? 0 : a.division < b.division ? d1 : d2
+      }
+      if (app.$data.sort_by == 'position'){
+        return a.position == b.position ? 0 : a.position < b.position ? d1 : d2
+      }
+      if (app.$data.sort_by == 'location'){
+        return a.location == b.location ? 0 : a.location < b.location ? d1 : d2
+      }
+      if (app.$data.sort_by == 'busy_info'){
+        return a.busy_info == b.busy_info ? 0 : a.busy_info < b.busy_info ? d1 : d2
+      }
+      if (app.$data.sort_by == 'fot'){
+        return a.fot_integer == b.fot_integer ? 0 : a.fot_integer < b.fot_integer ? d1 : d2
+      }
+    },
+    filterItem: function(item){
+      if (this.filter_by_division == '' 
+          && this.filter_by_cfo  == '' 
+          && this.filter_by_budget == '' 
+          && this.filter_by_location == '' 
+          && this.filter_by_busy_info == ''){
+        return true;
+      }
+      var cfo_name      = $.trim(item["cfo_name"]);
+      var division_name = $.trim(item["division"]);
+      var budget_name   = $.trim(item["budget_name"]);
+      var location_name = $.trim(item["location"]);
+      var busy_info_name = $.trim(item["busy_info"]);
+
+      if (this.filter_by_division != ''){
+        if (this.filter_by_division == '-- не заполнено --'){
+          if (division_name != ''){ 
+            return false;
+          }
+        }
+        else if (division_name != this.filter_by_division){
+          return false;
+        }
+      }
+      if (this.filter_by_budget != '' && budget_name != this.filter_by_budget){
+        return false;
+      }
+      if (this.filter_by_cfo != '' && cfo_name != this.filter_by_cfo){
+        return false;
+      }
+      if (this.filter_by_location != '' && location_name != this.filter_by_location){
+        return false;
+      }
+      if (this.filter_by_busy_info != '' && busy_info_name != this.filter_by_busy_info){
+        return false;
+      }
+      return true;
+    },
+    isDeletable: function(item){
+      if (item.staff_item_id == null){
+        return true;
+      }
+      else{
+        return false;
+      }
+    },
+    onDelete: function(item, index){
+      if(confirm("Удалить бюджетную шт. единицу ("+item.position+")?")){
+        this.deleteStateUnit(item.id);
+      }
+    },
+    handleDelete: function(response){
+      if (response["result"] == "ok"){
+        this.archived_ids.push(response["state_unit_id"]);
+        this.loadFotSummary();
+      }
+      else if (response["result"] == "error"){
+        alert(response["message"]);
+      }
+      else{
+        alert("Неизвестная ошибка..");
+      }
+    },
+    // на нажатие кнопки "Создать" - открытие формы, сбрасывание значений, и инициализация з/п
+    newItem: function(){
+      // сбрасывание значений
+      this.cancelEdit();
+      // иницилизация начальными значениями
+      this.salaries = {"1":0, "2":0, "3":0, "4":0, "5":0, "6":0, "7":0, "8":0, "9":0, "10":0, "11":0, "12":0}
+      this.salaries_start = { "1": 0 }
+      this.is_new = true;
+      location.hash = "new_form"; // переход на начало формы создания
+    },
+    onShowDivisionInput: function(){
+      this.form_show_division = true;
+      this.$nextTick(() => {
+        if (this.$refs.division_input[0]){
+          this.$refs.division_input[0].focus();
+        }
+        else{
+          this.$refs.division_input.focus();
+        }
+      });
+    },
+    isStaffItem: function(){
+      if (this.edited_item.staff_item_id){
+        return true;
+      }
+      else{
+        return false;
+      }
+    },
+    // простейшее клонирование элемента
+    cloneItem: function(item){
+      return JSON.parse(JSON.stringify(item))
+    },
+    // на создание
+    onCreate: function(){
+      // проверка на заполнение обязательных полей
+      // бюджет
+      if (!this.edited_item.budget_id){
+        alert('Укажите бюджет');
+        app.$refs.budget_select.focus();
+        return;
+      }
+      // локация
+      if (!this.edited_item.location_id){
+        alert('Укажите локацию');
+        app.$refs.location_select.focus();
+        return;
+      }
+      // должность
+      if (!this.edited_item.position){
+        alert('Укажите должность');
+        app.$refs.position_input.focus();
+        return;
+      }
+      var info = this.getInfoToSave();
+      axios.post(
+        '/budgets/<%= @budget.id %>/set_change',
+        { params: { info: info } }
+      )
+      .then(response => this.handleSave(response.data))
+      .catch(error => {});
+
+    },
+    // обработка ответа после сохранения
+    // если "ок" то повторно перезагружаем элементы
+    // иначе отображаем сообщение об ошибке
+    handleSave: function(response){
+      if (response["result"] == "ok"){
+        // ok
+        var edited_id = this.edited_item.id;
+        var is_new    = this.is_new;
+        this.cancelEdit();
+        if (is_new){
+          this.save_message = 'Запись была успешно создана.'
+        }
+        this.loadFotItems();
+        this.loadFotSummary();
+        this.selected_state_unit_id = edited_id;
+      }else if (response["result"] == "error"){
+        this.save_message = response["message"];
+      }
+    },
+    // формирование Json строки на базе данных из формы
+    // данные по реквизитам, и таблица з/п
+    getInfoToSave: function(){
+      var save_info   = this.cloneItem(this.edited_item);
+      var salary_info = this.getSalaryMonthValues();
+      save_info["salary_info"] = salary_info;
+      return JSON.stringify(save_info);
+    },
+    cancelEdit: function(){
+      this.is_new = false;
+      this.form_show_division = false;
+      this.edit_pos = -1;
+      this.detailed_pos = -1;
+      this.edited_item = {};
+      this.salaries = [];
+      this.salaries_start = [];
+      this.save_message = '';
+      this.selected_state_unit_id = '';
+    },
+    setEditItem: function(pos){
+      this.cancelEdit();
+      this.edit_pos = pos;
+      this.detailed_pos = -1;
+      this.initEditedItem();
+    },
+    setDetailedItem: function(pos){
+      this.detailed_pos = pos;
+      this.edit_pos = -1;
+      this.initDetailedItem();
+    },
+    initEditedItem: function(){
+      this.edited_item = this.cloneItem(this.sorted_and_filtered_fot_items[this.edit_pos]);
+      this.salaries = [];
+      this.salaries_start = [];
+      this.loadSalaries();
+    },
+    // детализация строки шт. единицы - отображает з/п по месяцам
+    initDetailedItem: function(){
+      this.edited_item = this.cloneItem(this.sorted_and_filtered_fot_items[this.detailed_pos]);
+      this.selected_state_unit_id = this.edited_item.id;
+      this.salaries = [];
+      this.salaries_start = [];
+      this.loadSalaries();
+    },
+    getSalaryMonthValues: function(){
+      var ret = {};
+      $(".salary-value").each(function(index, input) {
+        var item = $(input);
+        var value = item.val();
+        var month = item.data("month");
+        ret[month] = value
+      });
+      return ret;
+    },
+    // инициализация списков фильтра, после загрузки строк ФОТ
+    // вызывается в loadFotItems
+    // items - полученные по ajax строки шт. единиц
+    // проходит по элементам, убирает дубли, и сортирует по алфавиту
+    initFilter: function(items){
+      var cfos = [];
+      var divisions = [];
+      var budgets   = [];
+      var locations = [];
+      var busy_infos = [];
+
+      divisions.push('-- не заполнено --');
+
+      $.each(items, function(key, value) {
+        var cfo_name      = $.trim(value["cfo_name"]);
+        var division_name = $.trim(value["division"]);
+        var budget_name   = $.trim(value["budget_name"]);
+        var location_name = $.trim(value["location"]);
+        var busy_info_name = $.trim(value["busy_info"]);
+        if (!divisions.includes(division_name) && division_name != ''){
+          divisions.push(division_name);
+        }
+        if (!cfos.includes(cfo_name)){
+          cfos.push(cfo_name);
+        }
+        if (!budgets.includes(budget_name)){
+          budgets.push(budget_name);
+        }
+        if (!locations.includes(location_name)){
+          locations.push(location_name);
+        }
+        if (!busy_infos.includes(busy_info_name)){
+          busy_infos.push(busy_info_name);
+        }
+      });
+      cfos.sort((a, b) => a.localeCompare(b))
+      divisions.sort((a, b) => a.localeCompare(b))
+      budgets.sort((a, b) => a.localeCompare(b))
+      locations.sort((a, b) => a.localeCompare(b))
+      busy_infos.sort((a, b) => a.localeCompare(b))
+      this.filter_cfos      = cfos;
+      this.filter_divisions = divisions;
+      this.filter_budgets   = budgets;
+      this.filter_locations = locations;
+      this.filter_busy_infos = busy_infos;
+    },
+
+    // загрузка суммарной информации по ФОТ Бюджета
+    loadFotSummary: function(){
+      this.status_summary = "загружаем..."
+      axios.get('/budgets/<%= @budget.id %>/fot_summary')
+                  .then(response => {
+                    this.summary_rows = response.data;
+                    this.status_summary = '';
+                   })
+                  .catch(error => {});
+    },
+    // загрузка основного списка шт. единиц для Бюджета
+    loadFotItems: function(){
+      this.status = 'загружаем...'
+      axios.get('/budgets/<%= @budget.id %>/fot_items')
+                  .then(response => {
+                    this.fot_items = response.data;
+                    this.status = '';
+                    this.archived_ids = [];
+                    this.initFilter(response.data);
+                   })
+                  .catch(error => {});
+    },
+    // загрузка зп по месяцам для редактируемой шт. единицы
+    loadSalaries: function(){
+      axios.get('/budgets/<%= @budget.id %>/fot_salaries', { params: { state_unit_id: this.edited_item.id } })
+                  .then(response => {
+                    this.salaries = response.data["salaries"];
+                    this.salaries_start = response.data["salaries_start"];
+                    if (this.edit_pos > 0){
+                      location.hash = "item_" + this.edited_item.id;
+                    };
+                   })
+                  .catch(error => {});
+    },
+    // загрузка справочника локаций
+    loadLocations: function(){
+      axios.get('/api/v1/offices.json')
+                  .then(response => {
+                    this.locations = response.data;
+                   })
+                  .catch(error => {});
+    },
+    // загрузка бюджетов (для выбора) - текущий и все подбюжеты
+    loadBudgets: function(){
+      axios.get('/budgets/<%= @budget.id %>/fot_budgets')
+                  .then(response => {
+                    this.budgets = response.data;
+                   })
+                  .catch(error => {});
+    },
+    // обработка сохранения формы
+    // получаем json, высылаем на бэкэнд
+    // обрабатываем ответ
+    onSave: function(){
+      var info = this.getInfoToSave();
+
+      axios.post(
+        '/budgets/<%= @budget.id %>/set_change',
+        { params: { info: this.getInfoToSave() } }
+      )
+      .then(response => this.handleSave(response.data))
+      .catch(error => {});
+    },
+    // удаление шт. единицы
+    deleteStateUnit: function(state_unit_id){
+      axios.post('/budgets/<%= @budget.id %>/fot_delete_state_unit', { params: { state_unit_id: state_unit_id } })
+                  .then(response => this.handleDelete(response.data))
+                  .catch(error => {});
+    },    
+    // форматирование числа (запятые на 1000 разряды)
+    numberWithCommas(x) {
+      x = x.toString();
+      var pattern = /(-?\d+)(\d{3})/;
+      while (pattern.test(x))
+        x = x.replace(pattern, "$1,$2");
+      return x;
+    },
+    monthName: function(num){
+      switch(num){
+      <% StaffItemSalary.months.each do |num, name| %>
+        case "<%= num.to_s %>":
+          return "<%= name %>";
+      <% end %>
+      }
+    },
+    // при редактировании шт. единицы, блок з/п
+    // динамическое обновление цифр по месяцам, при изменении данных в колонке "начиная с"
+    recalcSalaries: function(){
+      var months = [<%= (1..12).to_a.map{|i| "\"#{i}\""}.join(',').html_safe %>];
+      var curSalary = 0.0;
+      for(var i in months){
+        var month_num = months[i];
+        if (this.salaries_start[month_num]){
+          curSalary = this.salaries_start[month_num];
+        }
+        this.salaries[month_num] = curSalary;
+      }
+    }
+
+  }
+});
+// new Tablesort(document.getElementById('fot-state-units'));
+</script>

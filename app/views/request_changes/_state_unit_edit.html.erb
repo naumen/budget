@@ -1,0 +1,386 @@
+<h3>
+  <% if @request_change_action.new_record? %> 
+    Редактирование шт.единицы
+  <% else %>
+    Редактирование
+  <% end %>
+</h3>
+
+
+<div id="app">
+  <template v-if="rec.state_unit_id != ''">
+    <% if @request_change_action.id %>
+      <a href="/request_changes/<%= @request_change_action.request_change.id %>">
+        &larr; вернуться
+      </a>
+    <% else %>
+      <button class="btn btn-outline-primary" @click="unselectStateUnit()">&larr; вернуться</button>
+    <% end %>
+    <div class="pt-2 pb-2" style="font-weight: bold">Выберите поля для редактирования:</div>
+    <table width="800px">
+      <tr>
+        <td width="150px" align="right" valign="top" :style="labelStyle('division')">
+          <label for="checkbox_division">Отдел:</label>
+      </td>
+        <td class="pt-1" valign="top">
+          <input id="checkbox_division" type="checkbox" v-model="changed_fields" value="division">
+        </td>
+        <td><input type="text" v-model="rec.division" :readonly="!changed_fields.includes('division')"></td>
+      </tr>
+      <tr>
+        <td align="right" valign="top" :style="labelStyle('position')">
+          <label for="checkbox_position">Должность:</label>
+        </td>
+        <td class="pt-1" valign="top">
+          <input id="checkbox_position" type="checkbox" v-model="changed_fields" value="position">
+        </td>
+        <td><input type="text" v-model="rec.position" :readonly="!changed_fields.includes('position')"></td>
+      </tr>
+      <tr>
+        <td align="right" valign="top" :style="labelStyle('location_id')">
+          <label for="checkbox_location_id">Локация:</label>
+        </td>
+        <td class="pt-1" valign="top">
+          <input id="checkbox_location_id" type="checkbox" v-model="changed_fields" value="location_id">
+        </td>
+        <td><select v-model="rec.location_id" :readonly="!changed_fields.includes('location_id')" :disabled="!changed_fields.includes('location_id')">
+      <% @request_change_action.locations.each do |l| %>
+      <option value="<%= l.id %>"><%= l.name %></option>
+      <% end %>
+    </select>
+        </td>
+      </tr>
+      <tr>
+        <td align="right" valign="top" :style="labelStyle('salaries')">
+          <label for="checkbox_salaries">Оклад:</label>
+        </td>
+        <td class="pt-1" valign="top">
+          <input id="checkbox_salaries" type="checkbox" v-model="changed_fields" value="salaries">
+        </td>
+        <td>
+          Текущий ФЗП шт.единицы: {{numberWithCommas(curFot)}} руб
+          <div class="col-12 mt-2">
+            <div class="row align-items-center" style="border-bottom: 1px solid #c0c0c0; background-color: #e0e0e0">
+              <div class="col-4">Год, Месяц</div>
+              <div class="col-4">З/п, руб</div>
+              <div class="col-4">Начальное значение</div>
+            </div>
+            <div v-for="salary in rec.salaries" class="row align-items-center" style="border-bottom: 1px dashed #e6e6e6;  background-color: #f6f6f6">
+              <div class="col-4">2020 г., {{monthName(salary[0])}}</div>
+              <div class="col-4">
+                <input class       = "form-control-small salary-value"
+                       :data-month = "salary[0]"
+                       :value      = "salary[1]"
+                       readonly=1
+                       size="6">
+
+              </div>
+              <div class="col-4">
+                <input v-model="salaries_start[salary[0]]"
+                       size="6"
+                       :readonly="!changed_fields.includes('salaries')"
+                       >
+              </div>
+            </div>
+            <div class="row align-items-center" style="border-bottom: 1px solid #c0c0c0; background-color: #e0e0e0">
+              <div class="col-4" style="text-align: right;">Итого, руб:</div>
+              <div class="col-4" style="font-weight: bold;">{{zpItogo()}}</div>
+              <div class="col-4"></div>
+            </div>
+          </div>
+          <v-template v-if="changed_fields.includes('salaries')">
+            <div class="col-12 mt-2">
+              Дельта ФОТ: <b>{{numberWithCommas(zpDelta())}} руб.</b>
+            </div>
+            <div class="col-12 mt-2">
+              Выбрать статью затрат ФОТ:
+              <select v-model="selectedStatZatrFot">
+                <option></option>
+                <option v-for="item in statZatrFotItems" :value="item.id">{{item.name}} (остаток: {{numberWithCommas(item.value)}} руб.)</option>
+              </select>
+            </div>
+            <div class="col-12 mt-2" v-if="selectedStatZatrFot">
+              <span v-if="!isFotAvailable()" style="color: #660000; font-weight: bold">
+                Средств в Резерве ФОТ недостаточно для изменения з/п шт. единицы
+              </span>
+            </div>
+          </v-template>
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td></td>
+        <td>
+          <br>
+          <div v-if="result == 'ok'">
+            Данные сохранены, обновляем страницу..
+          </div>
+          <div v-if="result == 'error'">
+            Ошибка при сохранении..
+          </div>
+          <button v-if="result != 'ok'" @click="onSave" class="btn btn-primary">Сохранить</button>
+          <a v-if="result != 'ok'" class="pl-2" href="/request_changes/<%= @request_change.id %>">Отмена</a>
+        </td>
+      </tr>
+    </table>
+  </template>
+  <template v-else>
+    выбрать шт.единицу для редактирования:
+    <table>
+      <tr v-for="state_unit in state_units" style="border-bottom: 1px solid #c0c0c0;">
+        <td>
+          <button class="btn btn-outline-primary" @click="selectStateUnit(state_unit.id)">выбрать</button>
+        </td>
+        <td>&nbsp;</td>
+        <td>
+          {{state_unit.division}}<br/>
+          <i>{{state_unit.position}}</i><br/>
+          <b>{{state_unit.location}}</b>
+        </td>
+        <td>{{state_unit.fio}}</td>
+        <td>
+          <div class="row">
+            <div class="col">
+              <div v-for="(salary, index) in state_unit.salaries" v-if="index < 6">
+                <nobr>
+                {{monthName(salary[0])}}:
+                {{salary[1]}}
+                </nobr>
+              </div>  
+            </div>
+            <div class="col">
+              <div v-for="(salary, index) in state_unit.salaries" v-if="index >= 6">
+                <nobr>
+                {{monthName(salary[0])}}:
+                {{salary[1]}}
+                </nobr>
+              </div>  
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </template>
+
+<script>
+var app = new Vue({
+  el: "#app",
+  data: {
+    // TODO: refactoring
+    changed_fields: <%= @request_change_action.id ? "[#{@request_change_action.content.keys.map{|c| "'#{c}'"}.join(',')}]".html_safe : "[]" %>,
+    result: "",
+    state_units: <%= @request_change_action.request_change.budget.state_units_as_json.html_safe %>,
+    // always empty (new|edit modes)
+    rec: <%= @request_change_action.initial_json.html_safe %>,
+    salaries_start: [], // начальные значения з/п полученные с бэкэнда {month: value, ...}
+    curFot: <%= @request_change_action.id ? StateUnit.find(@request_change_action.content['state_unit_id']).fzp : '0.0' %>, // ФОТ выбранной шт.единицы
+    selectedStatZatrFot: '',
+    statZatrFotItems: <%= @request_change_action.request_change.budget.stat_zatr_fot_items.to_json.html_safe %>, // список ст. затрат "Резерв ФОТ"
+    // выставляется из списка ФОТ статей затрат
+    budgetFotValue: 0
+  },
+  mounted: function(){
+<% if @request_change_action.id %>
+    <% content = @request_change_action.content %>
+    // 'edit' mode
+
+    // set state unit id
+    this.rec.state_unit_id = <%= content["state_unit_id"] %>;
+
+    // set initial item values
+    var initial_item = this.getStateUnit(this.rec.state_unit_id);
+    this.rec.division    = initial_item.division;
+    this.rec.position    = initial_item.position;
+    this.rec.location_id = initial_item.location_id;
+    this.rec.salaries    = initial_item.salaries;
+    this.rec.salaries_start = initial_item.salaries_start;
+    this.salaries_start = this.rec.salaries_start;
+    <% if content['selectedStatZatrFot'] %>
+    this.selectedStatZatrFot = '<%= content['selectedStatZatrFot'] %>';
+    <% end %>
+
+    // overwrite values
+    <% ["division", "position", "location_id", "salaries"].each do |code| %>
+      <% if content.has_key?(code) %>
+      this.rec.<%= code %> = <%= content[code].to_json.html_safe %>;
+      <% end %>
+    <% end %>
+<% end %>
+    if (this.statZatrFotItems.length > 0){
+      this.budgetFotValue = this.statZatrFotItems[0].value;
+    }
+  },
+  watch: {
+    salaries_start: {
+      deep: true,
+      handler(){
+        this.recalcSalaries();
+      }
+    }
+  },
+  methods: {
+    isFotAvailable: function(){
+      if (this.selectedStatZatrFot){
+        return this.zpDelta() < this.budgetFotValue;
+      }
+      return true;
+    },
+    labelStyle: function(code){
+      return this.changed_fields.includes(code) ? 'font-weight: bold' : '';
+    },
+    cloneItem: function(item){
+      return JSON.parse(JSON.stringify(item))
+    },
+    unselectStateUnit: function(){
+      this.rec = <%= @request_change_action.initial_json.html_safe %>;
+      this.salaries_start = [];
+      this.curFot = 0.0;
+    },
+    selectStateUnit: function(state_unit_id){
+      this.rec = this.getStateUnit(state_unit_id);
+      this.rec.state_unit_id = state_unit_id;
+      this.salaries_start = this.cloneItem(this.rec.salaries_start);
+      this.curFot = this.zpItogoFloat();
+    },
+    getStateUnit: function(state_unit_id){
+      var info = {};
+      for(var i = 0; i < this.state_units.length; i++){
+        if (this.state_units[i].id == state_unit_id){
+          var selected_item = this.cloneItem(this.state_units[i]);
+          info.division    = selected_item.division;
+          info.position    = selected_item.position;
+          info.location_id = selected_item.location_id;
+          info.salaries    = selected_item.salaries;
+          info.salaries_start = selected_item.salaries_start;
+        }
+      }
+      return info;
+    },
+    formValid: function(){
+      var error_message = '';
+
+      if (this.changed_fields.length == 0){
+        error_message += "Не выбраны поля для редактирования.\n";
+      }
+
+      if (this.changed_fields.includes('position') && this.rec.position == ''){
+        error_message += "Не заполнена Должность.\n";
+      }
+
+      if (this.changed_fields.includes('location_id') && this.rec.location_id == ''){
+        error_message += "Не заполнена Локация.\n";
+      }
+
+      // если корректировка оклада, и выбран ФОТ, то проверка что достаточно средства
+      if (this.changed_fields.includes('salaries') && this.selectedStatZatrFot && !this.isFotAvailable()){
+        error_message += "Средств в Резерве ФОТ недостаточно для изменения з/п шт. единицы.\n";
+      }
+
+      if (error_message != ''){
+        alert(error_message);
+        return false;
+      }
+
+      return true;
+    },
+    getInfoToSave: function(){
+      var ret = {};
+      var edited_item = this.cloneItem(this.rec);
+      ret.state_unit_id = edited_item.state_unit_id;
+      if (this.changed_fields.includes('division')){
+        ret.division    = edited_item.division;
+      }
+      if (this.changed_fields.includes('position')){
+        ret.position    = edited_item.position;
+      }
+      if (this.changed_fields.includes('location_id')){
+        ret.location_id = edited_item.location_id;
+      }
+      if (this.changed_fields.includes('salaries')){
+        ret.salaries    = edited_item.salaries;
+        if (this.selectedStatZatrFot != ''){
+          ret.selectedStatZatrFot = this.selectedStatZatrFot;
+          ret.deltaStatZatrFot    = this.zpDelta();
+        }
+      }
+      return JSON.stringify(ret);
+    },
+    onSave: function(){
+      if (this.formValid()){
+        // pass
+      }
+      else {
+        return false;
+      }
+      var info_to_save = this.getInfoToSave();
+      // console.log(info_to_save);
+
+      axios.post(
+        '/request_change/<%= @request_change.id %>/create_save_action',
+        { action_type: "state_unit_edit", action_id: "<%= @request_change_action.id %>", json_content: info_to_save }
+      )
+      .then(response => this.handleResult(response.data))
+      .catch(error => {});      
+    },
+    handleResult: function(result){
+      if (result["result"] == 'ok'){
+        this.result = 'ok';
+        var url= '/request_changes/<%= @request_change.id %>';
+        window.location = url;
+      }
+      else{
+        this.result = 'error';
+      }
+    },
+    zpItogoFloat: function(){
+      var itogo = 0.0;
+      for(var i in this.rec.salaries){
+        itogo += parseFloat(this.rec.salaries[i][1]);
+      }
+      return itogo;
+    },
+    zpItogo: function(){
+      var itogo = this.zpItogoFloat();
+      return this.numberWithCommas(itogo.toFixed(2));
+    },
+    zpDelta: function(){
+      var curSalary = this.curFot;
+      var delta = this.zpItogoFloat() - curSalary;
+      return delta;
+    },
+    // при редактировании шт. единицы, блок з/п
+    // динамическое обновление цифр по месяцам, при изменении данных в колонке "начиная с"
+    recalcSalaries: function(){
+      var months = [<%= (1..12).to_a.map{|i| "\"#{i}\""}.join(',').html_safe %>];
+      var curSalary = 0.0;
+      for(var i in months){
+        var month_num = months[i];
+        if (this.salaries_start[month_num]){
+          curSalary = this.salaries_start[month_num];
+        }
+        this.rec.salaries[month_num-1][1] = curSalary;
+      }
+    },
+    // форматирование числа (запятые на 1000 разряды)
+    numberWithCommas(x) {
+      x = x.toString();
+      var pattern = /(-?\d+)(\d{3})/;
+      while (pattern.test(x))
+        x = x.replace(pattern, "$1,$2");
+      return x;
+    },
+    monthName: function(num){
+      switch(num){
+      <% StaffItemSalary.months.each do |num, name| %>
+        case "<%= num.to_s %>":
+          return "<%= name %>";
+        case <%= num.to_s.to_i %>:
+          return "<%= name %>";
+      <% end %>
+      }
+    },
+  }
+});
+</script>
+
+</div>

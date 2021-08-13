@@ -1,0 +1,40 @@
+.bg_budget
+{
+  background-color: #ddf08d5e !important;
+  padding-right: 10px;
+}
+
+.simple_link
+{
+  color: #212529;
+  text-decoration: underline;
+
+  &:hover{
+    color: #212529;
+  }
+}
+
+.little-font-size
+{
+  font-size: 0.7rem;
+}
+
+.edit {
+  background-color : rgba(255, 245, 10, .2) !important;
+}
+
+.at_confirmation {
+  background-color : rgba(252, 126, 0, .2) !important;
+}
+
+.confirmed {
+  background-color : rgba(145, 214, 60, .2) !important;
+}
+
+.processed {
+  background-color : rgba(96, 181, 209, .2) !important;
+}
+
+.cancelled {
+  background-color : rgba(230, 55, 64, .2) !important;
+}

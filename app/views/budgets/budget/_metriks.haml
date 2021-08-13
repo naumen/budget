@@ -1,0 +1,48 @@
+- unless @presenter.metriks.empty?
+  %h3
+    Метрики
+    %a{ title: "Подробнее", "aria-controls" => "collapseExample", "aria-expanded" => "false", "data-toggle" => "collapse", :href => "#collapseExample", :role => "button"}
+      = icon("svg_class", "menu", width: 15, fill: "blue")
+    &nbsp;
+    %a{ title: "История изменений", href: "/budgets/#{@budget.id}/metrik_changes"}
+      = icon("svg_class", "timer", width: 15, fill: "blue")
+
+  #collapseExample.collapse
+    %table.table.table-striped.table-bordered.table-sm
+      %thead
+        %tr.bg-primary.text-white
+          %th
+          %th Наименование
+          %th Значение
+          %th
+            Инв.
+            - if @budget.root?
+              (в т.ч.)
+          %th Суб.
+          %th Ед. изм.
+          - unless @budget.root?
+            %th Итого
+      - @presenter.metriks.each do |row|
+        %tr
+          %td
+          %td= row[:name]
+          - if row[:as_money]
+            %td{align: "right"}= money row[:val]
+            %td{align: "right"}= money row[:invest]
+            %td{align: "right"}= money row[:sub]
+          - else
+            %td{align: "right"}= row[:val].to_i  == 0 ? '' : row[:val].to_i
+            %td{align: "right"}= row[:invest].to_i  == 0 ? '' : row[:invest].to_i
+            %td{align: "right"}= row[:sub].to_i == 0 ? '' : row[:sub].to_i
+          %td= row[:izm]
+          - unless @budget.root?
+            %td{align: "right"}
+              - if row[:as_money]
+                = money row[:val].to_f + row[:invest].to_f + row[:sub].to_f
+              - else
+                = row[:val].to_i + row[:invest].to_i + row[:sub].to_i
+
+
+
+    .float-right
+      = link_to "Детализация &rarr;".html_safe, budget_path(@budget.id, metrik_details: "all")

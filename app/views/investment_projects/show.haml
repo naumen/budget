@@ -1,0 +1,47 @@
+.row
+  .col-12
+    %h2
+      = "Инвестпроект: " + @investment_project.name
+      = link_to(image_tag("edit.png", width: "24px", title: "Редактировать инвестпроект"), edit_investment_project_path)
+      = link_to(image_tag("delete.png", width: "24px", title: "Удалить инвестпроект"), investment_project_path,  method: :delete, data: { confirm: 'Вы хотите удалить продажу, вы уверены?' })
+.row.m-2
+  .col-2
+    %label= t('investment_projects.form.use_budget_id')
+  .col-8
+    = link_to( @investment_project.from_budget.name, @investment_project.from_budget)
+
+.row.m-2
+  .col-2
+    %label= t('investment_projects.form.filling_budget_id')
+  .col-8
+    = link_to( @investment_project.to_budget.name, @investment_project.to_budget)
+
+
+.row.m-2
+  .col-2
+    %label= t('investment_projects.form.currency')
+  .col-8
+    = @investment_project.currency
+
+.row.m-2
+  .col-2
+    %label= t('investment_projects.form.summ')
+  .col-8
+    = money @investment_project.summ
+    = @investment_project.currency
+
+- if !@investment_project.naudoc_link.blank?
+  .row.m-2
+    .col-2
+      %label Ссылка на NauDoc
+    .col-8
+      %a{ href: @investment_project.naudoc_link, target: "_blank"}
+        = @investment_project.naudoc_link
+
+- if !@investment_project.document.nil?
+  .row.m-2
+    .col-2
+      %label= t('investment_projects.form.document')
+    .col-8
+      = @investment_project.document.original_file_name
+      = link_to image_tag("save.png", width: "36px", title: "Скачать документ"), @investment_project.document, method: :get

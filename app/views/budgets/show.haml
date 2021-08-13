@@ -1,0 +1,16 @@
+= render partial: "budgets/budget/header_ancestors", locals: {budget: @budget}
+= render "budgets/budget/info"
+= render "budgets/budget/signs"
+= render "budgets/budget/state_histories"
+= render "budgets/budget/normativs"
+= render "budgets/budget/metriks"
+= render "budgets/budget/nakladn"
+= render "budgets/budget/documents" if current_user.is_admin?
+= render "budgets/budget/invest_projects"
+= render "budgets/budget/invest_loans"
+= render "budgets/budget/invest_loan_payments"
+= render "budgets/budget/sales"
+= render "budgets/budget/request_changes" if @budget.show_request_change?
+= render "budgets/budget/zatratas" unless @budget.budget_type.name == "Сводный компании"
+= render "budgets/budget/state_units"
+= render "budgets/budget/child_budgets"

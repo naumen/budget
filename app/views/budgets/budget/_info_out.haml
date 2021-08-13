@@ -1,0 +1,30 @@
+%table{ width: "100%"}
+  %tr
+    %td{ style: "font-size: 1.3rem"}
+      Расходов
+      / .btn.btn-outline-info.btn-sm
+      %a{ title: "Подробнее", "aria-controls" => "outDetails", "aria-expanded" => "false", "data-toggle" => "collapse", :href => "#outDetails", :role => "button"}
+        = icon("svg_class", "menu", width: 15, fill: "orange")
+    %td{ align: "right", valign: "top"}
+      %span{style: "font-size: 1.5rem; font-weight: bold"}
+        = summ_formatter @budget_info.out.itogo
+
+#outDetails.collapse
+  /   .row
+  /     .col
+  /       %b
+  /         Всего накладных, (%): 0.0 ?
+  = info_row_title("В бюджете:")
+  = info_row_summ("Прямых расходов:",   @budget_info.out.own.zatratas)
+  = info_row_summ("Заработная плата:",  @budget_info.out.own.salary)
+  = info_row_summ("Накладные:",         @budget_info.out.own.nakladn)
+  = info_row_summ("Инвест. программ:",  @budget_info.out.own.invest)
+  = info_row_summ("Инвест. займ:",      @budget_info.out.own.invest_zaim)
+
+  = info_row_title("&nbsp;".html_safe)
+  = info_row_title("В подбюджетах:")
+  = info_row_summ("Прямых расходов:",   @budget_info.out.sub.zatratas)
+  = info_row_summ("Заработная плата:",  @budget_info.out.sub.salary)
+  = info_row_summ("Накладные:",         @budget_info.out.sub.nakladn)
+  = info_row_summ("Инвест. программ:",  @budget_info.out.sub.invest)
+  = info_row_summ("Инвест. займ:",      @budget_info.out.sub.invest_zaim)

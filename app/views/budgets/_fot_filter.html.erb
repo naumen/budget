@@ -1,0 +1,22 @@
+<div style="background-color: #f0fff0; border: 1px solid #c0c0c0" class="mt-2 p-3">
+  <select v-model="filter_by_cfo">
+    <option value="">{{filter_by_cfo_option_title}}</option>
+    <option v-for="cfo in filter_cfos">{{cfo}}</option>
+  </select>
+  <select v-model="filter_by_budget">
+    <option value="">{{filter_by_budget_option_title}}</option>
+    <option v-for="budget in filter_budgets">{{budget}}</option>
+  </select>
+  <select v-model="filter_by_division">
+    <option value="">{{filter_by_division_option_title}}</option>
+    <option v-for="div in filter_divisions">{{div}}</option>
+  </select>
+  <select v-model="filter_by_location">
+    <option value="">{{filter_by_location_option_title}}</option>
+    <option v-for="location in filter_locations">{{location}}</option>
+  </select>
+  <select v-model="filter_by_busy_info">
+    <option value="">{{filter_by_busy_info_option_title}}</option>
+    <option v-for="busy_info in filter_busy_infos">{{busy_info}}</option>
+  </select>
+</div>

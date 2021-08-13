@@ -1,0 +1,288 @@
+<div id="graph"></div>
+
+<small>Ctrl + Click (Cmd + Click для Mac OS) - переход на карточку бюджета</small>
+<br><br>
+
+<script src="/javascripts/mac_keys.js" type="text/javascript"></script>
+<script src="/javascripts/d3.v3.min.js"></script>
+
+<script>
+
+var Class = {
+  create: function() {
+    return function() {
+      this.initialize.apply(this, arguments);
+    }
+  }
+}
+
+var Abstract = new Object();
+
+Object.extend = function(destination, source) {
+  for (var property in source) {
+    destination[property] = source[property];
+  }
+  return destination;
+}
+
+
+Object.extend(String.prototype, {
+  gsub: function(pattern, replacement) {
+    var result = '', source = this, match;
+    replacement = arguments.callee.prepareReplacement(replacement);
+
+    while (source.length > 0) {
+      if (match = source.match(pattern)) {
+        result += source.slice(0, match.index);
+        result += String.interpret(replacement(match));
+        source  = source.slice(match.index + match[0].length);
+      } else {
+        result += source, source = '';
+      }
+    }
+    return result;
+  },
+});
+
+var Template = Class.create();
+Template.Pattern = /(^|.|\r|\n)(#\{(.*?)\})/;
+Template.prototype = {
+  initialize: function(template, pattern) {
+    this.template = template.toString();
+    this.pattern  = pattern || Template.Pattern;
+  },
+
+  evaluate: function(object) {
+    return this.template.gsub(this.pattern, function(match) {
+      var before = match[1];
+      if (before == '\\') return match[2];
+      return before + String.interpret(object[match[3]]);
+    });
+  }
+}
+
+
+String.prototype.gsub.prepareReplacement = function(replacement) {
+  if (typeof replacement == 'function') return replacement;
+  var template = new Template(replacement);
+  return function(match) { return template.evaluate(match) };
+}
+
+String.interpret = function(value){
+  return value == null ? '' : String(value);
+}
+
+
+function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this);
+    var all_text = text.text().split(/\n/);
+    var main_text = all_text[0];
+    var words = main_text.split(/\s+/).reverse();
+    var
+      word,
+      line = [],
+      lineNumber = 0,
+      lineHeight = 1.0, // ems
+      y = text.attr("y"),
+      dy = parseFloat(text.attr("dy")),
+      x  = parseFloat(text.attr("x")),
+      tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        // ++lineNumber *
+        tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", lineHeight + dy + "em").text(word);
+      }
+    }
+
+    // new line1
+    var add_red   = false;
+    var add_green = false;
+    var sub_text  = all_text[1];
+    if (/{RED}/.test(sub_text)){
+      sub_text = sub_text.gsub(/{RED}/, '')
+      add_red = true;
+    }
+    if (/{GREEN}/.test(sub_text)){
+      sub_text = sub_text.gsub(/{GREEN}/, '')
+      add_green = true;
+    }
+    tspan = text.append("tspan");
+    if (add_red){
+      tspan.attr('fill', "red");
+    }
+    if (add_green){
+      tspan.attr('fill', "green");
+    }
+    tspan.attr("x", x).attr("y", y).attr("dy", lineHeight + dy + "em").text(sub_text);
+
+    // new line2
+    var sub_text2  = all_text[2];
+    tspan = text.append("tspan");
+    tspan.attr("x", x).attr("y", y).attr("dy", lineHeight + dy + "em").text(sub_text2);
+
+  });
+}
+
+var margin = {top: 20, right: 120, bottom: 20, left: 120},
+    width = 1960 - margin.right - margin.left,
+    height = 800 - margin.top - margin.bottom;
+
+var i = 0,
+    duration = 750,
+    root;
+
+var tree = d3.layout.tree()
+    .size([height, width]);
+
+var diagonal = d3.svg.diagonal()
+    .projection(function(d) { return [d.y, d.x]; });
+
+var svg = d3.select("#graph").append("svg")
+    .attr("width", width + margin.right + margin.left)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.json("/budget/info?_f_year=<%= @_year %>", function(error, flare) {
+  if (error) throw error;
+
+  root = flare;
+  root.x0 = height / 2;
+  root.y0 = 0;
+
+  function collapse(d) {
+    if (d.children) {
+      d._children = d.children;
+      d._children.forEach(collapse);
+      d.children = null;
+    }
+  }
+
+  root.children.forEach(collapse);
+  update(root);
+});
+
+d3.select(self.frameElement).style("height", "800px");
+
+function update(source) {
+
+  // Compute the new tree layout.
+  var nodes = tree.nodes(root).reverse(),
+      links = tree.links(nodes);
+
+  // Normalize for fixed-depth.
+  // old: 180
+  nodes.forEach(function(d) { d.y = d.depth * 270; });
+
+  // Update the nodes…
+  var node = svg.selectAll("g.node")
+      .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+  // Enter any new nodes at the parent's previous position.
+  var nodeEnter = node.enter().append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+      .on("click", click);
+
+  nodeEnter.append("circle")
+      .attr("r", 1e-6)
+      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+  nodeEnter.append("text")
+      .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+      .attr("dy", ".35em")
+      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+      .text(
+        function(d) { return d.name; }
+      )
+      .style("fill-opacity", 1e-6);
+  nodeEnter.selectAll('text').call(wrap, 180);
+
+  // Transition nodes to their new position.
+  var nodeUpdate = node.transition()
+      .duration(duration)
+      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+  nodeUpdate.select("circle")
+      .attr("r", 4.5)
+      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+  nodeUpdate.select("text")
+      .style("fill-opacity", 1);
+
+  // Transition exiting nodes to the parent's new position.
+  var nodeExit = node.exit().transition()
+      .duration(duration)
+      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+      .remove();
+
+  nodeExit.select("circle")
+      .attr("r", 1e-6);
+
+  nodeExit.select("text")
+      .style("fill-opacity", 1e-6);
+
+  // Update the links…
+  var link = svg.selectAll("path.link")
+      .data(links, function(d) { return d.target.id; });
+
+  // Enter any new links at the parent's previous position.
+  link.enter().insert("path", "g")
+      .attr("class", "link")
+      .attr("d", function(d) {
+        var o = {x: source.x0, y: source.y0};
+        return diagonal({source: o, target: o});
+      });
+
+  // Transition links to their new position.
+  link.transition()
+      .duration(duration)
+      .attr("d", diagonal);
+
+  // Transition exiting nodes to the parent's new position.
+  link.exit().transition()
+      .duration(duration)
+      .attr("d", function(d) {
+        var o = {x: source.x, y: source.y};
+        return diagonal({source: o, target: o});
+      })
+      .remove();
+
+  // Stash the old positions for transition.
+  nodes.forEach(function(d) {
+    d.x0 = d.x;
+    d.y0 = d.y;
+  });
+}
+
+// Toggle children on click.
+function click(d) {
+  if (d3.event.ctrlKey || macKeys.ctrlKey) {
+    var b_id = d.name.split("\n")[3];
+    // alert(b_id);
+    url = "/budgets/" + b_id;
+    open_new_window(url);
+    return;
+  }
+
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+  } else {
+    d.children = d._children;
+    d._children = null;
+  }
+  update(d);
+}
+
+function open_new_window(url){
+  window.open(url, "_blank");
+}
+
+</script>

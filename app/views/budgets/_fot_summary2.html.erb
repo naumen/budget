@@ -1,0 +1,28 @@
+<table class="table table-bordered table-sm" style="width: 900px">
+  <template v-for="(row, index) in summary_rows">
+    <template v-if="index == 0">
+      <thead>
+        <tr class="bg-primary text-white">
+          <th>{{row[0]}}</th>
+          <th>{{row[1]}}</th>
+          <th>{{row[2]}}</th>
+          <th>{{row[3]}}</th>
+          <th>{{row[4]}}</th>
+          <th>{{row[5]}}</th>
+          <th>{{row[6]}}</th>
+        </tr>
+      </thead>
+    </template>
+    <template v-else>
+      <tr :style="index == 1 ? 'background-color: #fcf8c8' : null">
+        <td>{{row[0]}}</td>
+        <td align="center">{{row[1]}}</td>
+        <td  align="right">{{row[2]}}</td>
+        <td align="center">{{row[3]}}</td>
+        <td  align="right">{{row[4]}}</td>
+        <td align="center">{{row[5]}}</td>
+        <td  align="right">{{row[6]}}</td>
+      </tr>
+    </template>
+  </template>
+</table>

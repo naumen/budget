@@ -1,0 +1,43 @@
+  <h2>Изменение оклада</h2>
+
+  Дата внесения изменения:
+  <input type="date" v-model="rec.date_of_change"><br>
+
+  Отдел:
+  <select v-model="rec.division_id">
+    <option v-for="div in divisions" :value="div.id">{{' . '.repeat(div.level)}} {{div.name}}</option>
+  </select><br>
+
+  Штатная единица:
+
+  <table border="1" cellspacing="0" cellpadding="5">
+    <tr bgcolor="#f0f0f0">
+      <th></th>
+      <th>Шт.единица</th>
+      <th>Сотрудник</th>
+      <th>Оклад</th>
+      <th>Ставка</th>
+      <th></th>
+    </tr>
+    <tr v-for="staff_item in staff_items" :bgcolor="staff_item.id == rec.staff_item_id ? '#f0f0c0' : ''">
+      <td>
+        <input type="radio" :value="staff_item.id" v-model="rec.staff_item_id">
+      </td>
+      <td>{{staff_item.position_name}}</td>
+      <td>{{staff_item.user_name}}</td>
+      <td align="right">{{staff_item.oklad}}</td>
+      <td align="center">{{staff_item.koeff}}</td>
+      <td>
+        <div v-show="staff_item.id == rec.staff_item_id">
+          <div v-for="month_item in month_items">
+            <select :model="month_item.month">
+              <option v-for="m in months" :selected="m[0] == month_item.month" :value="m[0]">{{m[1]}}</option>
+            </select>
+            <input type="text" size="5" :value="month_item.new_salary"> руб
+          </div>
+          <%= image_tag("add_small.png", title: "Добавить") %>
+        </div>
+      </td>
+    </tr>
+  </table>
+  Оклады: <input type="test" v-model="rec.json"><br>

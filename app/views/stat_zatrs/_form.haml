@@ -1,0 +1,35 @@
+- if @stat_zatr.errors.any?
+  .alert.alert-danger
+    %h5= t('common.errors')
+    %ul
+      - @stat_zatr.errors.full_messages.each do |message|
+        %li= message
+= form_for @stat_zatr do |f|
+  .row.m-2
+    .col-2
+      %label
+        %b= t('stat_zatrs.form.budget_id')
+    .col-8
+      %input{:type => "hidden", :name => 'stat_zatr[budget_id]', :value => @stat_zatr.budget.id}
+      %input{ :value => @stat_zatr.budget.name, :class => 'form-control', disabled: true }
+  .row.m-2
+    .col-2
+      %label= t('stat_zatrs.form.name')
+    .col-8
+      %input{ :name => 'stat_zatr[name]', :class => 'form-control', :value => @stat_zatr.name }
+  
+  .row.m-2
+    .col-2
+      %label Справочник статей затрат
+    .col-8
+      %select{ name: 'stat_zatr[spr_stat_zatrs_id]', id: 'budget_id', class: 'form-control'}
+        %option
+        - spr_fot  = SprStatZatr.get_fot_item
+        - SprStatZatr.order(:name).all.each do |spr_stat_zatr|
+          - next if spr_stat_zatr.id == spr_fot.id
+          %option{ value: spr_stat_zatr.id, selected: @stat_zatr.spr_stat_zatrs_id == spr_stat_zatr.id ? true : false }
+            = spr_stat_zatr.name
+
+  .row.m-2
+    = f.submit t('common.save'), :class => 'btn btn-primary'
+    = link_to t('common.cancel'), :back, :class => 'btn btn-outline-second'

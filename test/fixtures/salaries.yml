@@ -1,0 +1,91 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+zero_salary_of_invest_user:
+  state_unit: invest_user
+  month: 12
+  f_year: 2018
+  summ: 0.00
+
+salary1_of_cfo_d_1_user1:
+  state_unit: cfo_d_1_user1
+  month: 11
+  f_year: 2018
+  summ: 40_000.00
+
+salary2_of_cfo_d_1_user1:
+  state_unit: cfo_d_1_user1
+  month: 12
+  f_year: 2018
+  summ: 60_000.00
+
+cfo_1_fzp_next_user1_1:
+  state_unit_id: 109958
+  month: 1
+  f_year: 2019
+  summ: 25_300.00
+
+cfo_1_fzp_next_user1_2:
+  state_unit_id: 109958
+  month: 2
+  f_year: 2019
+  summ: 25_300.00
+
+cfo_1_fzp_next_user1_3:
+  state_unit_id: 109958
+  month: 3
+  f_year: 2019
+  summ: 25_300.00
+
+cfo_1_fzp_next_user1_4:
+  state_unit_id: 109958
+  month: 4
+  f_year: 2019
+  summ: 25_300.00
+
+cfo_1_fzp_next_user1_5:
+  state_unit_id: 109958
+  month: 5
+  f_year: 2019
+  summ: 25_300.00
+
+cfo_1_fzp_next_user1_6:
+  state_unit_id: 109958
+  month: 6
+  f_year: 2019
+  summ: 25_300.00
+
+cfo_1_fzp_next_user1_7:
+  state_unit_id: 109958
+  month: 7
+  f_year: 2019
+  summ: 25_300.00
+
+cfo_1_fzp_next_user1_8:
+  state_unit_id: 109958
+  month: 8
+  f_year: 2019
+  summ: 25_300.00
+
+cfo_1_fzp_next_user1_9:
+  state_unit_id: 109958
+  month: 9
+  f_year: 2019
+  summ: 25_300.00
+
+cfo_1_fzp_next_user1_10:
+  state_unit_id: 109958
+  month: 10
+  f_year: 2019
+  summ: 25_300.00
+
+cfo_1_fzp_next_user1_11:
+  state_unit_id: 109958
+  month: 11
+  f_year: 2019
+  summ: 25_300.00
+
+cfo_1_fzp_next_user1_12:
+  state_unit_id: 109958
+  month: 12
+  f_year: 2019
+  summ: 25_300.00

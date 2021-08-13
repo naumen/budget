@@ -1,0 +1,74 @@
+%h3 Новая статья затрат
+
+= form_for @request_change, url: request_change_set_action_path(@request_change), :html => { :onsubmit => "return testform()" } do |f|
+  = f.hidden_field :id
+  - if params[:action_id]
+    %input{:type => "hidden", :name => 'action_id', :value => params[:action_id]}
+  %input{:type => "hidden", :name => 'do', :value => params[:do]}
+  Название:
+  %input{ :name => 'stat_zatr_name', id: 'stat_zatr_name', :class => 'form-control', value: @request_change_action_content ? @request_change_action_content["stat_zatr_name"] : '' }
+  %br
+  Категория статьи затрат:
+  %select{ name: 'spr_stat_zatrs_id', id: 'spr_stat_zatrs_id', class: 'form-control'}
+    %option
+    - SprStatZatr.order(:name).all.each do |spr_stat_zatr|
+      %option{ value: spr_stat_zatr.id, selected: @request_change_action_content && @request_change_action_content["spr_stat_zatrs_id"].to_i == spr_stat_zatr.id }
+        = spr_stat_zatr.name
+
+  %br
+  %table.table{ style: "width: 600px"}
+    %thead
+      %tr.bg-info.font-weight-bold.text-white
+        %th Месяц
+        %th Сумма
+        %th Безнал
+    %tbody
+      - itogo = 0.0
+      - (1..12).to_a.each do |z_month|
+        - z_summa = 0.00
+        - z_beznal = false
+        - if @request_change_action_content && @request_change_action_content["months"][z_month.to_s]
+          - z_summa = @request_change_action_content["months"][z_month.to_s][0].to_f
+          - itogo += z_summa
+          - z_beznal = @request_change_action_content["months"][z_month.to_s][1].to_i == 1
+        %tr
+          %td= StaffItemSalary::MONTHS[z_month.to_s.to_sym]
+          %td.text-center{ style: 'background-color: rgb(210, 255, 201)'}
+            %input.changedValue2{ id: "input_#{z_month}", name: "summa_#{z_month}", value: z_summa, type: "text", size: 8}
+          %td
+            %input{ id: "checkbox_#{z_month}", value: "1", name: "beznal_#{z_month}", type: "checkbox", checked: z_beznal}
+
+      %tr{ style: "background-color: #eee"}
+        %td.text-right Итого
+        %td
+          %b#newitogo
+            = money(itogo)
+        %td
+  %button.btn.btn-primary Сохранить
+  &nbsp;
+  = link_to 'Отмена', "/request_changes/#{@request_change.id}"
+:javascript
+  var no_check = 1;
+  var itogo = 0.0;
+  $.each( $('input.changedValue2'), function(){
+    var new_val = $(this).val();
+    itogo += parseFloat(new_val);
+  });
+  var new_itogo2 = parseFloat(itogo).toFixed(0).replace(/(\d)(?=(\d{3})$)/g, "$1 ").replace(' ', ',');
+  $('#newitogo')[0].innerHTML = new_itogo2;
+
+  function testform(){
+    var name = $('#stat_zatr_name').val();
+    if (name== ''){
+      alert('Укажите Название новой статьи затрат');
+      return false;
+    }
+
+
+    var spr_val = $('#spr_stat_zatrs_id').val();
+    if (spr_val == ''){
+      alert('Укажите категорию статьи затрат');
+      return false;
+    }
+    return true;
+  }

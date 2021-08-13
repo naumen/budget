@@ -1,0 +1,115 @@
+.row
+  .col-12
+    = link_to "&larr; на список".html_safe, invest_loans_path
+    %br
+    %h2
+      = "Инвест займ: " + @invest_loan.name
+      - if @invest_loan.repayment_loans.empty?
+        = link_to(image_tag("edit.png", width: "24px", title: "Редактировать инвест займ"), edit_invest_loan_path)
+        = link_to(image_tag("delete.png", width: "24px", title: "Удалить инвест займ"), invest_loan_path,  method: :delete, data: { confirm: 'Вы хотите удалить инвест займ, вы уверены?' })
+
+.row.m-2
+  .col-2
+    %label= t('invest_loans.form.fin_year')
+  .col-8
+    = @invest_loan.use_budget.f_year
+
+.row.m-2
+  .col-2
+    %label= t('invest_loans.form.use_budget_id')
+  .col-8
+    = link_to( @invest_loan.use_budget.name, budget_path(@invest_loan.use_budget.id) + "?f_year=#{@invest_loan.use_budget.fin_year}")
+
+.row.m-2
+  .col-2
+    %label= t('invest_loans.form.credit_budget_id')
+  .col-8
+    = link_to( @invest_loan.credit_budget.name, budget_path(@invest_loan.credit_budget.id) + "?f_year=#{@invest_loan.credit_budget.fin_year}")
+
+.row.m-2
+  .col-2
+    %label= t('invest_loans.form.summ')
+  .col-8
+    = money(@invest_loan.summ)
+
+.row.m-2
+  .col-2
+    %label= t('invest_loans.form.currency')
+  .col-8
+    = @invest_loan.currency
+
+.row.m-2
+  .col-2
+    %label= t('invest_loans.form.interest_rate')
+  .col-8
+    = @invest_loan.interest_rate
+
+- if !@invest_loan.document.nil?
+  .row.m-2
+    .col-2
+      %label= t('investment_projects.form.document')
+    .col-8
+      = @invest_loan.document.original_file_name
+      = link_to image_tag("save.png", width: "36px", title: "Скачать документ"), @invest_loan.document, method: :get
+
+
+%hr
+%h2 График выплат
+%h6
+  = "осталось #{ summ_formatter( @invest_loan.summ - @invest_loan.repayment_loans.sum("summ"), @invest_loan.currency) } "
+.row.justify-content-center
+  .col-3
+    %b Год
+  .col-3
+    %b Сумма
+  .col-3
+
+%hr
+
+- @invest_loan.repayment_loans.each do |repayment_loan|
+  .row.justify-content-center
+    .col-3
+      %b= repayment_loan.fin_year
+    .col-3
+      %b= money(repayment_loan.summ)
+    .col-3
+      %td= link_to 'Удалить', repayment_loan_path(repayment_loan.id) + "?invest_loan_id=#{params[:id]}", method: :delete, data: { confirm: 'Удалить?' }
+
+%hr
+
+
+
+= form_for @repayment_loan do |f|
+  .row.justify-content-center
+    .col-3
+      %input{ type: "hidden", name: 'repayment_loan[from_budget_id]', value: @invest_loan.credit_budget.id }
+      %input{ type: "hidden", name: 'repayment_loan[to_budget_id]', value: @invest_loan.use_budget.id }
+      %input{ type: "hidden", name: 'repayment_loan[invest_loan_id]', value: params[:id] }
+      %select{ name: 'repayment_loan[fin_year]', class: 'form-control' }
+        - (session[:f_year]..(session[:f_year]+10)).each do |year|
+          - if year >= @invest_loan.use_budget.f_year
+            %option{ value: year }
+              = year
+    .col-3
+      %input{ id: 'input_summ', name: 'repayment_loan[summ]', class: 'form-control' }
+
+    .col-3
+      %input.btn.btn-primary{ id: "repayment_submit", name: "commit", type: "submit", value: "Добавить" }
+      %span{ id: "repayment_text", class: "d-none text-danger" }= "Сумма выплат не может превышать сумму займа"
+
+
+%input{ type: "hidden", id: "repayments_summ", value: @invest_loan.repayment_loans.sum("summ") }
+%input{ type: "hidden", id: "loan_summ", value: @invest_loan.summ }
+
+:javascript
+  var repayment_summ = parseFloat($("#repayments_summ").val());
+  var loan_summ = parseFloat($("#loan_summ").val());
+  $("#input_summ").on("change paste keyup", function() {
+    if (repayment_summ + parseFloat($("#input_summ").val()) > loan_summ) {
+      $("#repayment_submit").addClass("d-none");
+      $("#repayment_text").removeClass("d-none");
+    }else{
+      $("#repayment_submit").removeClass("d-none");
+      $("#repayment_text").addClass("d-none");
+    }
+  });

@@ -1,0 +1,29 @@
+  <h2><%= change.title %></h2>
+
+  Дата внесения изменения:
+  <input type="date" v-model="rec.date_of_change"><br>
+
+  Отдел:
+  <select v-model="rec.division_id">
+    <option v-for="div in divisions" :value="div.id">{{' . '.repeat(div.level)}} {{div.name}}</option>
+  </select><br>
+
+  Штатная единица:
+  <select v-model="rec.staff_item_id">
+    <option v-for="staff_item in staff_items" :value="staff_item.id">{{staff_item.position_name}}</option>
+  </select><br>
+
+  <% if change.old_position_id %>
+    Старая должность: <%= change.old_position.name rescue '' %><br>
+  <% end %>
+
+  Новая должность:
+  <select v-model="rec.new_position_id">
+    <% change.positions.each do |pos| %>
+    <option value="<%= pos.id %>"><%= pos.name %></option>
+    <% end %>
+  </select><br>
+
+  Старый оклад: <%= change.old_salary_id %><br>
+
+  Новый оклад: <input type="test" v-model="rec.new_salary"><br>

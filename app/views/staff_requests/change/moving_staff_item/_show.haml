@@ -1,0 +1,9 @@
+.row
+  .col-2.text-right Из отдела:
+  .col= change.old_division.name
+.row
+  .col-2.text-right Штатная единица:
+  .col= change.staff_item.name_for_select(@item.on_date)
+.row
+  .col-2.text-right в отдел:
+  .col= change.new_division.name

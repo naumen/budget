@@ -1,0 +1,24 @@
+%table{ width: "100%"}
+  %tr
+    %td{ style: "font-size: 1.3rem"}
+      Доходов
+      %a{ title: "Подробнее", "aria-controls" => "inDetails", "aria-expanded" => "false", "data-toggle" => "collapse", :href => "#inDetails", :role => "button"}
+        = icon("svg_class", "menu", width: 15, fill: "green")
+    %td{ align: "right", valign: "top"}
+      %span{style: "font-size: 1.5rem; font-weight: bold"}
+        = summ_formatter @budget_info.in.itogo
+
+#inDetails.collapse
+  = info_row_summ("Объем продаж:",      @budget_info.sales_itogo)
+  = info_row_summ("В том числе НДС:",   @budget_info.in.nds)
+  = info_row_summ("Инвест программ:",   @budget_info.in.own.invest.to_f + @budget_info.in.sub.invest.to_f)
+  = info_row_summ("Инвест займ:",       @budget_info.in.own.invest_zaim.to_f + @budget_info.in.sub.invest_zaim.to_f)
+  = info_row_summ("Накладных доходов:", @budget_info.in.own.nakladn.to_f + @budget_info.in.sub.nakladn.to_f)
+
+/ :javascript
+/   $('#inDetails').on('hidden.bs.collapse', function () {
+/     alert('hidden')
+/   })
+/   $('#inDetails').on('show.bs.collapse', function () {
+/     alert('show')
+/   })

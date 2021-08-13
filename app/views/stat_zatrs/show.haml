@@ -1,0 +1,103 @@
+
+.row
+  %h1
+    = "Статья затрат: " + @stat_zatr.name
+    - if @stat_zatr.budget.editable?
+      = link_to(image_tag("edit.png", width: "24px", title: "Редактировать"), edit_stat_zatr_path)
+      = link_to(image_tag("delete.png", width: "24px", title: "Удалить"), stat_zatr_path,  method: :delete, data: { confirm: 'Вы хотите удалить статью затрат, вы уверены' })
+    = link_to(image_tag("return.png", width: "24px", title: "Вернуться к списку"), stat_zatrs_path + "?budget_id=#{@budget.id}")
+
+%br/
+.row
+  .col-5
+    - if @stat_zatr.spr_stat_zatrs_id
+      .row
+        = SprStatZatr.find(@stat_zatr.spr_stat_zatrs_id).name
+    .row
+      %h4= "Бюджет: #{ @budget.name }"
+      = link_to "&larr; вернуться на бюджет".html_safe, @budget
+    %br/
+    .row
+      %h3
+        = "Затраты:"
+        - if @stat_zatr.budget.editable?
+          = link_to(image_tag("add.png", width: "24px", title: "Создать затраты"), new_zatrat_path + "?stat_zatr_id=#{@stat_zatr.id}")
+          = link_to(image_tag("multi_add.png", width: "24px", title: "Создать фиксированные затраты"), '', remote: true, onclick: "$('#fixzatr').removeClass('invisible'); " )
+  .col-6
+    .row#fixzatr.invisible{ style: "height: 0px" }
+      .col-12
+        %form{ action: "/fixzartats", class: "card", method: :post }
+          %input{ type: "hidden", :name => 'zatrat[stat_zatr_id]', :value => @stat_zatr.id}
+          %input{ type: "hidden", :name => 'zatrat[year]', :class => 'form-control', :value => session[:f_year] }
+
+          .row.m-2
+            .col-4
+              %label= "Месяц от:"
+            .col-8
+              %select{ :name => 'zatrat[month_from]', :class => 'form-control'}
+                %option{ :value => 0 }
+                - { 1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель', 5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август', 9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'}.each do |id, month|
+                  %option{ :value => id }
+                    = month
+          .row.m-2
+            .col-4
+              %label= "Месяц до:"
+            .col-8
+              %select{ :name => 'zatrat[month_to]', :class => 'form-control'}
+                %option{ :value => 0 }
+                - { 1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель', 5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август', 9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'}.each do |id, month|
+                  %option{ :value => id }
+                    = month
+          .row.m-2
+            .col-4
+              %label= t('zatrats.form.summ')
+            .col-8
+              %input{ name: 'zatrat[summ]', class: 'form-control' }
+
+
+          .row.m-2
+            .col-4
+              %label= t('zatrats.form.nal_beznal')
+            .col-8
+              %input{ type: "checkbox", name: 'zatrat[nal_beznal]' }
+
+          .row.m-2
+            %input{ type: "submit", value: "Сгенерировать", :class => 'btn btn-primary m-1' }
+            %span{ class: "btn btn-primary m-1", onclick: "$('#fixzatr').addClass('invisible'); " } Скрыть
+%br/
+
+- unless @zatrats.empty?
+  %form{ action: "/destroy_zatrats", method: :post }
+    - if @stat_zatr.budget.editable?
+      .row
+        %input{ type: "hidden", name: 'stat_zatr_id', value: @stat_zatr.id }
+        %input{ type: "submit", value: "Удалить выбранные затраты", :class => 'btn btn-primary m-1' }
+    %table.table
+      %thead
+        %tr.bg-info.font-weight-bold.text-white
+          - if @stat_zatr.budget.editable?
+            %th
+              %input{ type: "checkbox", class: 'click_all_checkbox', title: "Выбрать все" }
+          %th Месяц
+          %th.text-right Сумма
+          %th Безнал
+          %th
+      %tbody
+        - @zatrats.each do |zatrat|
+          %tr
+            - if @stat_zatr.budget.editable?
+              %td
+                %input{ type: "checkbox", name: 'zatrats_id[]', value: zatrat.id }
+            / todo
+            %td= StaffItemSalary::MONTHS[zatrat.month.to_s.to_sym]
+            %td.text-right= money(zatrat.summ)
+            %td= zatrat.nal_beznal ? "Да" : "Нет"
+            %td
+              - if @stat_zatr.budget.editable?
+                = link_to "Редактировать", edit_zatrat_path(zatrat)
+      %tr.bg-secondary.font-weight-bold.text-white
+        %td
+        %td Итого
+        %td.text-right= money(@stat_zatr.itogo)
+        %td
+        %td

@@ -1,0 +1,82 @@
+- if Budget.ticket_db?
+  = render "budgets/budget/checkbooks"
+%a{ name: "stat_zatrs" }
+%h3
+  Статьи затрат
+  - if @budget.allow?("link_new_stat_zatr", current_user)
+    = link_to image_tag("new.png", title: "Добавить"), new_stat_zatr_path( budget_id: @budget ), id: "link_new_stat_zatr"
+- if @budget.allow?("link_new_stat_zatr", current_user)
+  - if @budget.get_fot_stat_zatr.nil?
+    %a{ href: "/budget/#{@budget.id}/fot_edit"} Выставить Резерв на ФОТ
+
+- rows = @presenter.zatratas
+- unless rows.empty?
+  %table#budget-zatratas.table.table-striped.table-bordered.table-sm
+    %thead
+      %tr.bg-primary.text-white
+        %th Наименование
+        %th Затр в бюджет
+        %th Статья затрат (спр)
+        %th Год
+        %th Суммы
+        %th
+    - itogo_summ = 0.0
+    - rows.each do |row|
+      %tr
+        %td
+          - if row.is_fot
+            %b
+              = row.name
+            - if @budget.allow?("link_new_stat_zatr", current_user)
+              %small
+                [
+                %a{ href: "/budget/#{@budget.id}/fot_edit"} редактировать
+                ]
+            %small
+              %a{ href: "/budgets/#{@budget.id}/?fot_log=#{row.id}#stat_zatrs"} лог изменений
+          - else
+            = link_to row.name, stat_zatr_path(row.id), data: { turbolinks: "false" }
+        %td.text-right
+          = money row.summa
+          - itogo_summ += row.summa
+        %td= row.spr_stat_zatrs
+        %td= row.year
+        %td= row.cnt
+        %td
+      - if params[:fot_log].to_i == row.id
+        %tr
+          %td
+          %td{colspan: 5}
+            %table
+              %thead
+                %tr.bg-primary.text-white
+                  %th Дата
+                  %th Изменение
+                  %th Сумма
+                  %th Сотрудник
+                  %th Заявка на изменение
+              - FotLog.where(stat_zatr_id: row.id ).order("id DESC").all.each do |log|
+                %tr
+                  %td.text-right= date(log.created_at)
+                  %td.text-right
+                    - if log.delta > 0
+                      = '+'
+                    = money(log.delta)
+                  %td.text-right
+                    %small
+                      = money(log.summa)
+                  %td= User.find(log.user_id).name if log.user_id
+                  %td
+                    - if log.request_change_id
+                      %a{ href: "/request_changes/#{log.request_change_id}" } заявка на изменение &rarr;
+    %tfoot
+      %tr
+        %td
+        %td.font-weight-bold.text-right= money(itogo_summ)
+        %td
+        %td
+        %td
+
+        %td
+  :javascript
+    new Tablesort(document.getElementById('budget-zatratas'));

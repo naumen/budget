@@ -1,0 +1,35 @@
+!!! 5
+%html(lang="en")
+  %head
+    %meta(charset="utf-8")
+    %meta(http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1")
+    %meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    %title= content_for?(:title) ? yield(:title) : "#{ t 'app_name' }"
+    = csrf_meta_tags
+    = stylesheet_link_tag "application", :media => "all"
+    = favicon_link_tag 'apple-touch-icon-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '144x144'
+    = favicon_link_tag 'apple-touch-icon-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '114x114'
+    = favicon_link_tag 'apple-touch-icon-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '72x72'
+    = favicon_link_tag 'apple-touch-icon-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png'
+    = favicon_link_tag 'favicon.ico', :rel => 'shortcut icon'
+    = javascript_include_tag "application"
+
+  %body
+    =render 'toolbar/menu'
+
+    %main.container
+      .row.justify-content-center
+        .col-12
+          /           - unless session['last_busget_id'].nil?
+          /             = render 'toolbar/breadcrumbs'
+          - flash.each do |name, message|
+            %div{class: "alert alert-#{name}"}
+              = message
+      = render "toolbar/fin_year_toolbar"
+      = yield
+
+    %footer
+      %small
+        © NAUMEN 2011#{'-' + Time.now.year.to_s if Time.now.year.to_i > 2011}
+
+      = debug(params) unless params[:debug].nil?

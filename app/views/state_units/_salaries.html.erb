@@ -1,0 +1,87 @@
+<div class="row form-group" id="app">
+  <div class="col-2">
+    <label>З/п</label>
+  </div>
+  <div class="col-8">
+
+    <div class="row align-items-center" style="border-bottom: 1px solid #c0c0c0; background-color: #e0e0e0">
+      <div class="col-4">Год, Месяц</div>
+      <div class="col-2">З/п, руб</div>
+      <div class="col-4">Начальное значение</div>
+    </div>
+    <div v-for="(salary, month) in salaries" class="row align-items-center" style="border-bottom: 1px dashed #e6e6e6;  background-color: #f6f6f6">
+      <div class="col-4"><%= @state_unit.budget.f_year %> г., {{monthName(month)}}</div>
+      <div class="col-2">
+        <input :name  = "'state_unit[salaries]['+month+']'" 
+               class = "form-control-small"
+               :value = "salary"
+               readonly=1
+               size="6">
+      </div>
+      <div class="col-4">
+        <input v-model="salaries_start[month]"
+               size="6">
+      </div>
+    </div>
+    <div class="row align-items-center" style="border-bottom: 1px solid #c0c0c0; background-color: #e0e0e0">
+      <div class="col-4" style="text-align: right;">Итого, руб:</div>
+      <div class="col-2" style="font-weight: bold;">{{zpItogo}}</div>
+      <div class="col-4"></div>
+    </div>
+
+  </div>
+</div>
+<script>
+var app = new Vue({
+  el: "#app",
+  data: {
+    salaries: <%= @salaries.to_json.html_safe %>,
+    salaries_start: <%= Salary.as_salaries_start(@salaries).to_json.html_safe %>
+  },
+  computed: {
+    zpItogo: function(){
+      var itogo = 0.0;
+      for(var k in this.salaries){
+        itogo += parseFloat(this.salaries[k]);
+      }
+      return this.numberWithCommas(itogo);
+    }
+  },
+  watch: {
+    salaries_start: {
+      deep: true,
+      handler(){
+        this.recalcSalaries();
+      }
+    }
+  },
+  methods: {
+    numberWithCommas(x) {
+      x = x.toString();
+      var pattern = /(-?\d+)(\d{3})/;
+      while (pattern.test(x))
+        x = x.replace(pattern, "$1,$2");
+      return x;
+    },
+    monthName: function(num){
+      switch(num){
+      <% StaffItemSalary.months.each do |num, name| %>
+        case "<%= num.to_s %>":
+          return "<%= name %>";
+      <% end %>
+      }
+    },
+    recalcSalaries: function(){
+      var months = [<%= (1..12).to_a.map{|i| "\"#{i}\""}.join(',').html_safe %>];
+      var curSalary = 0.0;
+      for(var i in months){
+        var month_num = months[i];
+        if (this.salaries_start[month_num]){
+          curSalary = this.salaries_start[month_num];
+        }
+        this.salaries[month_num] = curSalary;
+      }
+    }
+  }
+});
+</script>

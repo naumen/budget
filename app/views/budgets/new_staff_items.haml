@@ -1,0 +1,30 @@
+Шт.единицы из 2019 года, отсутствующие в 2020 году
+
+%table.table.table-striped.table-bordered.table-sm
+  %thead
+    %tr.bg-info.text-white
+      %th Бюджет 2019
+      %th Отдел
+      %th Должность
+      %th Вакантна/Сотрудник
+      %th ФЗП, год
+      %th З/п декабрь, 2019
+      %th Перенести на 2020
+  %tbody
+    - @result_rows.each do |row|
+      - state_unit_id = row[0]
+      - budget_id     = row[1]
+      - staff_item_id = row[2]
+      - budget = Budget.find(budget_id)
+      - state_unit = StateUnit.find(state_unit_id)
+      - staff_item = HrStaffItem.find(staff_item_id) rescue nil
+      %tr
+        %td= link_to budget.name, budget
+        %td= state_unit.division
+        %td= state_unit.position
+        %td= state_unit.user_id ? (HrUser.find(state_unit.user_id).name rescue '-') : ''
+        %td.text-right= money(state_unit.fzp)
+        %td.text-right= money(state_unit.salary_by_december)
+        %td
+          - if !state_unit.salary_by_december.nil?
+            = link_to "&rarr;".html_safe, "/budget/clone_state_unit/#{state_unit.id}"

@@ -1,0 +1,26 @@
+wb = xlsx_package.workbook
+
+highlight_cell = wb.styles.add_style(bg_color: "F5F5DC", border: Axlsx::STYLE_THIN_BORDER)
+wrap_text      = wb.styles.add_style({:alignment => {:horizontal => :left, :vertical => :bottom, :wrap_text => true}}  )
+
+wb.add_worksheet(name: "Normativs") do |sheet|
+  # cols
+  cols = @normativ_presenter.cols.map{ |f_code, f_name| f_name }
+  sheet.add_row cols, style: highlight_cell
+  @normativ_presenter.rows.each do |row|
+    out_row = []
+    @normativ_presenter.cols.each do |f_code, f_name|
+      is_money_col = @normativ_presenter.money_cols.include?(f_code)
+      val = row[f_code]
+      val = if f_code == :name
+              val
+            elsif is_money_col
+              val # .to_s.gsub('.', ',')
+            else
+              val
+            end
+      out_row << val
+    end
+    sheet.add_row out_row , style: [wrap_text, wrap_text, wrap_text, wrap_text, wrap_text, wrap_text]
+  end
+end

@@ -1,0 +1,14 @@
+  <h2>Название отдела</h2>
+
+  Дата внесения изменения:
+  <input type="date" v-model="rec.date_of_change">
+  <br>
+
+  Отдел:
+  <select v-model="rec.division_id">
+    <option v-for="div in divisions" :value="div.id">{{' . '.repeat(div.level)}} {{div.name}}</option>
+  </select>
+  <br>
+  Старое наименование: <input size="30" type="text" :value="rec.old_name" readonly="true">
+  <br>
+  Новое наименование: <input size="30" type="text" v-model="rec.new_name">

@@ -1,0 +1,115 @@
+= render 'toolbar/fin_year_toolbar'
+
+.row
+  .col-9
+    %h2
+      - if @budget
+        = "Нормативы #{@budget.name}"
+        - if !params[:naklads]
+          = link_to image_tag("add.png", width: "36px", title: "Создать норматив"), new_normativ_path + "?budget_id=#{@budget.id}"
+        - if @budget
+          = link_to(image_tag("return.png", width: "36px", title: "Вернуться к бюджету"), @budget)
+      - else
+        = "Нормативы"
+        = link_to image_tag("add.png", width: "36px", title: "Создать норматив"), new_normativ_path
+        - if @budget
+          = link_to(image_tag("return.png", width: "36px", title: "Вернуться к бюджету"), @budget)
+  .col-3
+    = link_to('Экспортировать в ексель', normativs_path(format: :xlsx))
+
+.row
+  .col-12
+    = link_to 'Все', normativs_path
+    = '|'
+    - @normativ_types.each do |normativ_type|
+      = link_to normativ_type.name, "?group=#{normativ_type.id}"
+      = '|'
+.table-responsive
+  %table.table
+    %thead
+      %tr
+        %th{scope: "col"}
+          Наименование
+          %br
+          = link_to image_tag("up_arrow.png", width: "18px", title: "Отсортировать по А до Я"), '?name=up'
+          = "/"
+          =link_to image_tag("down_arrow.png", width: "18px", title: "Отсортировать по Я до А"), '?name=down'
+        %th{scope: "col"}
+          Метрика
+          %br
+          = link_to image_tag("up_arrow.png", width: "18px", title: "Отсортировать по А до Я"), '?metrik=up'
+          = "/"
+          =link_to image_tag("down_arrow.png", width: "18px", title: "Отсортировать по Я до А"), '?metrik=down'
+        %th{scope: "col"}
+          Бюджет
+          %br
+          = link_to image_tag("up_arrow.png", width: "18px", title: "Отсортировать по А до Я"), '?budget=up'
+          = "/"
+          =link_to image_tag("down_arrow.png", width: "18px", title: "Отсортировать по Я до А"), '?budget=down'
+        %th{scope: "col", width: "25%"}
+          Описание изменения
+          %br
+          = link_to image_tag("up_arrow.png", width: "18px", title: "Отсортировать по А до Я"), '?description=up'
+          = "/"
+          =link_to image_tag("down_arrow.png", width: "18px", title: "Отсортировать по Я до А"), '?description=down'
+        %th{scope: "col"}
+          Комментарий
+          %br
+          = link_to image_tag("up_arrow.png", width: "18px", title: "Отсортировать по А до Я"), '?comment=up'
+          = "/"
+          =link_to image_tag("down_arrow.png", width: "18px", title: "Отсортировать по Я до А"), '?comment=down'
+        %th{scope: "col"}
+          Норматив
+          %br
+          = link_to image_tag("up_arrow.png", width: "18px", title: "Отсортировать по А до Я"), '?normativ=up'
+          = "/"
+          =link_to image_tag("down_arrow.png", width: "18px", title: "Отсортировать по Я до А"), '?normativ=down'
+        %th{scope: "col"}
+          Отнесен
+          %br
+          = link_to image_tag("up_arrow.png", width: "18px", title: "Отсортировать по А до Я"), '?normativ_type=up'
+          = "/"
+          =link_to image_tag("down_arrow.png", width: "18px", title: "Отсортировать по Я до А"), '?normativ_type=down'
+        %th{scope: "col"}
+          Норматив в прошлом году
+          %br
+          = link_to image_tag("up_arrow.png", width: "18px", title: "Отсортировать по А до Я"), '?normativ_in_prev_year=up'
+          = "/"
+          =link_to image_tag("down_arrow.png", width: "18px", title: "Отсортировать по Я до А"), '?normativ_in_prev_year=down'
+        %th{scope: "col"}
+          Разница в руб.
+          %br
+          = link_to image_tag("up_arrow.png", width: "18px", title: "Отсортировать по А до Я"), '?diff_in_rub=up'
+          = "/"
+          =link_to image_tag("down_arrow.png", width: "18px", title: "Отсортировать по Я до А"), '?diff_in_rub=down'
+        %th{scope: "col"}
+          Разница в %
+          %br
+          = link_to image_tag("up_arrow.png", width: "18px", title: "Отсортировать по А до Я"), '?diff_in_proc=up'
+          = "/"
+          =link_to image_tag("down_arrow.png", width: "18px", title: "Отсортировать по Я до А"), '?diff_in_proc=down'
+    %tbody
+      - @normativs.each do |normativ|
+        %tr
+          %td{scope: "row"}
+            = link_to normativ.name, normativ_path(normativ.id)
+          %td
+            = normativ.metrik.name rescue "Указанной Метрики не существует"
+          %td
+            = link_to normativ.budget.name, budget_path(normativ.budget.id)
+          %td{style: "min-width: 500px;"}
+            = normativ.description
+          %td
+            = normativ.comment
+          %td
+            = normativ.norm
+          %td
+            = normativ.normativ_type.name if normativ.normativ_type
+          %td
+            = link_to normativ.normativ_in_prev_year.name, normativ_path(normativ.normativ_in_prev_year.id) if normativ.normativ_in_prev_year
+          %td
+            = normativ.diff_in_rub
+          %td
+            = normativ.diff_in_proc
+
+= paginate @normativs

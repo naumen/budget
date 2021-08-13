@@ -1,0 +1,14 @@
+= form_tag(login_path, method: :post, class: 'auth js-auth') do |f|
+  %h1.title= t('authorization.title')
+  .fields
+    .field
+      .title= t('authorization.fields.login')
+      %input.text-field.js-email{type: 'text', name: 'session[login]', autofocus: true}
+    .filed
+      .title= t('authorization.fields.password')
+      %input.text-field.js-password{type: 'password', name: 'session[password]'}
+      - if Rails.env == 'production'
+        %small.form-text.text-muted
+          Авторизация через LDAP
+  %br/
+  %button.btn.btn-primary{type: 'submit'}= t('authorization.submit')
