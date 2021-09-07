@@ -37,6 +37,7 @@ gem 'whenever', :require => false
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'capybara', '~> 2.13'
+  gem 'dotenv-rails'
   gem 'selenium-webdriver'
   gem 'sqlite3'
   gem 'minitest-reporters'

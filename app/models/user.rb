@@ -146,7 +146,7 @@ class User < ApplicationRecord
     if Rails.env == 'production'
       return User.ldap_auth(login, password)
     else
-      password == 'Budget'
+      password == ENV.fetch('DEFAULT_ADMIN_DEVELOPMENT_PASS') { 'Budget' }
     end
   end
 

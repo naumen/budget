@@ -1,0 +1,7 @@
+#!/bin/bash
+
+mysql \
+  --protocol=tcp \
+  --host=$DATABASE_HOST \
+  --user=$DATABASE_USER \
+  --password=$DATABASE_PASSWORD budget_development

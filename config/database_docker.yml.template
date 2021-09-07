@@ -1,0 +1,30 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS"){ 5 } %>
+  socket: /var/run/mysqld/mysqld.sock
+  username: <%= ENV.fetch('DATABASE_USER'){ 'budget' } %>
+  password: <%= ENV.fetch('DATABASE_PASSWORD'){ 'budget' } %>
+
+development:
+  <<: *default
+  database: <%= ENV.fetch('DATABASE_NAME'){ 'budget_development' } %>
+  host: <%= ENV.fetch('DATABASE_HOST'){ 'mysql' } %>
+
+test:
+  <<: *default
+  database: <%= ENV.fetch('DATABASE_TEST_NAME'){ 'budget_test' } %>
+  host: <%= ENV.fetch('DATABASE_HOST'){ 'mysql' } %>
+
+snapshot:
+  <<: *default
+  username: read_only
+  password: budget
+  database: snapshot
+
+production:
+  <<: *default
+  database: budget_production
+  username: budget
+  password: <%= ENV['BUDGET_DATABASE_PASSWORD'] %>
+
