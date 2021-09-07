@@ -1,0 +1,76 @@
+version: '3.7'
+services:
+  app: &app
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.dev
+      args:
+        RUBY_VERSION: '2.4.2'
+        BUNDLER_VERSION: '1.16.6'
+        NODE_MAJOR: '12'
+    image: budget-backend-dev:0.0.1
+    tmpfs:
+      - /tmp
+
+  rails:
+    <<: *app
+    stdin_open: true
+    tty: true
+    volumes: 
+      - .:/var/www/budget
+      - ./tmp/docker/log/rails:/var/www/budget/log
+      - ./tmp/docker/log/sockets:/var/www/budget/sockets
+      - bundle:/bundle
+    environment:
+      - NODE_MAJOR=${NODE_MAJOR}
+      - RAILS_ENV=${RAILS_ENV}
+      - DATABASE_HOST=mysql
+      - DATABASE_NAME=budget_development
+      - DATABASE_TEST_NAME=budget_test
+      - DATABASE_USER=budget
+      - DATABASE_PASSWORD=budget
+    command:
+      bundle exec thin start
+    ports:
+      - 3000:3000
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    image: mariadb:10.4
+    stdin_open: true
+    tty: true
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_HOST=mysql
+    env_file:
+      - ./.env
+    ports:
+      - 3306:3306
+    volumes:
+      - ./docker/mysql/custom.cnf:/etc/mysql/mariadb.conf.d/custom.cnf:ro
+      - ./docker/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+      - mysql:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping --user=root
+      timeout: 10s
+      retries: 10
+
+  redis:
+    image: redis:5-alpine
+    volumes:
+      - redis:/data
+    ports:
+      - 6379
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  bundle:
+  mysql:
+  redis:

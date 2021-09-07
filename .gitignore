@@ -26,8 +26,10 @@ public/assets/**
 config/database.yml
 /config/database.yml
 /config/settings.yml
+/config/secrets.yml
 /config/unicorn.rb
 /shared/*
 /db/backups/*
 /db/*.sql
 budget.sqlite3
+.env
