@@ -13,11 +13,6 @@ interaction:
     service: rails
     command: /bin/bash
 
-  mbash:
-    description: Opens the Bash shell in rails container
-    service: mysql
-    command: /bin/bash
-
   bundle:
     description: Runs bundler within Rails container
     service: rails
