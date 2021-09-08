@@ -1,6 +1,8 @@
 version: '3.7'
 services:
   app: &app
+    stdin_open: true
+    tty: true
     build:
       context: .
       dockerfile: ./docker/Dockerfile.dev
@@ -8,14 +10,12 @@ services:
         RUBY_VERSION: '2.4.2'
         BUNDLER_VERSION: '1.16.6'
         NODE_MAJOR: '12'
-    image: budget-backend-dev:0.0.1
+    image: budget-backend-dev:0.0.2
     tmpfs:
       - /tmp
 
   rails:
     <<: *app
-    stdin_open: true
-    tty: true
     volumes: 
       - .:/var/www/budget
       - ./tmp/docker/log/rails:/var/www/budget/log
@@ -30,7 +30,7 @@ services:
       - DATABASE_USER=budget
       - DATABASE_PASSWORD=budget
     command:
-      bundle exec thin start
+      budget
     ports:
       - 3000:3000
     depends_on:
@@ -39,8 +39,6 @@ services:
 
   mysql:
     image: mariadb:10.4
-    stdin_open: true
-    tty: true
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_ROOT_HOST=%
