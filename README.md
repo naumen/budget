@@ -4,7 +4,7 @@
 
 ## Подготовка окружения
 
-### 1. Склонируйте репозиторий
+### 1. Клонировать репозиторий
 
 ```bash
 git clone git@github.com:naumen/budget.git
@@ -13,13 +13,18 @@ cd budget
 
 ### 2. Настройка окружения
 
-#### 2.1 Скопируйте `.env` file
+#### 2.1 Создать файл `.env`
 
 ```bash
 cp .env.template .env
 ```
 
-#### 2.2 Установите `DIP (Docker Interaction Process)`
+#### 2.2 Установить Docker Engine / Docker Compose
+
+* [Install Docker Engine](https://docs.docker.com/engine/install/)
+* [Install Docker Composer](https://docs.docker.com/compose/install/)
+
+#### 2.3 Установить `DIP (Docker Interaction Process)`
 
 [DIP](https://github.com/bibendi/dip) - утилита командной строки, которая упрощает взаимодействие с сервисами,
 настроенными с помощью Docker Compose.
@@ -28,7 +33,7 @@ cp .env.template .env
 gem install dip
 ```
 
-Установить ruby gems, создать базу данных можно следующей командой:
+#### 2.4 Создание контейнера
 
 ```bash
 dip provision
@@ -40,9 +45,9 @@ dip provision
 dip up
 ```
 
-Перейдите в браузере по адресу [localhost:3000](http://localhost:3000)
+Перейти в браузере по адресу [localhost:3000](http://localhost:3000)
 
-Зайдите под пользователем:
+Зайти под пользователем:
 
 ```yaml
 login: admin
