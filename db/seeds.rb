@@ -1,7 +1,7 @@
 # to reload:
 # $ rake db:reset DISABLE_DATABASE_ENVIRONMENT_CHECK=1
 
-f_year = 2020
+f_year = 2023
 
 admin = User.create!( name: "Admin", login: "admin", is_admin: true)
 
@@ -14,11 +14,13 @@ location_in_msk = Location.create( id: 21, city: city_msk, name: "БЦ 2")
 
 cfo1         = Cfo.create( name: "ЦФО1")
 
+
 budget_type1 = BudgetType.create( name: "Тип бюджета1" )
                BudgetType.create( name: "Инвестиционный компании" )
                BudgetType.create( name: "Инвестиционный направления" )
 
 SprStatZatr.create( name: "ПРЕМИИ")
+SprStatZatr.create( name: "Резерв на ФОТ")
 
 # =============== budgets
 
@@ -41,6 +43,16 @@ budget1 = Budget.create(
   budget_type: budget_type1,
   owner: admin
 )
+
+sale_channel = SaleChannel.create( name: 'Канал продаж1')
+sale = Sale.create( budget: budget1,
+                    sale_channel: sale_channel,
+                    owner: admin,
+                    quarter: 4,
+                    name: 'Продажи',
+                    summ: 1_000_000,
+                    f_year: budget1.f_year
+                  )
 
 # =============== state_units
 

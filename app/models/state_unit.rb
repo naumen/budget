@@ -154,7 +154,7 @@ class StateUnit < ApplicationRecord
 
   def self.free(cfo_id, location_id)
     filter = {}
-    filter[:f_year] = 2021
+    filter[:f_year] = Time.now.year
     filter[:staff_item_id] = nil
     filter[:location_id] = location_id if location_id.to_i != 0
     StateUnit.where(filter).all.to_a.delete_if{|s| s.budget.cfo_id.to_i != cfo_id.to_i }
@@ -162,7 +162,7 @@ class StateUnit < ApplicationRecord
 
   def self.free_all
     filter = {}
-    filter[:f_year] = 2021
+    filter[:f_year] = Time.now.year
     StateUnit.where(filter).all.to_a
   end
 
@@ -195,7 +195,7 @@ class StateUnit < ApplicationRecord
   end
 
   def set_change(info)
-    cur_year = 2021
+    cur_year = Time.now.year
     return "Не корректный год" if !self.new_record? && self.f_year != cur_year
     # if !self.new_record? && self.f_year < cur_year && Rails.env != 'test'
     #   return "Не корректный год" 

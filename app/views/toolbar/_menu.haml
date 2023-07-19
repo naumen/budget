@@ -18,17 +18,8 @@
             %a.nav-link.text-light.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => '#', :role => "button"}
               Отчеты
             .dropdown-menu          
-              - if current_user.is_admin? || current_user.any_budget_owner?(2020)
-                %a.dropdown-item{ href: '/budgets_fot?f_year=2020' } ФОТ 2020
-              - if current_user.is_admin? ||  current_user.any_budget_owner?(2021)
-                %a.dropdown-item{ href: '/budgets_fot?f_year=2021' } ФОТ 2021
               - if current_user.is_admin? || BudgetParam.access_budget_report?(current_user)
                 %a.dropdown-item{ href: '/budgets/report' } Отчет по финансовым показателям Бюджетов БН
-              - if current_user.is_admin?
-                %a.dropdown-item{ href: '/budget_new_staff_items' } Не учтеные Шт.единицы в 2020 году
-                %a.dropdown-item{ href: '/state_units/location_compare' } Различие в локации у шт.единицы в HR2 и в Бюджете 
-                %a.dropdown-item{ href: '/state_units/division_compare' } Различие в отделе у шт.единицы в HR2 и в Бюджете 
-                
                   
         - if current_user.is_admin?
           %li.nav-item.active

@@ -50,7 +50,7 @@
                 = link_to icon("svg_class", "pencil", width: 12, fill: "#0a5cb4"), [:edit, state_unit]
               - if row[:staff_item_id]
                 = link_to icon("svg_class", "external-link", width: 12, fill: "#0a5cb4"), "https://hr/staff_schedule/staff_items/#{row[:staff_item_id]}", { target: "blank", title: "Перейти на карточку шт.единицы в HR2", class: "pl-2" }
-              - if @budget.allow?("link_edit_state_unit", current_user) && state_unit.is_deletable?(current_user)
+              - if @budget.allow?("link_edit_state_unit", current_user)
                 = link_to(image_tag("delete-icon.png", width: "15px", title: "Удалить"), state_unit_path(state_unit),  method: :delete, data: { confirm: 'Удалить бюджетную шт. единицу?' })
 
               %button.btn.btn-primary.btn-sm.ml-2{ title: "Открыть детализацию по з/п", type: "button",  "@click": "details(#{row[:id]})"}

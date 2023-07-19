@@ -162,17 +162,6 @@ ActiveRecord::Schema.define(version: 20210803142517) do
     t.string "owner_type"
   end
 
-  create_table "fot_logs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer "stat_zatr_id"
-    t.integer "budget_id"
-    t.integer "user_id"
-    t.decimal "summa", precision: 15, scale: 2
-    t.decimal "delta", precision: 15, scale: 2
-    t.integer "request_change_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "invest_loans", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "use_budget_id"
     t.integer "credit_budget_id"
@@ -389,12 +378,6 @@ ActiveRecord::Schema.define(version: 20210803142517) do
     t.boolean "active"
     t.float "filling_money", limit: 24
     t.float "def_prof_money", limit: 24
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "spr_budget_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

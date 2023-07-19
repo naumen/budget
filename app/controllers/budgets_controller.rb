@@ -709,14 +709,15 @@ class BudgetsController < ApplicationController
 
     top_budget = Budget.roots.where(f_year: f_year).first
     if top_budget.nil?
-      session[:f_year] = 2020
-      f_year = 2020
+      session[:f_year] = 2023
+      f_year = 2023
       top_budget = Budget.roots.where(f_year: f_year).first
     end
 
     @prev_year_link = nil
     @next_year_link = nil
 
+if false
     if f_year >= 2019
       @prev_year_link = "?f_year=#{f_year-1}"
     end
@@ -728,6 +729,7 @@ class BudgetsController < ApplicationController
     if is_backup_stend && f_year == 2020
       @next_year_link = nil
     end
+end
 
 
     @all_budgets = top_budget.self_and_descendants
@@ -967,14 +969,8 @@ class BudgetsController < ApplicationController
     if @current_user.is_admin
       budgets_as_tree = ['new', 'edit', 'update'].include?(params[:action])
       if budgets_as_tree || as_tree
-        root = if session[:f_year].to_i == 2021
-                  Budget.find(100001)
-               elsif session[:f_year].to_i == 2020
+        root = if session[:f_year].to_i == 2023
                   Budget.find(90001)
-               elsif session[:f_year].to_i == 2019
-                  Budget.find(80001)
-               else
-                  Budget.find(70001)
                end
         @budgets =[]
         Budget.each_with_level(root.self_and_descendants) do |b|

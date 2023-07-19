@@ -61,14 +61,8 @@ class SalesController < ApplicationController
     if @current_user.is_admin
       budgets_as_tree = ['new', 'edit', 'update'].include?(params[:action])
       if budgets_as_tree
-        root = if session[:f_year].to_i == 2021
-                  Budget.find(100001)
-               elsif session[:f_year].to_i == 2020
+        root = if session[:f_year].to_i == 2023
                   Budget.find(90001)
-               elsif session[:f_year].to_i == 2019
-                  Budget.find(80001)
-               else
-                  Budget.find(70001)
                end
         Budget.each_with_level(root.self_and_descendants) do |b|
           @budgets << b
